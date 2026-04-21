@@ -1,73 +1,75 @@
-import { useQuery } from '@tanstack/react-query';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { apiClient, tokenStorage } from '@/api/apiClient';
+import Header from '@/components/common/Header';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { fetchSites, type Site } from '@/services/api';
+export default function mainTest() {
 
-export default function SitesScreen() {
-  const { data: sites, isLoading, error } = useQuery({
-    queryKey: ['sites'],
-    queryFn: fetchSites,
-  });
+  const router = useRouter();
+  const [data, setData] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  if (isLoading) {
-    return (
-      <ThemedView style={styles.center}>
-        <ActivityIndicator size="large" />
-      </ThemedView>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemedView style={styles.center}>
-        <ThemedText type="default">Failed to load sites</ThemedText>
-      </ThemedView>
-    );
-  }
+  useEffect(() => {
+    apiClient.get('/db-test')
+      .then(res => setData(res.data))
+      .catch(err => {
+        console.error('API 요청 실패:', err);
+        setError(err.response?.data?.message || 'API 요청 중 오류가 발생했습니다.');
+      });
+  }, []);
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.header}>Sites</ThemedText>
-      <FlatList
-        data={sites}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }: { item: Site }) => (
-          <View style={styles.item}>
-            <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-            <ThemedText type="default">{item.url}</ThemedText>
-            <ThemedText type="default">{item.status}</ThemedText>
-          </View>
-        )}
-        ListEmptyComponent={<ThemedText type="default" style={styles.empty}>No sites found</ThemedText>}
-      />
-    </ThemedView>
-  );
+    <View style={styles.container}>
+      <Header onLoginPress={() => router.push('/auth/login')} />
+      <View style={styles.content}>
+        <Text style={styles.title}>안녕하세요, 번개분양입니다!</Text>
+        <Text style={styles.title}>이곳은 메인 페이지입니다.</Text>
+
+        <TouchableOpacity
+          style={styles.debugBtn}
+          onPress={async () => {
+            const access = await tokenStorage.get();
+            const refresh = await tokenStorage.getRefresh();
+            console.log('=== SecureStore ===');
+            console.log('access_token:', access);
+            console.log('refresh_token:', refresh);
+          }}
+        >
+          <Text style={styles.debugBtnText}>토큰 확인</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 16,
+    backgroundColor: '#f5f5f5',
   },
-  center: {
+  content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  header: {
-    marginBottom: 16,
-  },
-  item: {
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
-    gap: 4,
-  },
-  empty: {
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
     textAlign: 'center',
-    marginTop: 40,
+  },
+  debugBtn: {
+    marginTop: 16,
+    backgroundColor: '#6366f1',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  debugBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });
