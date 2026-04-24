@@ -1,8 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
 import { tokenStorage } from '@/api/apiClient';
-import { signIn, SignInRequest, checkLoginId, checkNickname, sendOtp, verifyOtp } from './api';
+import { signIn, SignInRequest, signUp, SignUpRequest, checkLoginId, checkNickname, sendOtp, verifyOtp, logout } from './api';
 
 export const REFRESH_TOKEN_KEY = 'refresh_token';
+
+export function useSignUp() {
+  return useMutation({
+    mutationFn: (body: SignUpRequest) => signUp(body),
+    onSuccess: async (data) => {
+      await tokenStorage.set(data.accessToken);
+      await tokenStorage.setRefresh(data.refreshToken);
+    },
+  });
+}
 
 export function useCheckLoginId() {
   return useMutation({
@@ -36,6 +46,18 @@ export function useSignIn() {
       // 토큰 SecureStore에 저장
       await tokenStorage.set(data.accessToken);
       await tokenStorage.setRefresh(data.refreshToken);
+    },
+  });
+}
+
+export function useLogout() {
+  return useMutation({
+    mutationFn: async () => {
+      const refreshToken = await tokenStorage.getRefresh();
+      await logout(refreshToken ?? '');
+    },
+    onSettled: async () => {
+      await tokenStorage.clearAll();
     },
   });
 }

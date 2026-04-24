@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import Toast from '@/components/common/Toast';
 
 const queryClient = new QueryClient();
 
@@ -22,8 +23,19 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="auth/login" options={{ headerShown: false }} />
           <Stack.Screen name="auth/register" options={{ headerShown: false }} />
+          <Stack.Screen name="posts/board/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="posts/site/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="set-user-info/interest" options={{ headerShown: false }} />
+          <Stack.Screen name="set-user-info/profile" options={{ headerShown: false }} />
+          <Stack.Screen name="mypage/account" options={{ headerShown: false }} />
+          <Stack.Screen name="mypage/talent" options={{ headerShown: false }} />
+          <Stack.Screen name="mypage/application-status" options={{ headerShown: false }} />
+          <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />
+          <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
+          <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
+        <Toast />
       </ThemeProvider>
     </QueryClientProvider>
   );

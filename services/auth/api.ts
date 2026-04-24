@@ -14,6 +14,28 @@ export interface SignInResponse {
   needsPhoneAuth: boolean;
 }
 
+export interface SignUpRequest {
+  loginId: string;
+  name: string;
+  nickname: string;
+  phone: string;
+  password: string;
+  deviceId: string;
+  joinRoutes: string;
+}
+
+export interface SignUpResponse {
+  id: number;
+  role: string;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export async function signUp(body: SignUpRequest): Promise<SignUpResponse> {
+  const res = await apiClient.post<SignUpResponse>('/auth/sign-up', body);
+  return res.data;
+}
+
 export async function signIn(body: SignInRequest): Promise<SignInResponse> {
   const res = await apiClient.post<SignInResponse>('/auth/sign-in', body);
   return res.data;
@@ -33,4 +55,8 @@ export async function sendOtp(phone: string): Promise<void> {
 
 export async function verifyOtp(phone: string, otpCode: string): Promise<void> {
   await apiClient.post('/auth/verify/otp', { phone, otpCode });
+}
+
+export async function logout(refreshToken: string): Promise<void> {
+  await apiClient.post('/auth/logout', { refreshToken });
 }

@@ -13,7 +13,9 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCheckLoginId, useCheckNickname, useSendOtp, useVerifyOtp } from '@/services/auth/mutations';
+import { useCheckLoginId, useCheckNickname, useSendOtp, useVerifyOtp, useSignUp } from '@/services/auth/mutations';
+import { getOrCreateDeviceId } from '@/api/apiClient';
+import * as Haptics from 'expo-haptics';
 
 // ── 유틸 함수 (백엔드 연결 전 더미) ──────────────────────────
 const validateId = (v: string) => /^[a-zA-Z0-9_]+$/.test(v);
@@ -113,6 +115,7 @@ export default function RegisterPage() {
   const checkNicknameMutate = useCheckNickname();
   const sendOtpMutate = useSendOtp();
   const verifyOtpMutate = useVerifyOtp();
+  const signUpMutate = useSignUp();
   const [isLoginIdVerified, setIsLoginIdVerified] = useState(false);
   const [isNicknameVerified, setIsNicknameVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -197,6 +200,7 @@ export default function RegisterPage() {
   };
 
   const handleSendOtp = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (!validatePhone(form.phone)) {
       setError('phone', '올바른 휴대폰 번호를 입력해주세요.');
       return;
@@ -235,7 +239,7 @@ export default function RegisterPage() {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors: Record<string, string | null> = {
       loginId: !form.loginId ? '아이디를 입력해주세요.' : !isLoginIdVerified ? '아이디 중복 확인이 필요합니다.' : null,
       name: !form.name.trim() ? '이름을 입력해주세요.' : null,
@@ -246,8 +250,25 @@ export default function RegisterPage() {
     };
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean)) return;
-    // TODO: 백엔드 회원가입 API 연결
-    router.replace('/');
+
+    const deviceId = await getOrCreateDeviceId();
+    signUpMutate.mutate(
+      {
+        loginId: form.loginId,
+        name: form.name.trim(),
+        nickname: form.nickname.trim(),
+        phone: form.phone.replace(/-/g, ''),
+        password: form.password,
+        deviceId,
+        joinRoutes: 'app',
+      },
+      {
+        onSuccess: () => router.replace('/'),
+        onError: (err: any) => {
+          setError('loginId', err.response?.data?.message ?? '회원가입 중 오류가 발생했습니다.');
+        },
+      },
+    );
   };
 
   return (

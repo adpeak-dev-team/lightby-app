@@ -5,6 +5,7 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.219.41:4000'
 
 export const ACCESS_TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
+const DEVICE_ID_KEY = 'device_id';
 
 // SecureStore 헬퍼
 export const tokenStorage = {
@@ -18,6 +19,16 @@ export const tokenStorage = {
     await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   },
+};
+
+// 앱 설치 시 한 번 생성하고 계속 재사용하는 기기 고유 ID
+export const getOrCreateDeviceId = async (): Promise<string> => {
+  let id = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+  if (!id) {
+    id = `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 10)}`;
+    await SecureStore.setItemAsync(DEVICE_ID_KEY, id);
+  }
+  return id;
 };
 
 export const apiClient = axios.create({
@@ -72,17 +83,21 @@ apiClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/token-check`);
-      const newToken = res.data?.accessToken;
-      if (newToken) {
-        await tokenStorage.set(newToken);
+      const refreshToken = await tokenStorage.getRefresh();
+      const res = await axios.post(`${BASE_URL}/api/auth/token-check`, { refreshToken });
+      const { accessToken, refreshToken: newRefreshToken } = res.data ?? {};
+      if (accessToken) {
+        await tokenStorage.set(accessToken);
+      }
+      if (newRefreshToken) {
+        await tokenStorage.setRefresh(newRefreshToken);
       }
 
       processQueue(null);
       return apiClient(originalRequest);
     } catch (refreshErr) {
       processQueue(refreshErr);
-      await tokenStorage.remove();
+      await tokenStorage.clearAll();
       return Promise.reject(error);
     } finally {
       isRefreshing = false;

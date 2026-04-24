@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSignIn } from '@/services/auth/mutations';
+import { toast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function LoginPage() {
       { loginId, password, deviceId: 'app' },
       {
         onSuccess: () => {
+          toast.success('로그인 되었습니다.');
           router.replace('/');
         },
         onError: (err: any) => {

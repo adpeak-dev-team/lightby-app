@@ -1,37 +1,52 @@
+import { useCallback, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+import { tokenStorage } from '@/api/apiClient';
+import { useLogout } from '@/services/auth/mutations';
 
-interface HeaderProps {
-  isLoggedIn?: boolean;
-  onLoginPress?: () => void;
-  onLogoutPress?: () => void;
-}
-
-export default function Header({
-  isLoggedIn = false,
-  onLoginPress,
-  onLogoutPress,
-}: HeaderProps) {
+export default function Header() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const logoutMutation = useLogout();
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      tokenStorage.get().then((token) => {
+        if (active) setIsLoggedIn(!!token);
+      });
+      return () => { active = false; };
+    }, [])
+  );
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSettled: () => {
+        setIsLoggedIn(false);
+        router.replace('/auth/login');
+      },
+    });
+  };
 
   return (
     <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-      {/* 로고 */}
       <Image
         source={require('@/assets/images/logo.png')}
         style={styles.logo}
         resizeMode="contain"
       />
 
-      {/* 로그인 / 로그아웃 버튼 */}
       {isLoggedIn ? (
-        <TouchableOpacity style={styles.logoutBtn} onPress={onLogoutPress}>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={15} color="#64748b" />
           <Text style={styles.logoutText}>로그아웃</Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity style={styles.loginBtn} onPress={onLoginPress}>
+        <TouchableOpacity style={styles.loginBtn} onPress={() => router.push('/auth/login')}>
           <Ionicons name="log-in-outline" size={15} color="#fff" />
           <Text style={styles.loginText}>로그인</Text>
         </TouchableOpacity>
