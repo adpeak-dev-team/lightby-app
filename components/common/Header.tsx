@@ -1,4 +1,5 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HeaderProps {
@@ -26,10 +27,12 @@ export default function Header({
       {/* 로그인 / 로그아웃 버튼 */}
       {isLoggedIn ? (
         <TouchableOpacity style={styles.logoutBtn} onPress={onLogoutPress}>
+          <Ionicons name="log-out-outline" size={15} color="#64748b" />
           <Text style={styles.logoutText}>로그아웃</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.loginBtn} onPress={onLoginPress}>
+          <Ionicons name="log-in-outline" size={15} color="#fff" />
           <Text style={styles.loginText}>로그인</Text>
         </TouchableOpacity>
       )}
@@ -59,6 +62,9 @@ const styles = StyleSheet.create({
     height: 32,
   },
   loginBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: '#38bdf8',
     paddingHorizontal: 16,
     paddingVertical: 7,
@@ -70,6 +76,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: '#dbeafe',
     paddingHorizontal: 16,
     paddingVertical: 7,

@@ -121,7 +121,7 @@ export default function LoginPage() {
         {/* 하단 링크 */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>아직 계정이 없으신가요? </Text>
-          <TouchableOpacity onPress={() => { }}>
+          <TouchableOpacity onPress={() => { router.push('/auth/register') }}>
             <Text style={styles.footerLink}>회원가입</Text>
           </TouchableOpacity>
         </View>
