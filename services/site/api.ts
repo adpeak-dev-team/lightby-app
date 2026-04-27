@@ -45,6 +45,39 @@ export async function deleteJobPost(id: number): Promise<{ success: boolean; mes
   return data;
 }
 
+export interface JobPostingPayload {
+  accommodationPay: string;
+  address: string;
+  agency: string;
+  baseSalary: string;
+  careerPeriod: string;
+  dailyPay: string;
+  detailContent: string;
+  fee: string;
+  feeType: string;
+  headCount: string;
+  images: string[];
+  intro: string;
+  latitude: number | null;
+  longitude: number | null;
+  managerName: string;
+  managerPhone: string;
+  promotion: string;
+  resultAddress: string;
+  subject: string;
+  workIndustry: string[];
+  workOccupation: string[];
+  workRegions: string[];
+  selectedProduct: string;
+  selectedIcons: number[];
+  totalAmount: number;
+}
+
+export async function createJobPost(payload: JobPostingPayload): Promise<{ success: boolean; message?: string }> {
+  const { data } = await apiClient.post('/job-posting/upload-posts', payload);
+  return data;
+}
+
 interface GetJobsByProductParams {
   product: 'PREMIUM' | 'TOP' | 'FREE';
   search?: string;

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { cancelApplication, deleteJobPost } from './api';
+import { cancelApplication, deleteJobPost, createJobPost, JobPostingPayload } from './api';
 
 export function useCancelApplication() {
   const qc = useQueryClient();
@@ -16,6 +16,16 @@ export function useDeleteJobPost() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-job-postings'] });
       qc.invalidateQueries({ queryKey: ['user-post-count'] });
+    },
+  });
+}
+
+export function useCreateJobPost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: JobPostingPayload) => createJobPost(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-job-postings'] });
     },
   });
 }

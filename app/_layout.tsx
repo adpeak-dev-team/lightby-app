@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
@@ -17,6 +18,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
@@ -33,10 +35,12 @@ export default function RootLayout() {
           <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />
           <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
           <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
+          <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
         <Toast />
       </ThemeProvider>
     </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

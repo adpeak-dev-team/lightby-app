@@ -143,14 +143,6 @@ export default function AccountPage() {
             <Text style={s.value}>{profile?.id ?? '-'}</Text>
           </View>
 
-          {/* 로그인 ID / SNS */}
-          <View style={s.row}>
-            <Text style={s.label}>{profile?.sns_type === 'local' ? '로그인 ID' : 'SNS'}</Text>
-            <Text style={s.value}>
-              {profile?.sns_type === 'local' ? profile?.login_id ?? '-' : profile?.sns_type ?? '-'}
-            </Text>
-          </View>
-
           {/* 닉네임 */}
           <View style={[s.row, s.rowBig]}>
             <View style={s.rowHeader}>
@@ -249,9 +241,8 @@ export default function AccountPage() {
             )}
           </View>
 
-          {/* 비밀번호 (local 계정만) */}
-          {profile?.sns_type === 'local' && (
-            <View style={[s.row, s.rowBig, { borderBottomWidth: 0 }]}>
+          {/* 비밀번호 */}
+          <View style={[s.row, s.rowBig, { borderBottomWidth: 0 }]}>
               <View style={s.rowHeader}>
                 <Text style={s.label}>비밀번호</Text>
                 {editingField !== 'password' && (
@@ -302,8 +293,7 @@ export default function AccountPage() {
               ) : (
                 <Text style={s.value}>• • • • • • • •</Text>
               )}
-            </View>
-          )}
+          </View>
         </View>
 
         <Text style={s.footer}>

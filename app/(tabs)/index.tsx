@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  FlatList, View, Text, StyleSheet, ActivityIndicator, Animated,
+  FlatList, View, Text, StyleSheet, ActivityIndicator, Animated, TouchableOpacity,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -196,6 +196,15 @@ export default function HomePage() {
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* 공고 등록 FAB */}
+      <TouchableOpacity
+        style={s.fab}
+        onPress={() => router.push('/registration/sitepost')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="add" size={26} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -239,5 +248,21 @@ const s = StyleSheet.create({
     color: '#9ca3af',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });

@@ -11,8 +11,7 @@ export interface FavoriteSiteItem {
 
 export interface UserProfile {
   id: number;
-  login_id: string;
-  sns_type: string;
+  name?: string | null;
   nickname: string;
   phone: string;
   role: string;
@@ -22,6 +21,9 @@ export interface UserProfile {
   careers?: string[] | null;
   profile_image?: string | null;
   profile_thumbnail?: string | null;
+  industries?: string[] | null;
+  job_categories?: string[] | null;
+  user_work_regions?: string[] | null;
 }
 
 export interface UserPostCount {
