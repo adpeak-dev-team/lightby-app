@@ -116,7 +116,7 @@ export default function LoginPage() {
         </View>
 
         {/* 카카오 로그인 버튼 */}
-        <TouchableOpacity style={styles.kakaoBtn} onPress={() => { }}>
+        <TouchableOpacity style={styles.kakaoBtn} onPress={() => router.push('/auth/kakao')}>
           <Text style={styles.kakaoText}>카카오로 시작하기</Text>
         </TouchableOpacity>
 

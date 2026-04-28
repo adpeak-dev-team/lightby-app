@@ -1,0 +1,22 @@
+diff --git a/node_modules/@react-native-seoul/kakao-login/plugins/android/withAndroidKakaoLogin.js b/node_modules/@react-native-seoul/kakao-login/plugins/android/withAndroidKakaoLogin.js
+index c71d4af..4c128e0 100644
+--- a/node_modules/@react-native-seoul/kakao-login/plugins/android/withAndroidKakaoLogin.js
++++ b/node_modules/@react-native-seoul/kakao-login/plugins/android/withAndroidKakaoLogin.js
+@@ -59,7 +59,7 @@ const modifyAndroidStrings = (config, props) => {
+ const modifyProjectBuildGradle = (config, props) => {
+     config = (0, config_plugins_1.withGradleProperties)(config, (config) => {
+         var _a;
+-        config_plugins_1.AndroidConfig.BuildProperties.updateAndroidBuildProperty(config.modResults, 'android.kotlinVersion', (_a = props.kotlinVersion) !== null && _a !== void 0 ? _a : '1.5.10');
++        config_plugins_1.AndroidConfig.BuildProperties.updateAndroidBuildProperty(config.modResults, 'android.kotlinVersion', (_a = props.kotlinVersion) !== null && _a !== void 0 ? _a : '2.0.21');
+         return config;
+     });
+     config = (0, config_plugins_1.withProjectBuildGradle)(config, (config) => {
+@@ -70,7 +70,7 @@ const modifyProjectBuildGradle = (config, props) => {
+             //   `buildToolsVersion = "30.0.0"`
+             // );
+             config.modResults.contents = config.modResults.contents.replace(/dependencies\s?{/, `dependencies {
+-          classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:${(_a = props.kotlinVersion) !== null && _a !== void 0 ? _a : '1.5.10'}'`);
++          classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:${(_a = props.kotlinVersion) !== null && _a !== void 0 ? _a : '2.0.21'}'`);
+         }
+         return config;
+     });
