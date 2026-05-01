@@ -7,6 +7,8 @@ export interface JobPostDetail {
   point_content: string | null;
   address: string;
   result_address: string;
+  latitude: number | null;
+  longitude: number | null;
   regions: string[];
   industries: string[];
   job_categories: string[];

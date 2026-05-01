@@ -16,6 +16,7 @@ import { incrementSiteView, applyToJob, toggleSiteLike } from '@/services/site/a
 import { useGetMe } from '@/services/auth/queries';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
+import { KakaoMap } from '@/components/common/KakaoMap';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -49,9 +50,9 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 // ─── 지원 결과 모달 내용 ──────────────────────────────────────────────────────
 type ApplyState = 'success' | 'duplicate' | 'error' | null;
 const APPLY_CONTENT: Record<NonNullable<ApplyState>, { icon: string; title: string; desc: string }> = {
-  success:   { icon: '🎉', title: '지원 완료!',       desc: '담당자가 확인 후 연락드릴 예정입니다.' },
+  success: { icon: '🎉', title: '지원 완료!', desc: '담당자가 확인 후 연락드릴 예정입니다.' },
   duplicate: { icon: '⚠️', title: '이미 지원한 공고', desc: '이미 지원하신 공고입니다.' },
-  error:     { icon: '❌', title: '지원 실패',         desc: '잠시 후 다시 시도해 주세요.' },
+  error: { icon: '❌', title: '지원 실패', desc: '잠시 후 다시 시도해 주세요.' },
 };
 
 // ─── 메인 페이지 ──────────────────────────────────────────────────────────────
@@ -67,8 +68,8 @@ export default function SiteDetailPage() {
   const { data: likeData, refetch: refetchLike } = useGetLikeStatus(job?.id);
   const { data: me } = useGetMe();
 
-  const [currentImg, setCurrentImg]   = useState(0);
-  const [applyState, setApplyState]   = useState<ApplyState>(null);
+  const [currentImg, setCurrentImg] = useState(0);
+  const [applyState, setApplyState] = useState<ApplyState>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const liked = likeData?.liked ?? false;
@@ -139,10 +140,10 @@ export default function SiteDetailPage() {
   const icons: number[] = (() => { try { return job.icons ? JSON.parse(job.icons) : []; } catch { return []; } })();
   const isOwner = !!me?.id && job.user_id === me.id;
 
-  const fee        = job.fee ? `${job.fee_type || '직원'} ${job.fee.toLocaleString()}만원` : '-';
-  const headcount  = job.number_people ? `${job.number_people}명` : '-';
-  const industry   = Array.isArray(job.industries)    && job.industries.length > 0    ? job.industries.join(', ')    : '-';
-  const position   = Array.isArray(job.job_categories) && job.job_categories.length > 0 ? job.job_categories.join(', ') : '-';
+  const fee = job.fee ? `${job.fee_type || '직원'} ${job.fee.toLocaleString()}만원` : '-';
+  const headcount = job.number_people ? `${job.number_people}명` : '-';
+  const industry = Array.isArray(job.industries) && job.industries.length > 0 ? job.industries.join(', ') : '-';
+  const position = Array.isArray(job.job_categories) && job.job_categories.length > 0 ? job.job_categories.join(', ') : '-';
 
   const applyContent = applyState ? APPLY_CONTENT[applyState] : null;
 
@@ -261,9 +262,9 @@ export default function SiteDetailPage() {
             <SectionTitle label="기본정보" color="#3b82f6" />
             <View style={s.tableBody}>
               <InfoRow label="담당자" value={job.name || '-'} />
-              <InfoRow label="업종"   value={industry} />
-              <InfoRow label="직종"   value={position} />
-              <InfoRow label="경력"   value={job.career_period || '-'} />
+              <InfoRow label="업종" value={industry} />
+              <InfoRow label="직종" value={position} />
+              <InfoRow label="경력" value={job.career_period || '-'} />
             </View>
           </View>
 
@@ -272,10 +273,10 @@ export default function SiteDetailPage() {
             <SectionTitle label="영업지원 및 복지" color="#f97316" />
             <View style={s.welfareGrid}>
               {[
-                { label: '일비',     value: job.daily_expense          || '-' },
-                { label: '숙소비',   value: job.accommodation_expenses  || '-' },
-                { label: '프로모션', value: job.promotion               || '-' },
-                { label: '기본급',   value: job.base_pay                || '-' },
+                { label: '일비', value: job.daily_expense || '-' },
+                { label: '숙소비', value: job.accommodation_expenses || '-' },
+                { label: '프로모션', value: job.promotion || '-' },
+                { label: '기본급', value: job.base_pay || '-' },
               ].map(({ label, value }) => (
                 <View key={label} style={s.welfareItem}>
                   <Text style={s.welfareLabel}>{label}</Text>
@@ -313,6 +314,14 @@ export default function SiteDetailPage() {
               <Ionicons name="location-outline" size={15} color="#9ca3af" />
               <Text style={s.addressText}>{job.result_address || job.address || '-'}</Text>
             </View>
+            {job.latitude != null && job.longitude != null && (
+              <KakaoMap
+                latitude={job.latitude}
+                longitude={job.longitude}
+                label={job.result_address || job.address}
+                height={200}
+              />
+            )}
           </View>
         </View>
 
@@ -377,89 +386,89 @@ export default function SiteDetailPage() {
 }
 
 const s = StyleSheet.create({
-  container:  { flex: 1, backgroundColor: '#f9fafb' },
-  centered:   { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText:  { color: '#9ca3af', fontSize: 15 },
-  scroll:     { flex: 1 },
+  container: { flex: 1, backgroundColor: '#f9fafb' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { color: '#9ca3af', fontSize: 15 },
+  scroll: { flex: 1 },
 
   // 네비게이션
-  navbar:     { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  navBtn:     { padding: 6 },
-  navTitle:   { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: '#111827' },
-  navRight:   { flexDirection: 'row', alignItems: 'center' },
+  navbar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  navBtn: { padding: 6 },
+  navTitle: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: '#111827' },
+  navRight: { flexDirection: 'row', alignItems: 'center' },
 
   // 이미지
-  noImage:    { height: 200, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center' },
-  dots:       { flexDirection: 'row', justifyContent: 'center', gap: 5, paddingVertical: 8, backgroundColor: '#fff' },
-  dot:        { width: 6, height: 6, borderRadius: 3, backgroundColor: '#e5e7eb' },
-  dotActive:  { width: 16, backgroundColor: '#0ea5e9' },
+  noImage: { height: 200, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center' },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: 5, paddingVertical: 8, backgroundColor: '#fff' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#e5e7eb' },
+  dotActive: { width: 16, backgroundColor: '#0ea5e9' },
 
   // 요약
   summarySection: { backgroundColor: '#fff', padding: 16, gap: 10 },
-  deleteBtn:      { alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  deleteBtnText:  { color: '#fff', fontSize: 13, fontWeight: '700' },
-  badgeRow:       { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  badge:          { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
-  badgeText:      { fontSize: 11, fontWeight: '700' },
-  agencyText:     { fontSize: 14, color: '#6b7280' },
-  jobTitle:       { fontSize: 22, fontWeight: '800', color: '#111827', lineHeight: 30 },
+  deleteBtn: { alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  deleteBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
+  badgeText: { fontSize: 11, fontWeight: '700' },
+  agencyText: { fontSize: 14, color: '#6b7280' },
+  jobTitle: { fontSize: 22, fontWeight: '800', color: '#111827', lineHeight: 30 },
   fieldPointCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#bfdbfe' },
   fieldPointLabel: { fontSize: 10, fontWeight: '800', color: '#3b82f6', letterSpacing: 1.5, marginBottom: 3 },
-  fieldPointText:  { fontSize: 14, fontWeight: '700', color: '#1e3a5f' },
+  fieldPointText: { fontSize: 14, fontWeight: '700', color: '#1e3a5f' },
 
   // 섹션 / 카드
-  section:     { padding: 12, gap: 10 },
-  card:        { backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
-  cardRow:     { flexDirection: 'row', gap: 10 },
-  cardHalf:    { flex: 1 },
-  cardLabel:   { fontSize: 13, color: '#6b7280', marginBottom: 6 },
-  cardValue:   { fontSize: 17, fontWeight: '800', color: '#111827' },
+  section: { padding: 12, gap: 10 },
+  card: { backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
+  cardRow: { flexDirection: 'row', gap: 10 },
+  cardHalf: { flex: 1 },
+  cardLabel: { fontSize: 13, color: '#6b7280', marginBottom: 6 },
+  cardValue: { fontSize: 17, fontWeight: '800', color: '#111827' },
 
   // 섹션 제목
-  sectionTitleRow:  { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  sectionAccent:    { width: 3, height: 16, borderRadius: 2 },
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  sectionAccent: { width: 3, height: 16, borderRadius: 2 },
   sectionTitleText: { fontSize: 15, fontWeight: '700', color: '#111827' },
 
   // 기본정보 테이블
-  tableBody:   { gap: 0 },
-  infoRow:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
-  infoLabel:   { fontSize: 14, color: '#6b7280' },
-  infoValue:   { fontSize: 14, fontWeight: '600', color: '#111827', textAlign: 'right', flex: 1, marginLeft: 12 },
+  tableBody: { gap: 0 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
+  infoLabel: { fontSize: 14, color: '#6b7280' },
+  infoValue: { fontSize: 14, fontWeight: '600', color: '#111827', textAlign: 'right', flex: 1, marginLeft: 12 },
 
   // 복지 그리드
-  welfareGrid:  { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  welfareItem:  { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
+  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  welfareItem: { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
   welfareLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
   welfareValue: { fontSize: 14, fontWeight: '600', color: '#111827' },
 
   // 상세 내용
-  detailContentBox:  { backgroundColor: '#f9fafb', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' },
+  detailContentBox: { backgroundColor: '#f9fafb', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' },
   detailContentText: { fontSize: 14, color: '#374151', lineHeight: 22 },
 
   // 근무지역
-  regionChips:    { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
-  regionChip:     { backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
+  regionChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
+  regionChip: { backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
   regionChipText: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
-  addressRow:     { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  addressText:    { fontSize: 13, color: '#6b7280', flex: 1 },
+  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  addressText: { fontSize: 13, color: '#6b7280', flex: 1 },
 
   // 하단 액션 바
-  actionBar:     { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingTop: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 8 },
-  actionBtn:     { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 12, borderRadius: 12 },
+  actionBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingTop: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 8 },
+  actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 12, borderRadius: 12 },
   actionBtnDisabled: { opacity: 0.6 },
   actionBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 
   // 모달
-  overlay:               { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
-  modal:                 { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40, alignItems: 'center' },
-  modalIcon:             { fontSize: 48, marginBottom: 12 },
-  modalTitle:            { fontSize: 17, fontWeight: '800', color: '#111827', marginBottom: 6 },
-  modalSub:              { fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 24, lineHeight: 21 },
-  modalCloseBtn:         { width: '100%', paddingVertical: 14, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
-  modalCloseBtnText:     { fontSize: 15, fontWeight: '700', color: '#374151' },
-  modalBtns:             { flexDirection: 'row', gap: 10, width: '100%' },
-  modalBtnSecondary:     { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
+  modal: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40, alignItems: 'center' },
+  modalIcon: { fontSize: 48, marginBottom: 12 },
+  modalTitle: { fontSize: 17, fontWeight: '800', color: '#111827', marginBottom: 6 },
+  modalSub: { fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 24, lineHeight: 21 },
+  modalCloseBtn: { width: '100%', paddingVertical: 14, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
+  modalCloseBtnText: { fontSize: 15, fontWeight: '700', color: '#374151' },
+  modalBtns: { flexDirection: 'row', gap: 10, width: '100%' },
+  modalBtnSecondary: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
   modalBtnSecondaryText: { fontSize: 14, fontWeight: '600', color: '#374151' },
-  modalBtnDanger:        { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#ef4444', alignItems: 'center' },
-  modalBtnDangerText:    { fontSize: 14, fontWeight: '700', color: '#fff' },
+  modalBtnDanger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#ef4444', alignItems: 'center' },
+  modalBtnDangerText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

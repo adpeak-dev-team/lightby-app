@@ -14,25 +14,41 @@ function buildMapHTML(lat: number, lng: number, label: string) {
 </head>
 <body>
   <div id="map"></div>
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${JS_KEY}"></script>
   <script>
-    try {
-      var map = new kakao.maps.Map(document.getElementById('map'), {
-        center: new kakao.maps.LatLng(${lat}, ${lng}),
-        level: 4
-      });
-      var marker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(${lat}, ${lng}),
-        map: map
-      });
-      var infowindow = new kakao.maps.InfoWindow({
-        content: '<div style="padding:6px 10px;font-size:12px;white-space:nowrap;">${safeLabel}</div>'
-      });
-      infowindow.open(map, marker);
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_OK' }));
-    } catch(e) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: e.message }));
-    }
+    (function() {
+      function initMap() {
+        kakao.maps.load(function() {
+          try {
+            var map = new kakao.maps.Map(document.getElementById('map'), {
+              center: new kakao.maps.LatLng(${lat}, ${lng}),
+              level: 4
+            });
+            var marker = new kakao.maps.Marker({
+              position: new kakao.maps.LatLng(${lat}, ${lng}),
+              map: map
+            });
+            ${label ? `
+            var infowindow = new kakao.maps.InfoWindow({
+              content: '<div style="padding:6px 10px;font-size:12px;white-space:nowrap;">${safeLabel}</div>'
+            });
+            infowindow.open(map, marker);
+            ` : ''}
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_OK' }));
+          } catch(e) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: e.message }));
+          }
+        });
+      }
+
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=${JS_KEY}&autoload=false';
+      script.onload = initMap;
+      script.onerror = function() {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: 'SDK load failed' }));
+      };
+      document.head.appendChild(script);
+    })();
   </script>
 </body>
 </html>`;
@@ -51,15 +67,13 @@ export function KakaoMap({ latitude, longitude, label = '', height = 200 }: Prop
       <WebView
         source={{
           html: buildMapHTML(latitude, longitude, label),
-          baseUrl: 'https://localhost'
+          baseUrl: 'https://localhost',
         }}
         onMessage={(e) => {
           const data = JSON.parse(e.nativeEvent.data);
-          if (data.type === 'MAP_OK') console.log('[KakaoMap] 지도 렌더링 성공');
           if (data.type === 'MAP_ERROR') console.error('[KakaoMap] 지도 에러:', data.message);
         }}
         onError={(e) => console.error('[KakaoMap] WebView 에러:', e.nativeEvent)}
-        onLoadEnd={() => console.log('[KakaoMap] 페이지 로드 완료')}
         scrollEnabled={false}
         javaScriptEnabled
         domStorageEnabled
