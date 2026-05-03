@@ -134,7 +134,7 @@ export default function HomePage() {
   const [location, setLocation] = useState('전국');
 
   const { data: premiumData, isLoading: isPremiumLoading } =
-    useGetJobsByProduct({ product: 'PREMIUM' });
+    useGetJobsByProduct({ product: 'PREMIUM', location });
   const { data: topData, isLoading: isTopLoading } =
     useGetJobsByProduct({ product: 'TOP', location });
   const {

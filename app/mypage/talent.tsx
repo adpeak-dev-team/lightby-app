@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
-  StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform,
+  StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useGetUserProfile } from '@/services/user/queries';
-import { useSaveTalentInfo } from '@/services/user/mutations';
+import { useSaveTalentInfo, useUploadProfileImage } from '@/services/user/mutations';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -18,6 +20,7 @@ export default function TalentPage() {
   const router = useRouter();
   const { data: profile, isLoading, error } = useGetUserProfile();
   const saveMutation = useSaveTalentInfo();
+  const uploadImageMutation = useUploadProfileImage();
 
   const [gender, setGender] = useState<Gender>(null);
   const [age, setAge] = useState('');
@@ -25,6 +28,7 @@ export default function TalentPage() {
   const [careers, setCareers] = useState<string[]>([]);
   const [careerInput, setCareerInput] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [successVisible, setSuccessVisible] = useState(false);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -62,6 +66,53 @@ export default function TalentPage() {
     setCareers((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const handleMoveCareer = (idx: number, dir: -1 | 1) => {
+    setCareers((prev) => {
+      const next = [...prev];
+      const target = idx + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
+  };
+
+  const handlePickProfileImage = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('권한 필요', '사진 라이브러리 접근 권한이 필요합니다.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 1,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+    if (result.canceled || !result.assets?.[0]) return;
+    const asset = result.assets[0];
+
+    try {
+      const compressed = await ImageManipulator.manipulateAsync(
+        asset.uri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
+      );
+
+      const formData = new FormData();
+      const filename = compressed.uri.split('/').pop() ?? 'profile.jpg';
+      formData.append('profile_image', {
+        uri: compressed.uri,
+        name: filename,
+        type: 'image/jpeg',
+      } as any);
+
+      await uploadImageMutation.mutateAsync(formData);
+    } catch (err) {
+      console.error('[Profile] 이미지 업로드 실패:', err);
+      Alert.alert('오류', '이미지 업로드에 실패했습니다.');
+    }
+  };
+
   const handleSubmit = () => {
     if (!gender || !age || !introduction) {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
@@ -73,7 +124,7 @@ export default function TalentPage() {
       {
         onSuccess: (res) => {
           if (res.success) {
-            Alert.alert('완료', '인재 정보가 저장되었습니다! 🎉', [{ text: '확인', onPress: () => router.back() }]);
+            setSuccessVisible(true);
           } else {
             Alert.alert('오류', '저장에 실패했습니다.');
           }
@@ -131,8 +182,21 @@ export default function TalentPage() {
                   <Ionicons name="person" size={40} color="#9ca3af" />
                 </View>
               )}
+              <TouchableOpacity
+                style={s.cameraBtn}
+                onPress={handlePickProfileImage}
+                disabled={uploadImageMutation.isPending}
+                activeOpacity={0.8}
+              >
+                {uploadImageMutation.isPending ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Ionicons name="camera" size={16} color="#fff" />
+                )}
+              </TouchableOpacity>
             </View>
             <Text style={s.avatarHint}>신뢰감을 줄 수 있는 깔끔한 사진을 권장해요!</Text>
+            <Text style={s.avatarSubHint}>카메라 버튼 클릭 후 이미지를 선택하면 프로필 이미지가 변경됩니다.</Text>
           </View>
 
           {/* 기본 정보 */}
@@ -202,12 +266,28 @@ export default function TalentPage() {
                 <Text style={s.addBtnText}>+</Text>
               </TouchableOpacity>
             </View>
-            <Text style={s.careerHint}>경력을 한 줄씩 입력 후 + 버튼을 눌러주세요.</Text>
+            <Text style={s.careerHint}>경력을 한 줄씩 입력 후 + 버튼을 눌러주세요. ↑↓ 버튼으로 순서를 변경할 수 있습니다.</Text>
 
             {careers.length > 0 && (
               <View style={s.careerList}>
                 {careers.map((c, i) => (
                   <View key={i} style={s.careerItem}>
+                    <View style={s.orderBtns}>
+                      <TouchableOpacity
+                        onPress={() => handleMoveCareer(i, -1)}
+                        disabled={i === 0}
+                        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                      >
+                        <Ionicons name="chevron-up" size={16} color={i === 0 ? '#e5e7eb' : '#9ca3af'} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleMoveCareer(i, 1)}
+                        disabled={i === careers.length - 1}
+                        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                      >
+                        <Ionicons name="chevron-down" size={16} color={i === careers.length - 1 ? '#e5e7eb' : '#9ca3af'} />
+                      </TouchableOpacity>
+                    </View>
                     <Text style={s.careerText} numberOfLines={1}>{c}</Text>
                     <TouchableOpacity onPress={() => handleRemoveCareer(i)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                       <Text style={s.removeBtn}>✕</Text>
@@ -256,6 +336,28 @@ export default function TalentPage() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      <Modal visible={successVisible} transparent animationType="fade" onRequestClose={() => setSuccessVisible(false)}>
+        <View style={s.modalOverlay}>
+          <View style={s.modalBox}>
+            <View style={s.modalIconWrap}>
+              <Ionicons name="checkmark" size={36} color="#fff" />
+            </View>
+            <Text style={s.modalTitle}>등록 완료!</Text>
+            <Text style={s.modalDesc}>
+              인재 정보가 저장되었어요.{'\n'}
+              <Text style={s.modalAccent}>좋은 현장의 제안</Text>을 기다려보세요!
+            </Text>
+            <TouchableOpacity
+              style={s.modalBtn}
+              onPress={() => { setSuccessVisible(false); router.back(); }}
+              activeOpacity={0.85}
+            >
+              <Text style={s.modalBtnText}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -281,14 +383,22 @@ const s = StyleSheet.create({
   heroAccent: { color: '#3b82f6', fontWeight: '600' },
 
   /* 프로필 사진 */
-  avatarSection: { alignItems: 'center', gap: 10 },
+  avatarSection: { alignItems: 'center', gap: 6 },
   avatarWrap: {
     width: 96, height: 96, borderRadius: 48,
-    backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+    backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center',
+    position: 'relative',
   },
   avatar: { width: 96, height: 96, borderRadius: 48 },
-  avatarPlaceholder: {},
-  avatarHint: { fontSize: 12, color: '#9ca3af' },
+  avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
+  avatarHint: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
+  avatarSubHint: { fontSize: 11, color: '#3b82f6' },
+  cameraBtn: {
+    position: 'absolute', bottom: 0, right: 0,
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: '#60a5fa', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: '#fff',
+  },
 
   /* 섹션 */
   section: {
@@ -346,6 +456,7 @@ const s = StyleSheet.create({
   },
   careerText: { flex: 1, fontSize: 13, color: '#374151' },
   removeBtn: { fontSize: 14, color: '#d1d5db', marginLeft: 8 },
+  orderBtns: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginRight: 4 },
 
   /* 자기소개 */
   bioInput: {
@@ -364,4 +475,28 @@ const s = StyleSheet.create({
   },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
   btnDisabled: { opacity: 0.6 },
+
+  /* 성공 모달 */
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(17,24,39,0.55)',
+    alignItems: 'center', justifyContent: 'center', padding: 28,
+  },
+  modalBox: {
+    backgroundColor: '#fff', borderRadius: 24, paddingTop: 28, paddingBottom: 20, paddingHorizontal: 24,
+    width: '100%', maxWidth: 340, alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.18, shadowRadius: 24, elevation: 8,
+  },
+  modalIconWrap: {
+    width: 64, height: 64, borderRadius: 32,
+    backgroundColor: '#60a5fa', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+    shadowColor: '#60a5fa', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
+  },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: '#111827', marginBottom: 8 },
+  modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
+  modalAccent: { color: '#3b82f6', fontWeight: '700' },
+  modalBtn: {
+    width: '100%', backgroundColor: '#60a5fa', borderRadius: 14,
+    paddingVertical: 14, alignItems: 'center',
+  },
+  modalBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
 });

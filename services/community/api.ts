@@ -1,5 +1,5 @@
 import { apiClient } from '@/api/apiClient';
-import { CommunityItem, Comment } from './types';
+import { CommunityItem, Comment, CreateCommunityPostPayload } from './types';
 
 export async function getCommunityPosts(): Promise<CommunityItem[]> {
   const { data } = await apiClient.get<{ success: boolean; data: CommunityItem[] }>('/community/posts');
@@ -45,4 +45,9 @@ export async function deleteBoardPost(postId: number, userId: number): Promise<v
 
 export async function incrementCommunityView(postId: number): Promise<void> {
   await apiClient.post(`/community/posts/${postId}/view`);
+}
+
+export async function createCommunityPost(payload: CreateCommunityPostPayload) {
+  const { data } = await apiClient.post('/community/upload-posts', payload);
+  return data as { success: boolean; message?: string; data?: any };
 }

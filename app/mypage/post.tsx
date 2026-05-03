@@ -5,6 +5,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetUserJobPostList, useGetUserBoardPostList, USER_POST_KEYS } from '@/services/user/queries';
 import { useGetMe } from '@/services/auth/queries';
@@ -15,6 +16,7 @@ import { CommunityCard } from '@/components/common/CommunityCard';
 import { UserJobPostItem, UserBoardPostItem } from '@/services/user/types';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+
 
 type Tab = 'jobs' | 'boards';
 
@@ -84,7 +86,6 @@ function JobPostList() {
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
         onEndReachedThreshold={0.5}
         ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#38bdf8" style={{ paddingVertical: 16 }} /> : null}
-        scrollEnabled={false}
       />
       <DeleteModal
         visible={deleteTargetId !== null}
@@ -97,6 +98,7 @@ function JobPostList() {
 }
 
 function BoardPostList() {
+  const router = useRouter();
   const qc = useQueryClient();
   const { data: me } = useGetMe();
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetUserBoardPostList();
@@ -129,7 +131,7 @@ function BoardPostList() {
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <View style={e.itemWrap}>
-            <CommunityCard item={item as any} />
+            <CommunityCard item={item as any} onPress={() => router.push({ pathname: '/posts/board/[id]', params: { id: item.id } })} />
             <TouchableOpacity style={e.deleteBtn} onPress={() => setDeleteTargetId(item.id)}>
               <Ionicons name="trash-outline" size={16} color="#9ca3af" />
             </TouchableOpacity>
@@ -140,7 +142,6 @@ function BoardPostList() {
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
         onEndReachedThreshold={0.5}
         ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#38bdf8" style={{ paddingVertical: 16 }} /> : null}
-        scrollEnabled={false}
       />
       <DeleteModal
         visible={deleteTargetId !== null}
@@ -154,6 +155,7 @@ function BoardPostList() {
 
 export default function PostPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<Tab>('jobs');
 
   return (
@@ -178,6 +180,8 @@ export default function PostPage() {
       <View style={{ flex: 1 }}>
         {activeTab === 'jobs' ? <JobPostList /> : <BoardPostList />}
       </View>
+
+      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
     </View>
   );
 }
@@ -186,7 +190,7 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 36, paddingBottom: 12, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },

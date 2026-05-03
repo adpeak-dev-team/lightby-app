@@ -17,6 +17,22 @@ import { toast } from '@/hooks/use-toast';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
+function PostImage({ uri }: { uri: string }) {
+  const [ratio, setRatio] = useState(1);
+  return (
+    <Image
+      source={{ uri }}
+      style={[s.postImage, { aspectRatio: ratio }]}
+      contentFit="contain"
+      onLoad={(e) => {
+        const w = e.source?.width ?? 1;
+        const h = e.source?.height ?? 1;
+        if (w > 0 && h > 0) setRatio(w / h);
+      }}
+    />
+  );
+}
+
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   const y = d.getFullYear().toString().slice(2);
@@ -193,12 +209,7 @@ export default function BoardDetailPage() {
           {(post.image?.length ?? 0) > 0 && (
             <View style={s.imagesSection}>
               {post.image!.map((img, i) => (
-                <Image
-                  key={i}
-                  source={{ uri: `${IMAGE_PREFIX}${img}` }}
-                  style={s.postImage}
-                  contentFit="cover"
-                />
+                <PostImage key={i} uri={`${IMAGE_PREFIX}${img}`} />
               ))}
             </View>
           )}
@@ -344,7 +355,7 @@ const s = StyleSheet.create({
   postTitle: { fontSize: 19, fontWeight: '800', color: '#111827', lineHeight: 28 },
 
   imagesSection: { paddingHorizontal: 16, gap: 10, marginBottom: 4 },
-  postImage: { width: '100%', height: 220, borderRadius: 12 },
+  postImage: { width: '100%', borderRadius: 12, backgroundColor: '#f3f4f6' },
 
   contentSection: { paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f9fafb' },
   postContent: { fontSize: 15, color: '#374151', lineHeight: 25 },

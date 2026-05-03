@@ -23,6 +23,8 @@ function buildMapHTML(lat: number, lng: number, label: string) {
               center: new kakao.maps.LatLng(${lat}, ${lng}),
               level: 4
             });
+            map.setDraggable(false);
+            map.setZoomable(false);
             var marker = new kakao.maps.Marker({
               position: new kakao.maps.LatLng(${lat}, ${lng}),
               map: map
@@ -63,7 +65,7 @@ interface Props {
 
 export function KakaoMap({ latitude, longitude, label = '', height = 200 }: Props) {
   return (
-    <View style={[s.wrap, { height }]}>
+    <View style={[s.wrap, { height }]} pointerEvents="none">
       <WebView
         source={{
           html: buildMapHTML(latitude, longitude, label),
@@ -78,7 +80,7 @@ export function KakaoMap({ latitude, longitude, label = '', height = 200 }: Prop
         javaScriptEnabled
         domStorageEnabled
         originWhitelist={['*']}
-        style={{ flex: 1 }}
+        style={{ flex: 1, backgroundColor: 'transparent' }}
       />
     </View>
   );

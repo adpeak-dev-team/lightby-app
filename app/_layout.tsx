@@ -36,6 +36,8 @@ export default function RootLayout() {
           <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
           <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
           <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />
+          <Stack.Screen name="registration/communitypost" options={{ headerShown: false }} />
+          <Stack.Screen name="map-view" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
         <Toast />

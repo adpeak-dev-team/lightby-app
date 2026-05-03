@@ -21,3 +21,12 @@ export interface Comment {
   content: string;
   created_at: string;
 }
+
+export interface CreateCommunityPostPayload {
+  user_id: number;
+  title: string;
+  content: string;
+  images: string[];
+  thumbnail?: string;
+  anonymous: boolean;
+}

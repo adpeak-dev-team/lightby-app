@@ -1,0 +1,373 @@
+import { useState, useEffect, useRef } from 'react';
+import {
+  View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
+  Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter, useNavigation } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+import { apiClient } from '@/api/apiClient';
+import { useGetMe } from '@/services/auth/queries';
+import { useCreateCommunityPost } from '@/services/community/mutations';
+import SortableImage from '@/components/common/SortableImage';
+
+export default function CommunityPostPage() {
+  const router = useRouter();
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+
+  const { data: me } = useGetMe();
+  const createMutation = useCreateCommunityPost();
+
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+  const [anonymous, setAnonymous] = useState(false);
+
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [leaveVisible, setLeaveVisible] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
+
+  // 작성 중 새로 업로드된 이미지 추적 (이탈 시 정리)
+  const newUploadedRef = useRef<string[]>([]);
+  const imagesRef = useRef<string[]>([]);
+  useEffect(() => { imagesRef.current = images; }, [images]);
+
+  const pendingActionRef = useRef<any>(null);
+  const bypassLeaveGuardRef = useRef(false);
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      if (bypassLeaveGuardRef.current) return;
+      const hasContent = title.trim() || content.trim() || imagesRef.current.length > 0;
+      if (!hasContent) return;
+      e.preventDefault();
+      pendingActionRef.current = e.data.action;
+      setLeaveVisible(true);
+    });
+    return unsubscribe;
+  }, [navigation, title, content]);
+
+  const cleanupNewUploads = async () => {
+    const paths = newUploadedRef.current;
+    if (paths.length === 0) return;
+    await Promise.allSettled(
+      paths.map((p) => apiClient.delete('/internal/image-work', { data: { imagePath: p } })),
+    );
+  };
+
+  const handleConfirmLeave = async () => {
+    setIsCleaning(true);
+    await cleanupNewUploads();
+    setIsCleaning(false);
+    setLeaveVisible(false);
+    bypassLeaveGuardRef.current = true;
+    if (pendingActionRef.current) navigation.dispatch(pendingActionRef.current);
+  };
+
+  const handleSubmit = () => {
+    if (!title.trim() || !content.trim()) {
+      Alert.alert('입력 오류', '제목과 내용을 모두 입력해 주세요.');
+      return;
+    }
+    if (!me?.id) {
+      Alert.alert('인증 오류', '유저 정보가 없습니다. 다시 로그인해 주세요.');
+      return;
+    }
+
+    createMutation.mutate(
+      {
+        user_id: me.id,
+        title: title.trim(),
+        content: content.trim(),
+        images,
+        anonymous,
+      },
+      {
+        onSuccess: (res) => {
+          if (res.success) {
+            newUploadedRef.current = [];
+            bypassLeaveGuardRef.current = true;
+            setSuccessVisible(true);
+          } else {
+            Alert.alert('등록 실패', res.message ?? '게시글 등록에 실패했습니다.');
+          }
+        },
+        onError: () => Alert.alert('등록 실패', '게시글 등록 중 오류가 발생했습니다.'),
+      },
+    );
+  };
+
+  return (
+    <View style={s.container}>
+      {/* 이탈 방지 모달 */}
+      <Modal visible={leaveVisible} transparent animationType="fade" onRequestClose={() => setLeaveVisible(false)}>
+        <View style={s.modalOverlay}>
+          <View style={s.modalCard}>
+            <View style={[s.modalIconWrap, { backgroundColor: '#fef2f2' }]}>
+              <Ionicons name="alert-circle" size={36} color="#f87171" />
+            </View>
+            <Text style={s.modalTitle}>작성을 그만두시겠어요?</Text>
+            <Text style={s.modalDesc}>
+              작성 중인 내용은 저장되지 않으며{'\n'}
+              업로드된 이미지도 모두 삭제됩니다.
+            </Text>
+            <View style={s.modalBtnRow}>
+              <TouchableOpacity
+                style={s.modalCancelBtn}
+                onPress={() => setLeaveVisible(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={s.modalCancelText}>계속 작성</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.modalLeaveBtn, isCleaning && { opacity: 0.6 }]}
+                onPress={handleConfirmLeave}
+                disabled={isCleaning}
+                activeOpacity={0.8}
+              >
+                {isCleaning
+                  ? <ActivityIndicator size="small" color="#fff" />
+                  : <Text style={s.modalLeaveText}>나가기</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 등록 완료 모달 */}
+      <Modal visible={successVisible} transparent animationType="fade" onRequestClose={() => setSuccessVisible(false)}>
+        <View style={s.modalOverlay}>
+          <View style={s.modalCard}>
+            <View style={[s.modalIconWrap, { backgroundColor: '#60a5fa' }]}>
+              <Ionicons name="checkmark" size={36} color="#fff" />
+            </View>
+            <Text style={s.modalTitle}>등록 완료!</Text>
+            <Text style={s.modalDesc}>게시글이 성공적으로 등록되었어요.</Text>
+            <TouchableOpacity
+              style={s.modalPrimaryBtn}
+              onPress={() => { setSuccessVisible(false); router.replace('/community'); }}
+              activeOpacity={0.85}
+            >
+              <Text style={s.modalPrimaryText}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 헤더 */}
+      <View style={[s.nav, { paddingTop: insets.top + 10 }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
+          <Ionicons name="chevron-back" size={24} color="#111827" />
+        </TouchableOpacity>
+        <Text style={s.navTitle}>게시글 작성</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* 익명 토글 */}
+          <View style={s.section}>
+            <View style={s.anonymousRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.label}>익명으로 작성</Text>
+                <Text style={s.subLabel}>닉네임 대신 "익명"으로 표시됩니다.</Text>
+              </View>
+              <Switch
+                value={anonymous}
+                onValueChange={setAnonymous}
+                trackColor={{ false: '#e5e7eb', true: '#93c5fd' }}
+                thumbColor={anonymous ? '#3b82f6' : '#f3f4f6'}
+              />
+            </View>
+          </View>
+
+          {/* 제목 */}
+          <View style={s.section}>
+            <Text style={s.label}>제목</Text>
+            <TextInput
+              style={s.titleInput}
+              value={title}
+              onChangeText={setTitle}
+              placeholder="제목을 입력해 주세요"
+              placeholderTextColor="#9ca3af"
+              maxLength={60}
+            />
+          </View>
+
+          {/* 이미지 */}
+          <View style={s.section}>
+            <Text style={s.label}>
+              이미지 첨부 <Text style={s.subInline}>최대 10장</Text>
+            </Text>
+            <SortableImage
+              folder="boardfee"
+              onChange={setImages}
+              onUploaded={(paths) => { newUploadedRef.current = [...newUploadedRef.current, ...paths]; }}
+            />
+          </View>
+
+          {/* 내용 */}
+          <View style={s.section}>
+            <Text style={s.label}>내용</Text>
+            <TextInput
+              style={s.contentInput}
+              value={content}
+              onChangeText={setContent}
+              placeholder="이곳에 내용을 작성해 주세요..."
+              placeholderTextColor="#9ca3af"
+              multiline
+              numberOfLines={10}
+              textAlignVertical="top"
+            />
+          </View>
+
+          {/* 안내 */}
+          <View style={s.notice}>
+            <Ionicons name="information-circle" size={18} color="#fb923c" style={{ marginTop: 1 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.noticeTitle}>업로드 안내</Text>
+              <Text style={s.noticeBody}>
+                작성 완료 시 이미지는 글 상단에, 텍스트는 하단에 정렬되어 표시됩니다.
+              </Text>
+            </View>
+          </View>
+
+          <View style={{ height: keyboardVisible ? 120 : 8 }} />
+
+          <View style={s.actionRow}>
+            <TouchableOpacity
+              style={s.cancelBtn}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.85}
+            >
+              <Text style={s.cancelBtnText}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                s.submitBtn,
+                (!title.trim() || !content.trim() || createMutation.isPending) && s.submitBtnDisabled,
+              ]}
+              onPress={handleSubmit}
+              disabled={!title.trim() || !content.trim() || createMutation.isPending}
+              activeOpacity={0.85}
+            >
+              {createMutation.isPending
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <Text style={s.submitBtnText}>게시글 등록하기</Text>}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f3f4f6' },
+
+  nav: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#fff', paddingBottom: 10, paddingHorizontal: 16,
+    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+  },
+  navBack: { width: 40, alignItems: 'flex-start' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+
+  scroll: { padding: 16, gap: 12 },
+
+  section: {
+    backgroundColor: '#fff', borderRadius: 16, padding: 16,
+    borderWidth: 1, borderColor: '#f1f5f9',
+    gap: 10,
+  },
+  label: { fontSize: 14, fontWeight: '700', color: '#1f2937' },
+  subLabel: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  subInline: { fontSize: 12, color: '#9ca3af', fontWeight: '400' },
+
+  anonymousRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+
+  titleInput: {
+    borderBottomWidth: 1, borderBottomColor: '#e5e7eb',
+    paddingVertical: 8, fontSize: 15, color: '#111827',
+  },
+  contentInput: {
+    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
+    padding: 12, fontSize: 14, color: '#111827', minHeight: 200,
+    backgroundColor: '#fff',
+  },
+
+  notice: {
+    flexDirection: 'row', gap: 8, padding: 14, borderRadius: 12,
+    backgroundColor: '#fff7ed',
+  },
+  noticeTitle: { fontSize: 12, fontWeight: '800', color: '#fb923c', marginBottom: 2 },
+  noticeBody: { fontSize: 12, color: '#fb923c', lineHeight: 18 },
+
+  actionRow: { flexDirection: 'row', gap: 10 },
+  cancelBtn: {
+    flex: 1, backgroundColor: '#f3f4f6', borderRadius: 16,
+    paddingVertical: 16, alignItems: 'center',
+  },
+  cancelBtnText: { fontSize: 15, fontWeight: '700', color: '#6b7280' },
+  submitBtn: {
+    flex: 2, backgroundColor: '#3b82f6', borderRadius: 16,
+    paddingVertical: 16, alignItems: 'center',
+    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
+  },
+  submitBtnDisabled: { backgroundColor: '#cbd5e1', shadowOpacity: 0, elevation: 0 },
+  submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+
+  /* 모달 공통 */
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(17,24,39,0.55)',
+    alignItems: 'center', justifyContent: 'center', padding: 28,
+  },
+  modalCard: {
+    width: '100%', maxWidth: 340, backgroundColor: '#fff',
+    borderRadius: 24, paddingTop: 28, paddingBottom: 22, paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18, shadowRadius: 24, elevation: 8,
+  },
+  modalIconWrap: {
+    width: 64, height: 64, borderRadius: 32,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 14,
+  },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: '#111827', marginBottom: 8, textAlign: 'center' },
+  modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
+  modalBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
+  modalCancelBtn: {
+    flex: 1, paddingVertical: 14, borderRadius: 14,
+    borderWidth: 1.5, borderColor: '#e5e7eb', backgroundColor: '#f9fafb', alignItems: 'center',
+  },
+  modalCancelText: { fontSize: 15, fontWeight: '700', color: '#374151' },
+  modalLeaveBtn: {
+    flex: 1, paddingVertical: 14, borderRadius: 14,
+    backgroundColor: '#ef4444', alignItems: 'center',
+  },
+  modalLeaveText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  modalPrimaryBtn: {
+    width: '100%', backgroundColor: '#60a5fa', borderRadius: 14,
+    paddingVertical: 14, alignItems: 'center',
+  },
+  modalPrimaryText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+});

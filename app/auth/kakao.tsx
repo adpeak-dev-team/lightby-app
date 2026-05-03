@@ -16,6 +16,7 @@ const formatPhoneNumber = (raw: string) => {
   if (nums.length <= 7) return `${nums.slice(0, 3)}-${nums.slice(3)}`;
   return `${nums.slice(0, 3)}-${nums.slice(3, 7)}-${nums.slice(7)}`;
 };
+
 const formatTime = (sec: number) => {
   const m = String(Math.floor(sec / 60)).padStart(2, '0');
   const s = String(sec % 60).padStart(2, '0');
@@ -26,6 +27,7 @@ type KakaoProfile = {
   snsId: string; name: string; nickname: string;
   phone: string | null; profileImage: string | null; thumbnailImage: string | null;
 };
+
 type Conflicts = {
   isNicknameDuplicate: boolean; isPhoneDuplicate: boolean;
   isNicknameMissing: boolean; isPhoneMissing: boolean;

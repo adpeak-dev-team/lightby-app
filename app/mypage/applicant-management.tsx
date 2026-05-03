@@ -3,6 +3,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetMyJobPostings } from '@/services/site/queries';
 import { ApplicantItem } from '@/services/site/types';
@@ -85,6 +86,7 @@ function ApplicantCard({ item }: { item: ApplicantItem }) {
 
 export default function ApplicantManagementPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data, isLoading } = useGetMyJobPostings();
   const list = data?.items ?? [];
   const allCount = list.length;
@@ -131,6 +133,8 @@ export default function ApplicantManagementPage() {
           )
         }
       />
+
+      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
     </View>
   );
 }
@@ -139,7 +143,7 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 36, paddingBottom: 12, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },

@@ -134,9 +134,18 @@ export default function SiteDetailPage() {
   }
 
   // ── 데이터 파싱 ────────────────────────────────────────────────────────────
-  const images = Array.isArray(job.imgs) && job.imgs.length > 0
+  const images: string[] = Array.isArray(job.imgs) && job.imgs.length > 0
     ? job.imgs.map(toImageUri)
     : [];
+
+  // 이미지 원본 크기 추적 → 가장 큰(가장 긴) 이미지 기준으로 슬라이더 높이 계산
+  const [imgDims, setImgDims] = useState<Record<number, { w: number; h: number }>>({});
+  const sliderHeight = (() => {
+    if (images.length === 0) return 240;
+    const heights = Object.values(imgDims).map(({ w, h }) => (w > 0 ? (h / w) * width : 0));
+    if (heights.length === 0) return 240;
+    return Math.max(...heights);
+  })();
   const icons: number[] = (() => { try { return job.icons ? JSON.parse(job.icons) : []; } catch { return []; } })();
   const isOwner = !!me?.id && job.user_id === me.id;
 
@@ -183,7 +192,19 @@ export default function SiteDetailPage() {
               scrollEventThrottle={16}
             >
               {images.map((uri, i) => (
-                <Image key={i} source={{ uri }} style={{ width, height: 240 }} contentFit="cover" />
+                <Image
+                  key={i}
+                  source={{ uri }}
+                  style={{ width, height: sliderHeight, backgroundColor: '#f3f4f6' }}
+                  contentFit="contain"
+                  onLoad={(e) => {
+                    const w = e.source?.width ?? 0;
+                    const h = e.source?.height ?? 0;
+                    if (w > 0 && h > 0) {
+                      setImgDims((prev) => (prev[i] ? prev : { ...prev, [i]: { w, h } }));
+                    }
+                  }}
+                />
               ))}
             </ScrollView>
             {images.length > 1 && (
@@ -315,12 +336,28 @@ export default function SiteDetailPage() {
               <Text style={s.addressText}>{job.result_address || job.address || '-'}</Text>
             </View>
             {job.latitude != null && job.longitude != null && (
-              <KakaoMap
-                latitude={job.latitude}
-                longitude={job.longitude}
-                label={job.result_address || job.address}
-                height={200}
-              />
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => router.push({
+                  pathname: '/map-view',
+                  params: {
+                    lat: String(job.latitude),
+                    lng: String(job.longitude),
+                    label: job.result_address || job.address || '',
+                  },
+                })}
+              >
+                <KakaoMap
+                  latitude={job.latitude}
+                  longitude={job.longitude}
+                  label={job.result_address || job.address}
+                  height={200}
+                />
+                <View style={s.mapHintBadge} pointerEvents="none">
+                  <Ionicons name="expand-outline" size={12} color="#fff" />
+                  <Text style={s.mapHintText}>크게 보기</Text>
+                </View>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -390,6 +427,13 @@ const s = StyleSheet.create({
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyText: { color: '#9ca3af', fontSize: 15 },
   scroll: { flex: 1 },
+  mapHintBadge: {
+    position: 'absolute', top: 10, right: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(17,24,39,0.78)',
+    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999,
+  },
+  mapHintText: { color: '#fff', fontSize: 11, fontWeight: '700' },
 
   // 네비게이션
   navbar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },

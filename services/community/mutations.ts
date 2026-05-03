@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toggleLike, createReply, deleteReply, deleteBoardPost } from './api';
+import { toggleLike, createReply, deleteReply, deleteBoardPost, createCommunityPost } from './api';
 import { COMMUNITY_KEYS } from './queries';
+import type { CreateCommunityPostPayload } from './types';
 
 export function useToggleLike(boardId: number) {
   const qc = useQueryClient();
@@ -44,6 +45,14 @@ export function useDeletePost() {
   return useMutation({
     mutationFn: ({ postId, userId }: { postId: number; userId: number }) =>
       deleteBoardPost(postId, userId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts }),
+  });
+}
+
+export function useCreateCommunityPost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateCommunityPostPayload) => createCommunityPost(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts }),
   });
 }

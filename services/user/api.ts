@@ -57,6 +57,16 @@ export async function saveTalentInfo(info: {
   return data;
 }
 
+export async function uploadProfileImage(formData: FormData): Promise<{
+  success: boolean;
+  data: { profile_image: string; profile_thumbnail: string };
+}> {
+  const { data } = await apiClient.post('/user/update-profile-image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
 export async function getUserJobPostList(start = 0, limit = 20): Promise<UserJobPostItem[]> {
   const { data } = await apiClient.get<{ success: boolean; data: UserJobPostItem[] }>(
     `/user/post-list?tab=jobs&start=${start}&limit=${limit}`,

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  updateNickname, sendPhoneAuthCode, verifyPhoneAuthCode, changePassword, saveTalentInfo, savePreferences,
+  updateNickname, sendPhoneAuthCode, verifyPhoneAuthCode, changePassword, saveTalentInfo, savePreferences, uploadProfileImage,
 } from './api';
 import { USER_KEYS, PREFERENCES_KEYS, FAVORITE_KEYS } from './queries';
 
@@ -39,6 +39,14 @@ export function useSaveTalentInfo() {
   return useMutation({
     mutationFn: (info: { gender: string; birthday: string; introduction: string; careers: string[] }) =>
       saveTalentInfo(info),
+    onSuccess: () => qc.invalidateQueries({ queryKey: USER_KEYS.profile }),
+  });
+}
+
+export function useUploadProfileImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => uploadProfileImage(formData),
     onSuccess: () => qc.invalidateQueries({ queryKey: USER_KEYS.profile }),
   });
 }
