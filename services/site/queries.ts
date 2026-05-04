@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings } from './api';
-import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem } from './types';
+import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants } from './api';
+import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile } from './types';
 
 export function useGetJobDetail(id: string) {
   return useQuery<JobPostDetail>({
@@ -37,6 +37,14 @@ export function useGetMyJobPostings() {
   return useQuery<{ items: ApplicantItem[] }>({
     queryKey: ['my-job-postings'],
     queryFn: getMyJobPostings,
+  });
+}
+
+export function useGetPostApplicants(postingId: string) {
+  return useQuery<{ items: ApplicantProfile[] }>({
+    queryKey: ['post-applicants', postingId],
+    queryFn: () => getPostApplicants(postingId),
+    enabled: !!postingId,
   });
 }
 

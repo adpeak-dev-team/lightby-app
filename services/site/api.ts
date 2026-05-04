@@ -1,5 +1,5 @@
 import { apiClient } from '@/api/apiClient';
-import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem } from './types';
+import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile } from './types';
 
 export async function getJobDetail(id: string): Promise<JobPostDetail> {
   const { data } = await apiClient.get<{ success: boolean; data: JobPostDetail }>(`/detail/get-job-detail?id=${id}`);
@@ -43,6 +43,25 @@ export async function getMyJobPostings(): Promise<{ items: ApplicantItem[] }> {
 export async function deleteJobPost(id: number): Promise<{ success: boolean; message: string }> {
   const { data } = await apiClient.post(`/job-posting/posts/${id}/delete`);
   return data;
+}
+
+export async function updateJobPost(id: number, payload: JobPostingPayload): Promise<{ success: boolean; message?: string }> {
+  const { data } = await apiClient.post(`/job-posting/posts/${id}/update`, payload);
+  return data;
+}
+
+export async function updateJobPostImages(id: number, images: string[]): Promise<{ success: boolean }> {
+  const { data } = await apiClient.post(`/job-posting/posts/${id}/update-images`, { images });
+  return data;
+}
+
+export async function getPostApplicants(postingId: string): Promise<{ items: ApplicantProfile[] }> {
+  const { data } = await apiClient.get(`/job-posting/${postingId}/applicants`);
+  return data;
+}
+
+export async function markApplyAsRead(applyId: number): Promise<void> {
+  await apiClient.post(`/job-posting/apply/${applyId}/read`);
 }
 
 export interface JobPostingPayload {

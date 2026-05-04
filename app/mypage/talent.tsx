@@ -11,6 +11,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useGetUserProfile } from '@/services/user/queries';
 import { useSaveTalentInfo, useUploadProfileImage } from '@/services/user/mutations';
+import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -27,22 +28,9 @@ export default function TalentPage() {
   const [introduction, setIntroduction] = useState('');
   const [careers, setCareers] = useState<string[]>([]);
   const [careerInput, setCareerInput] = useState('');
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const keyboardVisible = useKeyboardVisible();
   const [successVisible, setSuccessVisible] = useState(false);
   const insets = useSafeAreaInsets();
-
-  useEffect(() => {
-    const { Keyboard } = require('react-native');
-    const show = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-      console.log('[Keyboard] 열림');
-    });
-    const hide = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-      console.log('[Keyboard] 닫힘');
-    });
-    return () => { show.remove(); hide.remove(); };
-  }, []);
 
   useEffect(() => {
     if (!profile) return;
@@ -130,7 +118,7 @@ export default function TalentPage() {
           }
         },
         onError: () => Alert.alert('오류', '저장 중 오류가 발생했습니다.'),
-      }
+      },
     );
   };
 
@@ -316,12 +304,9 @@ export default function TalentPage() {
             />
           </View>
 
-          <View style={[{ paddingBottom: keyboardVisible ? 50 : 0 }]}></View>
-
-
+          <View style={[{ paddingBottom: keyboardVisible ? 50 : 0 }]} />
 
         </ScrollView>
-
 
         <View style={[s.footer, { paddingBottom: keyboardVisible ? 100 : insets.bottom }]}>
           <TouchableOpacity
@@ -368,7 +353,7 @@ const s = StyleSheet.create({
 
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingTop: 40, paddingBottom: 10, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 10, paddingBottom: 10, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
@@ -376,13 +361,11 @@ const s = StyleSheet.create({
 
   scroll: { padding: 16, paddingBottom: 30, gap: 12 },
 
-  /* 상단 헤더 */
   heroSection: { paddingVertical: 20, alignItems: 'center' },
   heroTitle: { fontSize: 22, fontWeight: '800', color: '#111827', marginBottom: 8 },
   heroSub: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 20 },
   heroAccent: { color: '#3b82f6', fontWeight: '600' },
 
-  /* 프로필 사진 */
   avatarSection: { alignItems: 'center', gap: 6 },
   avatarWrap: {
     width: 96, height: 96, borderRadius: 48,
@@ -400,7 +383,6 @@ const s = StyleSheet.create({
     borderWidth: 2, borderColor: '#fff',
   },
 
-  /* 섹션 */
   section: {
     backgroundColor: '#fff', borderRadius: 16, padding: 20,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
@@ -436,7 +418,6 @@ const s = StyleSheet.create({
   choiceText: { fontSize: 14, fontWeight: '600', color: '#9ca3af' },
   choiceTextActive: { color: '#3b82f6' },
 
-  /* 경력 */
   careerInputRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   careerInput: {
     flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
@@ -458,7 +439,6 @@ const s = StyleSheet.create({
   removeBtn: { fontSize: 14, color: '#d1d5db', marginLeft: 8 },
   orderBtns: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginRight: 4 },
 
-  /* 자기소개 */
   bioInput: {
     borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
     padding: 12, fontSize: 14, color: '#111827', minHeight: 140,
@@ -476,7 +456,6 @@ const s = StyleSheet.create({
   submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
   btnDisabled: { opacity: 0.6 },
 
-  /* 성공 모달 */
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(17,24,39,0.55)',
     alignItems: 'center', justifyContent: 'center', padding: 28,

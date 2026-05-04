@@ -38,8 +38,8 @@ const SECTION_CONFIG: Record<SectionType, {
   icon: keyof typeof Ionicons.glyphMap; iconBg: string; iconColor: string;
 }> = {
   premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fef3c7', iconColor: '#d97706' },
-  top: { title: '우리동네 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#2563eb' },
-  free: { title: '신규 일반 공고', subtitle: 'LATEST JOBS', icon: 'list', iconBg: '#f3f4f6', iconColor: '#4b5563' },
+  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#2563eb' },
+  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f3f4f6', iconColor: '#4b5563' },
 };
 
 // ─── 스켈레톤 ────────────────────────────────────────────────────────────────

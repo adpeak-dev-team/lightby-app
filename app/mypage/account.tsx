@@ -243,56 +243,56 @@ export default function AccountPage() {
 
           {/* 비밀번호 */}
           <View style={[s.row, s.rowBig, { borderBottomWidth: 0 }]}>
-              <View style={s.rowHeader}>
-                <Text style={s.label}>비밀번호</Text>
-                {editingField !== 'password' && (
-                  <TouchableOpacity onPress={() => { setEditingField('password'); }}>
-                    <Text style={s.changeBtn}>변경하기</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              {editingField === 'password' ? (
-                <View style={s.editWrap}>
-                  <TextInput
-                    style={s.inputFull}
-                    value={currentPassword}
-                    onChangeText={setCurrentPassword}
-                    placeholder="현재 비밀번호"
-                    placeholderTextColor="#9ca3af"
-                    secureTextEntry
-                  />
-                  <TextInput
-                    style={s.inputFull}
-                    value={newPassword}
-                    onChangeText={setNewPassword}
-                    placeholder="새 비밀번호 (8자 이상)"
-                    placeholderTextColor="#9ca3af"
-                    secureTextEntry
-                  />
-                  <TextInput
-                    style={s.inputFull}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    placeholder="새 비밀번호 확인"
-                    placeholderTextColor="#9ca3af"
-                    secureTextEntry
-                  />
-                  <View style={s.btnRow}>
-                    <TouchableOpacity style={s.cancelBtn} onPress={handleCancel}>
-                      <Text style={s.cancelBtnText}>취소</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[s.confirmBtn, changePasswordMutation.isPending && s.btnDisabled]}
-                      onPress={handlePasswordChange}
-                      disabled={changePasswordMutation.isPending}
-                    >
-                      <Text style={s.confirmBtnText}>{changePasswordMutation.isPending ? '변경 중...' : '변경 완료'}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                <Text style={s.value}>• • • • • • • •</Text>
+            <View style={s.rowHeader}>
+              <Text style={s.label}>비밀번호</Text>
+              {editingField !== 'password' && (
+                <TouchableOpacity onPress={() => { setEditingField('password'); }}>
+                  <Text style={s.changeBtn}>변경하기</Text>
+                </TouchableOpacity>
               )}
+            </View>
+            {editingField === 'password' ? (
+              <View style={s.editWrap}>
+                <TextInput
+                  style={s.inputFull}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  placeholder="현재 비밀번호"
+                  placeholderTextColor="#9ca3af"
+                  secureTextEntry
+                />
+                <TextInput
+                  style={s.inputFull}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  placeholder="새 비밀번호 (8자 이상)"
+                  placeholderTextColor="#9ca3af"
+                  secureTextEntry
+                />
+                <TextInput
+                  style={s.inputFull}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder="새 비밀번호 확인"
+                  placeholderTextColor="#9ca3af"
+                  secureTextEntry
+                />
+                <View style={s.btnRow}>
+                  <TouchableOpacity style={s.cancelBtn} onPress={handleCancel}>
+                    <Text style={s.cancelBtnText}>취소</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[s.confirmBtn, changePasswordMutation.isPending && s.btnDisabled]}
+                    onPress={handlePasswordChange}
+                    disabled={changePasswordMutation.isPending}
+                  >
+                    <Text style={s.confirmBtnText}>{changePasswordMutation.isPending ? '변경 중...' : '변경 완료'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <Text style={s.value}>• • • • • • • •</Text>
+            )}
           </View>
         </View>
 
@@ -309,7 +309,7 @@ const s = StyleSheet.create({
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },

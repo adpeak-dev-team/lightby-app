@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { cancelApplication, deleteJobPost, createJobPost, JobPostingPayload } from './api';
+import { cancelApplication, deleteJobPost, createJobPost, updateJobPost, updateJobPostImages, JobPostingPayload } from './api';
 
 export function useCancelApplication() {
   const qc = useQueryClient();
@@ -26,6 +26,29 @@ export function useCreateJobPost() {
     mutationFn: (payload: JobPostingPayload) => createJobPost(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-job-postings'] });
+    },
+  });
+}
+
+export function useUpdateJobPost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: JobPostingPayload }) =>
+      updateJobPost(id, payload),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ['job-detail', String(id)] });
+      qc.invalidateQueries({ queryKey: ['my-job-postings'] });
+    },
+  });
+}
+
+export function useUpdateJobPostImages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, images }: { id: number; images: string[] }) =>
+      updateJobPostImages(id, images),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ['job-detail', String(id)] });
     },
   });
 }

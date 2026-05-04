@@ -81,6 +81,16 @@ export const formatTime = (seconds: number) => {
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
+export const formatDate = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    const y = d.getFullYear().toString().slice(2);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${day} ${h}:${min}`;
+};
+
 // 배열 랜덤 섞는 함수 (main > premium / top 리스트 섞을때 사용)
 export const shuffleList = <T>(array: T[]): T[] => {
     const combined = [...array]; // 원본 보존을 위해 복사본 생성

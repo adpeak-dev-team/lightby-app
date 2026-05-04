@@ -134,6 +134,8 @@ export default function RegisterPage() {
   }, [isOtpSent]);
 
   useEffect(() => {
+    console.log(insets);
+
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
@@ -273,13 +275,13 @@ export default function RegisterPage() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: '#f9fafb' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 },
+          { paddingTop: 24, paddingBottom: 14 },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -435,7 +437,10 @@ export default function RegisterPage() {
             <Text style={styles.footerLink}>로그인하기</Text>
           </TouchableOpacity>
         </View>
+
+
       </ScrollView>
+      <View style={{ height: insets.bottom }} />
     </KeyboardAvoidingView>
   );
 }

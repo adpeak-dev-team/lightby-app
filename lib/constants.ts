@@ -1,3 +1,5 @@
+export const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+
 export const regions = [
   "전국", "서울", "경기남부", "경기북부", "인천",
   "부산", "울산", "대구", "경상도", "대전",

@@ -71,6 +71,7 @@ export default function SiteDetailPage() {
   const [currentImg, setCurrentImg] = useState(0);
   const [applyState, setApplyState] = useState<ApplyState>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [imgDims, setImgDims] = useState<Record<number, { w: number; h: number }>>({});
 
   const liked = likeData?.liked ?? false;
 
@@ -139,7 +140,6 @@ export default function SiteDetailPage() {
     : [];
 
   // 이미지 원본 크기 추적 → 가장 큰(가장 긴) 이미지 기준으로 슬라이더 높이 계산
-  const [imgDims, setImgDims] = useState<Record<number, { w: number; h: number }>>({});
   const sliderHeight = (() => {
     if (images.length === 0) return 240;
     const heights = Object.values(imgDims).map(({ w, h }) => (w > 0 ? (h / w) * width : 0));
@@ -157,7 +157,7 @@ export default function SiteDetailPage() {
   const applyContent = applyState ? APPLY_CONTENT[applyState] : null;
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
+    <View style={[s.container]}>
       {/* 네비게이션 */}
       <View style={s.navbar}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={s.navBtn}>
@@ -223,12 +223,21 @@ export default function SiteDetailPage() {
 
         {/* ── 요약 섹션 ── */}
         <View style={s.summarySection}>
-          {/* 소유자 삭제 버튼 */}
+          {/* 소유자 수정/삭제 버튼 */}
           {isOwner && (
-            <TouchableOpacity style={s.deleteBtn} onPress={() => setShowDeleteModal(true)}>
-              <Ionicons name="trash-outline" size={14} color="#fff" />
-              <Text style={s.deleteBtnText}>삭제</Text>
-            </TouchableOpacity>
+            <View style={s.ownerBtns}>
+              <TouchableOpacity
+                style={s.editBtn}
+                onPress={() => router.push({ pathname: '/registration/sitepost-edit/[id]', params: { id } } as never)}
+              >
+                <Ionicons name="pencil-outline" size={14} color="#3b82f6" />
+                <Text style={s.editBtnText}>수정</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.deleteBtn} onPress={() => setShowDeleteModal(true)}>
+                <Ionicons name="trash-outline" size={14} color="#fff" />
+                <Text style={s.deleteBtnText}>삭제</Text>
+              </TouchableOpacity>
+            </View>
           )}
 
           {/* 아이콘 뱃지 */}
@@ -449,7 +458,10 @@ const s = StyleSheet.create({
 
   // 요약
   summarySection: { backgroundColor: '#fff', padding: 16, gap: 10 },
-  deleteBtn: { alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  ownerBtns: { flexDirection: 'row', alignSelf: 'flex-end', gap: 8 },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#bfdbfe' },
+  editBtnText: { color: '#3b82f6', fontSize: 13, fontWeight: '700' },
+  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
   deleteBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },

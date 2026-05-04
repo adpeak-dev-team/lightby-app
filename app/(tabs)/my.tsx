@@ -12,6 +12,7 @@ import PreferencesForm from '@/components/common/PreferencesForm';
 import { tokenStorage } from '@/api/apiClient';
 import { useLogout } from '@/services/auth/mutations';
 import { useGetUserProfile, useGetUserPostCount, USER_KEYS } from '@/services/user/queries';
+import { useGetMyJobPostings } from '@/services/site/queries';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -20,7 +21,6 @@ type MenuItem = {
   iconBg: string;
   iconColor: string;
   label: string;
-  badge?: 'new';
   route: string;
 };
 
@@ -41,7 +41,6 @@ const MENU_ITEMS: MenuItem[] = [
     icon: 'people',
     iconBg: '#dcfce7', iconColor: '#22c55e',
     label: '지원자 관리',
-    badge: 'new',
     route: '/mypage/applicant-management',
   },
   {
@@ -74,6 +73,8 @@ export default function MyPage() {
   const { data: postCount } = useGetUserPostCount({
     enabled: isLoggedIn === true,
   });
+  const { data: jobPostings } = useGetMyJobPostings();
+  const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
 
   const logoutMutation = useLogout();
 
@@ -193,7 +194,7 @@ export default function MyPage() {
 
         {/* 메뉴 리스트 */}
         <View style={s.menuCard}>
-          {MENU_ITEMS.map(({ icon, iconBg, iconColor, label, badge, route }, idx) => (
+          {MENU_ITEMS.map(({ icon, iconBg, iconColor, label, route }, idx) => (
             <TouchableOpacity
               key={label}
               style={[s.menuItem, idx < MENU_ITEMS.length - 1 && s.menuItemBorder]}
@@ -204,7 +205,7 @@ export default function MyPage() {
                 <Ionicons name={icon} size={18} color={iconColor} />
               </View>
               <Text style={s.menuLabel}>{label}</Text>
-              {badge === 'new' && (
+              {label === '지원자 관리' && totalUnreads > 0 && (
                 <View style={s.newBadge}>
                   <Text style={s.newBadgeText}>new</Text>
                 </View>

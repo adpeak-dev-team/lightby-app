@@ -98,7 +98,7 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingTop: 56, paddingBottom: 12, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },

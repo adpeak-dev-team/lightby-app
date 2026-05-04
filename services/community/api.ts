@@ -51,3 +51,16 @@ export async function createCommunityPost(payload: CreateCommunityPostPayload) {
   const { data } = await apiClient.post('/community/upload-posts', payload);
   return data as { success: boolean; message?: string; data?: any };
 }
+
+export async function updateCommunityPost(
+  id: number,
+  payload: { title: string; content: string; images: string[] },
+): Promise<{ success: boolean; message?: string }> {
+  const { data } = await apiClient.post(`/community/posts/${id}/update`, payload);
+  return data;
+}
+
+export async function updateCommunityPostImages(id: number, images: string[]): Promise<{ success: boolean }> {
+  const { data } = await apiClient.post(`/community/posts/${id}/update-images`, { images });
+  return data;
+}

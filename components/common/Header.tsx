@@ -1,14 +1,12 @@
 import { useCallback, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { tokenStorage } from '@/api/apiClient';
 import { useLogout } from '@/services/auth/mutations';
 
 export default function Header() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const logoutMutation = useLogout();
@@ -33,7 +31,7 @@ export default function Header() {
   };
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+    <View style={styles.header}>
       <Image
         source={require('@/assets/images/logo.png')}
         style={styles.logo}
@@ -61,7 +59,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
+    marginBottom: 5,
     backgroundColor: 'rgba(255,255,255,0.97)',
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,

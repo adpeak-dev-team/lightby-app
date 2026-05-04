@@ -164,7 +164,7 @@ export default function CommunityPostPage() {
       </Modal>
 
       {/* 헤더 */}
-      <View style={[s.nav, { paddingTop: insets.top + 10 }]}>
+      <View style={s.nav}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#111827" />
         </TouchableOpacity>
@@ -285,7 +285,7 @@ const s = StyleSheet.create({
 
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingBottom: 10, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 10, paddingBottom: 10, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },

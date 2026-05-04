@@ -60,3 +60,18 @@ export interface ApplicantItem {
   allcount: number;
   unreads_num: number;
 }
+
+export interface ApplicantProfile {
+  apply_id: number;
+  user_id: number;
+  name: string;
+  nickname: string;
+  phone?: string | null;
+  gender?: string | null;
+  birthday?: string | null;
+  introduction?: string | null;
+  careers?: string[] | null;
+  profile_thumbnail?: string | null;
+  status: 'read' | 'unread';
+  created_at: string;
+}

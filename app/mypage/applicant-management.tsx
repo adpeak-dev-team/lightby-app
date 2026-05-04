@@ -74,7 +74,7 @@ function ApplicantCard({ item }: { item: ApplicantItem }) {
         </View>
         <TouchableOpacity
           style={c.viewBtn}
-          onPress={() => router.push(`/mypage/applicants/${item.idx}` as never)}
+          onPress={() => router.push(`/posts/applicants/${item.idx}` as never)}
           activeOpacity={0.85}
         >
           <Text style={c.viewBtnText}>지원자 보기</Text>
@@ -143,7 +143,7 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', paddingTop: 36, paddingBottom: 12, paddingHorizontal: 16,
+    backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
