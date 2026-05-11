@@ -61,6 +61,14 @@ export interface ApplicantItem {
   unreads_num: number;
 }
 
+export interface MyPostSummary {
+  id: number;
+  subject: string;
+  thumbnail: string | null;
+  created_at: string;
+  is_display: number;
+}
+
 export interface ApplicantProfile {
   apply_id: number;
   user_id: number;

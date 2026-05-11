@@ -178,7 +178,7 @@ export default function SiteDetailPage() {
         </View>
       </View>
 
-      <ScrollView style={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView style={s.scroll} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
 
         {/* ── 이미지 갤러리 ── */}
         {images.length > 0 ? (

@@ -10,6 +10,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { apiClient } from '@/api/apiClient';
 import { useCreateJobPost } from '@/services/site/mutations';
 import { useGetUserProfile } from '@/services/user/queries';
+import { getJobDetail, copyImages } from '@/services/site/api';
+import { MyPostSummary } from '@/services/site/types';
+import { PreviousPostingModal } from '@/components/site-post/PreviousPostingModal';
 
 import { ImageSection } from '@/components/site-post/ImageSection';
 import { PostInfoSection } from '@/components/site-post/PostInfoSection';
@@ -55,6 +58,8 @@ export default function SitePostPage() {
     const [detailContent, setDetailContent] = useState('');
 
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [prevModalVisible, setPrevModalVisible] = useState(false);
+    const [isLoadingPrev, setIsLoadingPrev] = useState(false);
 
     // ── 나가기 확인 모달 ──
     const imagesRef = useRef<string[]>([]);
@@ -119,6 +124,41 @@ export default function SitePostPage() {
         );
     };
 
+    const handleSelectPrevious = async (post: MyPostSummary) => {
+        setIsLoadingPrev(true);
+        try {
+            const d = await getJobDetail(String(post.id));
+            const originalImgs: string[] = Array.isArray(d.imgs) ? d.imgs : JSON.parse((d.imgs as any) || '[]');
+            const copiedImgs = originalImgs.length > 0 ? await copyImages(originalImgs) : [];
+
+            setSubject(d.subject ?? '');
+            setIntro(d.point_content ?? '');
+            setImages(copiedImgs);
+            setAddress(d.address ?? '');
+            setLatitude(typeof d.latitude === 'number' ? d.latitude : null);
+            setLongitude(typeof d.longitude === 'number' ? d.longitude : null);
+            setWorkRegions(Array.isArray(d.regions) ? (d.regions[0] ?? '') : '');
+            setAgency(d.agency ?? '');
+            setManagerName(d.name ?? '');
+            setManagerPhone(d.phone ?? '');
+            setWorkIndustry(d.industries ?? []);
+            setWorkOccupation(d.job_categories ?? []);
+            setCareerPeriod(d.career_period ?? '');
+            setHeadCount(d.number_people ?? '');
+            setFeeType(d.fee_type ?? '');
+            setFee(d.fee ? String(d.fee) : '');
+            setDailyPay(d.daily_expense ?? '');
+            setAccommodationPay(d.accommodation_expenses ?? '');
+            setPromotion(d.promotion ?? '');
+            setBaseSalary(d.base_pay ?? '');
+            setDetailContent(d.detail_content ?? '');
+        } catch {
+            Alert.alert('오류', '공고를 불러오는 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoadingPrev(false);
+        }
+    };
+
     const handleSubmit = () => {
         if (!subject.trim()) return Alert.alert('필수 입력', '공고 제목을 입력해주세요.');
         if (!workRegions) return Alert.alert('필수 입력', '근무 지역을 선택해주세요.');
@@ -163,6 +203,14 @@ export default function SitePostPage() {
 
     return (
         <View style={s.container}>
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: insets.bottom, backgroundColor: '#fff', zIndex: 10 }} />
+            <PreviousPostingModal
+                visible={prevModalVisible}
+                onClose={() => setPrevModalVisible(false)}
+                onSelect={handleSelectPrevious}
+                isLoading={isLoadingPrev}
+            />
+
             {/* ── 나가기 확인 모달 ── */}
             <Modal
                 visible={leaveModalVisible}
@@ -205,12 +253,33 @@ export default function SitePostPage() {
             </Modal>
 
             {/* ── 네비게이션 헤더 ── */}
-            <View style={[s.nav, { paddingTop: insets.top + 10 }]}>
+            <View style={[s.nav, { paddingTop: insets.top - 10 }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
                     <Ionicons name="chevron-back" size={24} color="#111827" />
                 </TouchableOpacity>
                 <Text style={s.navTitle}>구인 공고 등록</Text>
                 <View style={{ width: 40 }} />
+            </View>
+            <View style={s.navSubRow}>
+                {(userProfile?.freebies_count ?? 0) < 2 && (
+                    <View style={s.freebiesBadge}>
+                        <Ionicons name="gift-outline" size={12} color="#f59e0b" />
+                        <Text style={s.freebiesText}>
+                            프리미엄 무료 혜택 {2 - (userProfile?.freebies_count ?? 0)}회 가능합니다
+                        </Text>
+                    </View>
+                )}
+                <TouchableOpacity
+                    onPress={() => setPrevModalVisible(true)}
+                    style={s.navPrevBtn}
+                    disabled={isLoadingPrev}
+                    activeOpacity={0.75}
+                >
+                    {isLoadingPrev
+                        ? <ActivityIndicator size="small" color="#3b82f6" />
+                        : <Ionicons name="documents-outline" size={14} color="#3b82f6" />}
+                    <Text style={s.navPrevText}>이전 공고 불러오기</Text>
+                </TouchableOpacity>
             </View>
 
             <ScrollView
@@ -302,6 +371,36 @@ const s = StyleSheet.create({
     },
     navBack: { width: 40, alignItems: 'flex-start' },
     navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+    navSubRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        paddingHorizontal: 16,
+        paddingTop: 6,
+        paddingBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f3f4f6',
+    },
+    navPrevBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        backgroundColor: '#eff6ff',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#bfdbfe',
+    },
+    navPrevText: { fontSize: 12, fontWeight: '700', color: '#3b82f6' },
+    freebiesBadge: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    freebiesText: { fontSize: 11, fontWeight: '600', color: '#f59e0b' },
     scroll: { padding: 16, gap: 12 },
     submitBtn: {
         backgroundColor: '#3b82f6',

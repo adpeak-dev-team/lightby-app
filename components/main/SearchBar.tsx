@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  Modal, StyleSheet, Pressable,
+  Modal, StyleSheet, Pressable, Animated, PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type SortVal = 'DEFAULT' | 'HIGH_FEE' | 'LATEST' | 'VIEW_COUNT';
 
 const SORT_OPTIONS: { label: string; value: SortVal }[] = [
-  { label: '최신순',       value: 'LATEST' },
+  { label: '최신순', value: 'LATEST' },
   { label: '높은 수수료순', value: 'HIGH_FEE' },
-  { label: '조회순',       value: 'VIEW_COUNT' },
+  { label: '조회순', value: 'VIEW_COUNT' },
 ];
 
 interface SearchBarProps {
@@ -24,6 +24,42 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
   const [localInput, setLocalInput] = useState(search);
   const [focused, setFocused] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const closeSheet = useCallback(() => {
+    Animated.timing(translateY, {
+      toValue: 300,
+      duration: 220,
+      useNativeDriver: true,
+    }).start(() => {
+      setSortOpen(false);
+    });
+  }, [translateY]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, g) => g.dy > 2,
+      onPanResponderMove: (_, g) => {
+        if (g.dy > 0) translateY.setValue(g.dy);
+      },
+      onPanResponderRelease: (_, g) => {
+        if (g.dy > 80 || g.vy > 0.5) {
+          closeSheet();
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    }),
+  ).current;
+
+  const openSheet = () => {
+    translateY.setValue(0);
+    setSortOpen(true);
+  };
 
   const handleSubmit = () => {
     onSearchChange(localInput.trim());
@@ -64,17 +100,17 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
         <View style={styles.divider} />
 
-        <TouchableOpacity style={styles.sortBtn} onPress={() => setSortOpen(true)}>
+        <TouchableOpacity style={styles.sortBtn} onPress={openSheet}>
           <Text style={styles.sortLabel}>{currentSortLabel}</Text>
           <Ionicons name="funnel-outline" size={13} color="#6b7280" />
         </TouchableOpacity>
       </View>
 
       {/* 정렬 모달 */}
-      <Modal visible={sortOpen} transparent animationType="fade" onRequestClose={() => setSortOpen(false)}>
-        <Pressable style={styles.overlay} onPress={() => setSortOpen(false)} />
-        <View style={styles.sheet}>
-          <View style={styles.sheetHandle} />
+      <Modal visible={sortOpen} transparent animationType="none" onRequestClose={closeSheet}>
+        <Pressable style={styles.overlay} onPress={closeSheet} />
+        <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
+          <View style={styles.sheetHandle} {...panResponder.panHandlers} />
           <Text style={styles.sheetTitle}>정렬 옵션</Text>
           {SORT_OPTIONS.map((opt) => (
             <TouchableOpacity
@@ -88,7 +124,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
               {sort === opt.value && <Ionicons name="checkmark" size={16} color="#0ea5e9" />}
             </TouchableOpacity>
           ))}
-        </View>
+        </Animated.View>
       </Modal>
     </View>
   );

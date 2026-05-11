@@ -24,6 +24,8 @@ export interface UserProfile {
   industries?: string[] | null;
   job_categories?: string[] | null;
   user_work_regions?: string[] | null;
+  freebies?: number;
+  freebies_count?: number;
 }
 
 export interface UserPostCount {

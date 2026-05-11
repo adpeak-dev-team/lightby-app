@@ -1,5 +1,5 @@
 import { apiClient } from '@/api/apiClient';
-import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile } from './types';
+import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary } from './types';
 
 export async function getJobDetail(id: string): Promise<JobPostDetail> {
   const { data } = await apiClient.get<{ success: boolean; data: JobPostDetail }>(`/detail/get-job-detail?id=${id}`);
@@ -90,6 +90,16 @@ export interface JobPostingPayload {
   selectedProduct: string;
   selectedIcons: number[];
   totalAmount: number;
+}
+
+export async function getMyRecentPosts(limit = 10): Promise<MyPostSummary[]> {
+  const { data } = await apiClient.get('/job-posting/my-posts', { params: { limit } });
+  return data.data ?? [];
+}
+
+export async function copyImages(imagePaths: string[]): Promise<string[]> {
+  const { data } = await apiClient.post<{ success: boolean; paths: string[] }>('/internal/copy-images', { imagePaths });
+  return data.paths;
 }
 
 export async function createJobPost(payload: JobPostingPayload): Promise<{ success: boolean; message?: string }> {

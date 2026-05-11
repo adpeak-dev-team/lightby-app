@@ -203,7 +203,8 @@ export default function HomePage() {
         onPress={() => router.push('/registration/sitepost')}
         activeOpacity={0.85}
       >
-        <Ionicons name="add" size={26} color="#fff" />
+        <Ionicons name="create-outline" size={20} color="#fff" />
+        <Text style={s.fabText}>공고 등록</Text>
       </TouchableOpacity>
     </View>
   );
@@ -250,19 +251,12 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
   },
   fab: {
-    position: 'absolute',
-    bottom: 24,
-    right: 20,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#3b82f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    position: 'absolute', right: 16, bottom: 24,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#3b82f6', paddingHorizontal: 18, paddingVertical: 10,
+    borderRadius: 999,
+    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
   },
+  fabText: { color: '#fff', fontSize: 14, fontWeight: '800' },
 });

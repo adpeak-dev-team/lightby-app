@@ -59,7 +59,7 @@ const s = StyleSheet.create({
   fab: {
     position: 'absolute', right: 16, bottom: 24,
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#3b82f6', paddingHorizontal: 18, paddingVertical: 14,
+    backgroundColor: '#3b82f6', paddingHorizontal: 18, paddingVertical: 10,
     borderRadius: 999,
     shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
