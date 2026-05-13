@@ -1,5 +1,8 @@
-import { useCallback } from 'react';
-import { View, FlatList, ActivityIndicator, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  View, FlatList, ActivityIndicator, Text, StyleSheet,
+  TouchableOpacity, TextInput,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +12,10 @@ import { useGetCommunityPosts } from '@/services/community/queries';
 
 export default function CommunityPage() {
   const router = useRouter();
-  const { data: posts = [], isLoading, refetch } = useGetCommunityPosts();
+  const [input, setInput] = useState('');
+  const [search, setSearch] = useState('');
+
+  const { data: posts = [], isLoading, refetch } = useGetCommunityPosts(search);
 
   useFocusEffect(
     useCallback(() => {
@@ -17,9 +23,50 @@ export default function CommunityPage() {
     }, [refetch])
   );
 
+  const handleSubmit = () => {
+    setSearch(input.trim());
+  };
+
+  const handleClear = () => {
+    setInput('');
+    setSearch('');
+  };
+
   return (
     <View style={s.container}>
       <Header />
+
+      {/* 검색창 */}
+      <View style={s.searchWrap}>
+        <View style={s.searchBar}>
+          <Ionicons name="search-outline" size={16} color="#9ca3af" />
+          <TextInput
+            style={s.searchInput}
+            value={input}
+            onChangeText={setInput}
+            placeholder="제목 또는 내용으로 검색"
+            placeholderTextColor="#9ca3af"
+            returnKeyType="search"
+            onSubmitEditing={handleSubmit}
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+          {!!input && (
+            <TouchableOpacity onPress={handleClear} hitSlop={8}>
+              <Ionicons name="close-circle" size={16} color="#9ca3af" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleSubmit} hitSlop={8}>
+            <Ionicons name="arrow-forward-circle" size={20} color="#3b82f6" />
+          </TouchableOpacity>
+        </View>
+        {!!search && (
+          <Text style={s.searchResult}>
+            <Text style={s.searchKeyword}>"{search}"</Text> 검색 결과 {posts.length}건
+          </Text>
+        )}
+      </View>
+
       <FlatList
         data={posts}
         keyExtractor={(item) => String(item.id)}
@@ -35,7 +82,9 @@ export default function CommunityPage() {
           isLoading ? (
             <ActivityIndicator size="large" color="#38bdf8" style={{ marginTop: 60 }} />
           ) : (
-            <Text style={s.empty}>게시글이 없습니다.</Text>
+            <Text style={s.empty}>
+              {search ? `"${search}" 검색 결과가 없습니다.` : '게시글이 없습니다.'}
+            </Text>
           )
         }
       />
@@ -54,6 +103,31 @@ export default function CommunityPage() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
+  searchWrap: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+    gap: 6,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#111827',
+    padding: 0,
+  },
+  searchResult: { fontSize: 11, color: '#9ca3af', paddingHorizontal: 2 },
+  searchKeyword: { fontWeight: '700', color: '#374151' },
   list: { padding: 12, paddingBottom: 96 },
   empty: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 15 },
   fab: {

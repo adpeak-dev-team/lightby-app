@@ -1,8 +1,10 @@
 import { apiClient } from '@/api/apiClient';
 import { CommunityItem, Comment, CreateCommunityPostPayload } from './types';
 
-export async function getCommunityPosts(): Promise<CommunityItem[]> {
-  const { data } = await apiClient.get<{ success: boolean; data: CommunityItem[] }>('/community/posts');
+export async function getCommunityPosts(search?: string): Promise<CommunityItem[]> {
+  const { data } = await apiClient.get<{ success: boolean; data: CommunityItem[] }>('/community/posts', {
+    params: search ? { search } : {},
+  });
   return data.data;
 }
 

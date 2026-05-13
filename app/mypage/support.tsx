@@ -1,26 +1,20 @@
 import { useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  Image, LayoutAnimation, Platform, UIManager,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useGetFaqs, useGetMyQnaPosts } from '@/services/qna/queries';
+
+const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental?.(true);
 }
 
-const FAQ_LIST = [
-  { id: 1, question: '1:1 문의는 어떻게 하나요?', answer: '하단의 문의하기 버튼을 통해 문의를 남겨주시면 영업일 기준 1~2일 내로 답변 드립니다.' },
-  { id: 2, question: '회원가입은 어떻게 하나요?', answer: '앱 하단 마이페이지 탭에서 로그인 버튼을 눌러 회원가입을 진행할 수 있습니다.' },
-  { id: 3, question: '서비스 이용 방법이 궁금해요.', answer: '서비스 이용 방법은 메인 화면의 도움말 섹션을 참고해 주세요. 추가 문의 사항은 1:1 문의를 이용해 주세요.' },
-];
-
-const INQUIRY_LIST = [
-  { id: 1, question: '1:1 문의는 어떻게 하나요?', answer: '하단의 문의하기 버튼을 통해 문의를 남겨주시면 영업일 기준 1~2일 내로 답변 드립니다.' },
-  { id: 2, question: '문의 답변은 얼마나 걸리나요?', answer: '영업일 기준 1~2일 내로 답변 드리고 있습니다. 빠른 답변을 위해 최선을 다하겠습니다.' },
-];
-
-function AccordionItem({ question, answer }: { question: string; answer: string }) {
+function AccordionItem({ question, answer }: { question: string; answer: string | null }) {
   const [open, setOpen] = useState(false);
 
   const toggle = () => {
@@ -33,13 +27,80 @@ function AccordionItem({ question, answer }: { question: string; answer: string 
       <TouchableOpacity style={a.header} onPress={toggle} activeOpacity={0.8}>
         <View style={a.questionRow}>
           <Text style={a.qLabel}>Q.</Text>
-          <Text style={a.question}>{question}</Text>
+          <Text style={a.question} numberOfLines={open ? undefined : 2}>{question}</Text>
         </View>
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" />
       </TouchableOpacity>
       {open && (
         <View style={a.answerWrap}>
-          <Text style={a.answer}>{answer}</Text>
+          <Text style={a.answer}>{answer ?? '답변 준비 중입니다.'}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function InquiryCard({ content, images, is_answered, created_at, answer }: {
+  content: string;
+  images: string[];
+  is_answered: boolean;
+  created_at: string;
+  answer: { content: string; created_at: string } | null;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const toggle = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setOpen((v) => !v);
+  };
+
+  return (
+    <View style={c.card}>
+      <TouchableOpacity style={c.header} onPress={toggle} activeOpacity={0.8}>
+        <View style={{ flex: 1 }}>
+          <View style={c.badgeRow}>
+            <View style={[c.badge, is_answered ? c.badgeDone : c.badgeWait]}>
+              <Text style={[c.badgeText, is_answered ? c.badgeTextDone : c.badgeTextWait]}>
+                {is_answered ? '답변 완료' : '답변 대기'}
+              </Text>
+            </View>
+            <Text style={c.date}>{new Date(created_at).toLocaleDateString('ko-KR')}</Text>
+          </View>
+          <Text style={c.contentPreview} numberOfLines={1}>{content}</Text>
+        </View>
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" style={{ marginLeft: 8 }} />
+      </TouchableOpacity>
+
+      {open && (
+        <View style={c.body}>
+          <View style={c.section}>
+            <Text style={c.sectionLabel}>문의 내용</Text>
+            <Text style={c.bodyText}>{content}</Text>
+          </View>
+
+          {images.length > 0 && (
+            <View style={c.imageGrid}>
+              {images.map((img, i) => (
+                <Image
+                  key={i}
+                  source={{ uri: `${IMAGE_PREFIX}${img}` }}
+                  style={c.image}
+                  resizeMode="cover"
+                />
+              ))}
+            </View>
+          )}
+
+          <View style={c.divider} />
+
+          {answer ? (
+            <View style={c.answerBox}>
+              <Text style={c.answerLabel}>답변 · {new Date(answer.created_at).toLocaleDateString('ko-KR')}</Text>
+              <Text style={c.answerText}>{answer.content}</Text>
+            </View>
+          ) : (
+            <Text style={c.pendingText}>영업일 기준 1~2일 내로 답변 드립니다.</Text>
+          )}
         </View>
       )}
     </View>
@@ -48,8 +109,11 @@ function AccordionItem({ question, answer }: { question: string; answer: string 
 
 export default function SupportPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [active, setActive] = useState<'faq' | 'inquiry'>('faq');
-  const list = active === 'faq' ? FAQ_LIST : INQUIRY_LIST;
+
+  const { data: faqs = [], isLoading: faqLoading } = useGetFaqs();
+  const { data: myQuestions = [], isLoading: inquiryLoading } = useGetMyQnaPosts();
 
   return (
     <View style={s.container}>
@@ -83,13 +147,50 @@ export default function SupportPage() {
           ))}
         </View>
 
-        {/* 아코디언 목록 */}
-        <View style={s.list}>
-          {list.map((item) => (
-            <AccordionItem key={item.id} question={item.question} answer={item.answer} />
-          ))}
-        </View>
+        {/* FAQ 탭 */}
+        {active === 'faq' && (
+          <View style={s.list}>
+            {faqLoading ? (
+              <Text style={s.empty}>불러오는 중...</Text>
+            ) : faqs.length === 0 ? (
+              <Text style={s.empty}>등록된 FAQ가 없습니다.</Text>
+            ) : (
+              faqs.map((item) => (
+                <AccordionItem key={item.id} question={item.content} answer={item.answer} />
+              ))
+            )}
+          </View>
+        )}
+
+        {/* 1:1 문의 탭 */}
+        {active === 'inquiry' && (
+          <View style={s.list}>
+            {inquiryLoading ? (
+              <Text style={s.empty}>불러오는 중...</Text>
+            ) : myQuestions.length === 0 ? (
+              <Text style={s.empty}>등록된 문의가 없습니다.</Text>
+            ) : (
+              myQuestions.map((item) => (
+                <InquiryCard key={item.id} {...item} />
+              ))
+            )}
+          </View>
+        )}
+
+        <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* 문의하기 고정 버튼 */}
+      <View style={s.fab}>
+        <TouchableOpacity
+          style={s.fabBtn}
+          onPress={() => router.push('/registration/qna')}
+          activeOpacity={0.85}
+        >
+          <Text style={s.fabText}>✏️  문의하기</Text>
+        </TouchableOpacity>
+        <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+      </View>
     </View>
   );
 }
@@ -103,7 +204,7 @@ const s = StyleSheet.create({
   },
   navBack: { width: 40, alignItems: 'flex-start' },
   navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
-  scroll: { padding: 16, paddingBottom: 40 },
+  scroll: { padding: 16 },
   hero: { alignItems: 'center', paddingVertical: 24, gap: 6 },
   heroTitle: { fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 },
   heroSub: { fontSize: 13, color: '#9ca3af' },
@@ -112,10 +213,25 @@ const s = StyleSheet.create({
     padding: 4, gap: 4, marginBottom: 16,
   },
   switchItem: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  switchItemActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 2 },
+  switchItemActive: {
+    backgroundColor: '#fff',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 2,
+  },
   switchLabel: { fontSize: 13, fontWeight: '600', color: '#9ca3af' },
   switchLabelActive: { color: '#3b82f6' },
   list: { gap: 10 },
+  empty: { textAlign: 'center', color: '#9ca3af', fontSize: 14, paddingVertical: 40 },
+  fab: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9',
+    padding: 16,
+  },
+  fabBtn: {
+    backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: '#2563eb', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
+  },
+  fabText: { color: '#fff', fontSize: 15, fontWeight: '800' },
 });
 
 const a = StyleSheet.create({
@@ -130,4 +246,33 @@ const a = StyleSheet.create({
   question: { fontSize: 14, fontWeight: '600', color: '#1f2937', flex: 1 },
   answerWrap: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: '#f9fafb' },
   answer: { fontSize: 13, color: '#6b7280', lineHeight: 20, paddingTop: 12 },
+});
+
+const c = StyleSheet.create({
+  card: {
+    backgroundColor: '#fff', borderRadius: 14,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+    overflow: 'hidden',
+  },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 16 },
+  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
+  badgeDone: { backgroundColor: '#dcfce7' },
+  badgeWait: { backgroundColor: '#fef3c7' },
+  badgeText: { fontSize: 10, fontWeight: '700' },
+  badgeTextDone: { color: '#16a34a' },
+  badgeTextWait: { color: '#d97706' },
+  date: { fontSize: 11, color: '#9ca3af' },
+  contentPreview: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  body: { borderTopWidth: 1, borderTopColor: '#f3f4f6', padding: 16, gap: 12 },
+  section: { gap: 4 },
+  sectionLabel: { fontSize: 11, fontWeight: '700', color: '#9ca3af' },
+  bodyText: { fontSize: 14, color: '#374151', lineHeight: 22 },
+  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  image: { width: '31%', aspectRatio: 1, borderRadius: 10 },
+  divider: { height: 1, backgroundColor: '#e5e7eb' },
+  answerBox: { backgroundColor: '#eff6ff', borderRadius: 12, padding: 12, gap: 4 },
+  answerLabel: { fontSize: 11, fontWeight: '700', color: '#60a5fa' },
+  answerText: { fontSize: 14, color: '#1d4ed8', lineHeight: 22 },
+  pendingText: { fontSize: 12, color: '#9ca3af', textAlign: 'center', paddingVertical: 4 },
 });

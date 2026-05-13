@@ -7,12 +7,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { apiClient } from '@/api/apiClient';
-import { useCreateJobPost } from '@/services/site/mutations';
-import { useGetUserProfile } from '@/services/user/queries';
-import { getJobDetail, copyImages } from '@/services/site/api';
-import { MyPostSummary } from '@/services/site/types';
 import { PreviousPostingModal } from '@/components/site-post/PreviousPostingModal';
+import { ProductSelectModal, ProductType } from '@/components/site-post/ProductSelectModal';
+import { useSitePostForm } from '@/services/site/useSitePostForm';
 
 import { ImageSection } from '@/components/site-post/ImageSection';
 import { PostInfoSection } from '@/components/site-post/PostInfoSection';
@@ -27,55 +24,26 @@ export default function SitePostPage() {
     const router = useRouter();
     const navigation = useNavigation();
     const insets = useSafeAreaInsets();
-    const createMutation = useCreateJobPost();
 
-    const { data: userProfile } = useGetUserProfile();
-    useEffect(() => {
-        if (userProfile) console.log('[UserProfile]', userProfile);
-    }, [userProfile]);
-
-    // ── 폼 상태 ──
-    const [subject, setSubject] = useState('');
-    const [intro, setIntro] = useState('');
-    const [images, setImages] = useState<string[]>([]);
-    const [address, setAddress] = useState('');
-    const [latitude, setLatitude] = useState<number | null>(null);
-    const [longitude, setLongitude] = useState<number | null>(null);
-    const [workRegions, setWorkRegions] = useState('');
-    const [agency, setAgency] = useState('');
-    const [managerName, setManagerName] = useState('');
-    const [managerPhone, setManagerPhone] = useState('');
-    const [workIndustry, setWorkIndustry] = useState<string[]>([]);
-    const [workOccupation, setWorkOccupation] = useState<string[]>([]);
-    const [careerPeriod, setCareerPeriod] = useState('');
-    const [headCount, setHeadCount] = useState('');
-    const [feeType, setFeeType] = useState('');
-    const [fee, setFee] = useState('');
-    const [dailyPay, setDailyPay] = useState('');
-    const [accommodationPay, setAccommodationPay] = useState('');
-    const [promotion, setPromotion] = useState('');
-    const [baseSalary, setBaseSalary] = useState('');
-    const [detailContent, setDetailContent] = useState('');
+    const form = useSitePostForm();
 
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [prevModalVisible, setPrevModalVisible] = useState(false);
-    const [isLoadingPrev, setIsLoadingPrev] = useState(false);
-
-    // ── 나가기 확인 모달 ──
-    const imagesRef = useRef<string[]>([]);
-    useEffect(() => { imagesRef.current = images; }, [images]);
-
+    const [productModalVisible, setProductModalVisible] = useState(false);
     const [leaveModalVisible, setLeaveModalVisible] = useState(false);
     const [isDeletingImages, setIsDeletingImages] = useState(false);
     const pendingActionRef = useRef<any>(null);
 
+    // ── 나가기 확인 ──
     useEffect(() => {
         const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+            if (form.isSuccessRef.current) return;
+
             const hasContent =
-                subject || intro || imagesRef.current.length > 0 || address ||
-                workRegions || agency || managerName || managerPhone ||
-                workIndustry.length > 0 || workOccupation.length > 0 ||
-                feeType || fee || detailContent;
+                form.subject || form.intro || form.imagesRef.current.length > 0 || form.address ||
+                form.workRegions || form.agency || form.managerName || form.managerPhone ||
+                form.workIndustry.length > 0 || form.workOccupation.length > 0 ||
+                form.feeType || form.fee || form.detailContent;
 
             if (!hasContent) return;
 
@@ -84,18 +52,13 @@ export default function SitePostPage() {
             setLeaveModalVisible(true);
         });
         return unsubscribe;
-    }, [navigation, subject, intro, address, workRegions, agency, managerName,
-        managerPhone, workIndustry, workOccupation, feeType, fee, detailContent]);
+    }, [navigation, form.subject, form.intro, form.address, form.workRegions, form.agency,
+        form.managerName, form.managerPhone, form.workIndustry, form.workOccupation,
+        form.feeType, form.fee, form.detailContent]);
 
     const handleConfirmLeave = async () => {
         setIsDeletingImages(true);
-        if (imagesRef.current.length > 0) {
-            await Promise.allSettled(
-                imagesRef.current.map((path) =>
-                    apiClient.delete('/internal/image-work', { data: { imagePath: path } }),
-                ),
-            );
-        }
+        await form.deleteUploadedImages();
         setIsDeletingImages(false);
         setLeaveModalVisible(false);
         if (pendingActionRef.current) {
@@ -103,102 +66,24 @@ export default function SitePostPage() {
         }
     };
 
+    // ── 키보드 감지 ──
     useEffect(() => {
-        const show = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardVisible(true);
-            console.log('[Keyboard] ON');
-        });
-        const hide = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardVisible(false);
-            console.log('[Keyboard] OFF');
-        });
+        const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+        const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
         return () => { show.remove(); hide.remove(); };
     }, []);
 
-    const toggleMulti = (
-        setter: React.Dispatch<React.SetStateAction<string[]>>,
-        value: string,
-    ) => {
-        setter((prev) =>
-            prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-        );
-    };
-
-    const handleSelectPrevious = async (post: MyPostSummary) => {
-        setIsLoadingPrev(true);
-        try {
-            const d = await getJobDetail(String(post.id));
-            const originalImgs: string[] = Array.isArray(d.imgs) ? d.imgs : JSON.parse((d.imgs as any) || '[]');
-            const copiedImgs = originalImgs.length > 0 ? await copyImages(originalImgs) : [];
-
-            setSubject(d.subject ?? '');
-            setIntro(d.point_content ?? '');
-            setImages(copiedImgs);
-            setAddress(d.address ?? '');
-            setLatitude(typeof d.latitude === 'number' ? d.latitude : null);
-            setLongitude(typeof d.longitude === 'number' ? d.longitude : null);
-            setWorkRegions(Array.isArray(d.regions) ? (d.regions[0] ?? '') : '');
-            setAgency(d.agency ?? '');
-            setManagerName(d.name ?? '');
-            setManagerPhone(d.phone ?? '');
-            setWorkIndustry(d.industries ?? []);
-            setWorkOccupation(d.job_categories ?? []);
-            setCareerPeriod(d.career_period ?? '');
-            setHeadCount(d.number_people ?? '');
-            setFeeType(d.fee_type ?? '');
-            setFee(d.fee ? String(d.fee) : '');
-            setDailyPay(d.daily_expense ?? '');
-            setAccommodationPay(d.accommodation_expenses ?? '');
-            setPromotion(d.promotion ?? '');
-            setBaseSalary(d.base_pay ?? '');
-            setDetailContent(d.detail_content ?? '');
-        } catch {
-            Alert.alert('오류', '공고를 불러오는 중 오류가 발생했습니다.');
-        } finally {
-            setIsLoadingPrev(false);
-        }
-    };
-
     const handleSubmit = () => {
-        if (!subject.trim()) return Alert.alert('필수 입력', '공고 제목을 입력해주세요.');
-        if (!workRegions) return Alert.alert('필수 입력', '근무 지역을 선택해주세요.');
-        if (!agency.trim()) return Alert.alert('필수 입력', '분양대행사를 입력해주세요.');
-        if (!managerName.trim()) return Alert.alert('필수 입력', '담당자 성함을 입력해주세요.');
-        if (!managerPhone.trim()) return Alert.alert('필수 입력', '연락처를 입력해주세요.');
-        if (workIndustry.length === 0) return Alert.alert('필수 입력', '업종을 선택해주세요.');
-        if (workOccupation.length === 0) return Alert.alert('필수 입력', '직종을 선택해주세요.');
-        if (!feeType) return Alert.alert('필수 입력', '수수료 타입을 선택해주세요.');
-        if (!fee.trim()) return Alert.alert('필수 입력', '수수료 금액을 입력해주세요.');
+        const error = form.validate();
+        if (error) return Alert.alert('필수 입력', error);
+        setProductModalVisible(true);
+    };
 
-        createMutation.mutate(
-            {
-                subject, intro, images,
-                address, resultAddress: address,
-                latitude, longitude,
-                workRegions: workRegions ? [workRegions] : [],
-                agency, managerName, managerPhone,
-                workIndustry, workOccupation,
-                careerPeriod, headCount,
-                feeType, fee,
-                dailyPay, accommodationPay, promotion, baseSalary,
-                detailContent,
-                selectedProduct: 'FREE',
-                selectedIcons: [],
-                totalAmount: 0,
-            },
-            {
-                onSuccess: (res) => {
-                    if (res.success) {
-                        Alert.alert('등록 완료', '공고가 등록되었습니다.', [
-                            { text: '확인', onPress: () => router.back() },
-                        ]);
-                    } else {
-                        Alert.alert('오류', res.message ?? '등록에 실패했습니다.');
-                    }
-                },
-                onError: () => Alert.alert('오류', '공고 등록 중 오류가 발생했습니다.'),
-            },
-        );
+    const handleConfirmProduct = (product: ProductType, icons: number[], total: number) => {
+        form.confirmProduct(product, icons, total, {
+            onCloseModal: () => setProductModalVisible(false),
+            onSuccess: () => router.back(),
+        });
     };
 
     return (
@@ -207,8 +92,15 @@ export default function SitePostPage() {
             <PreviousPostingModal
                 visible={prevModalVisible}
                 onClose={() => setPrevModalVisible(false)}
-                onSelect={handleSelectPrevious}
-                isLoading={isLoadingPrev}
+                onSelect={form.loadPreviousPost}
+                isLoading={form.isLoadingPrev}
+            />
+            <ProductSelectModal
+                visible={productModalVisible}
+                onClose={() => setProductModalVisible(false)}
+                onConfirm={handleConfirmProduct}
+                freebies={Boolean(form.userProfile?.freebies) && (form.userProfile?.freebies_count ?? 0) < 2}
+                isPending={form.isSubmitting}
             />
 
             {/* ── 나가기 확인 모달 ── */}
@@ -261,21 +153,21 @@ export default function SitePostPage() {
                 <View style={{ width: 40 }} />
             </View>
             <View style={s.navSubRow}>
-                {(userProfile?.freebies_count ?? 0) < 2 && (
+                {Boolean(form.userProfile?.freebies) && (form.userProfile?.freebies_count ?? 0) < 2 && (
                     <View style={s.freebiesBadge}>
                         <Ionicons name="gift-outline" size={12} color="#f59e0b" />
                         <Text style={s.freebiesText}>
-                            프리미엄 무료 혜택 {2 - (userProfile?.freebies_count ?? 0)}회 가능합니다
+                            프리미엄 무료 혜택 {2 - (form.userProfile?.freebies_count ?? 0)}회 가능합니다
                         </Text>
                     </View>
                 )}
                 <TouchableOpacity
                     onPress={() => setPrevModalVisible(true)}
                     style={s.navPrevBtn}
-                    disabled={isLoadingPrev}
+                    disabled={form.isLoadingPrev}
                     activeOpacity={0.75}
                 >
-                    {isLoadingPrev
+                    {form.isLoadingPrev
                         ? <ActivityIndicator size="small" color="#3b82f6" />
                         : <Ionicons name="documents-outline" size={14} color="#3b82f6" />}
                     <Text style={s.navPrevText}>이전 공고 불러오기</Text>
@@ -287,70 +179,82 @@ export default function SitePostPage() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <ImageSection images={images} onChange={setImages} />
+                <View style={s.sectionCard}>
+                    <ImageSection images={form.images} onChange={form.setImages} />
+                </View>
 
-                <PostInfoSection
-                    subject={subject} onSubjectChange={setSubject}
-                    intro={intro} onIntroChange={setIntro}
-                />
+                <View style={s.sectionCard}>
+                    <PostInfoSection
+                        subject={form.subject} onSubjectChange={form.setSubject}
+                        intro={form.intro} onIntroChange={form.setIntro}
+                    />
+                </View>
 
-                <RegionSection
-                    address={address}
-                    latitude={latitude}
-                    longitude={longitude}
-                    onAddressSelect={(addr, lat, lng) => {
-                        console.log('여기로 오는거야??');
-                        setAddress(addr);
-                        setLatitude(lat);
-                        setLongitude(lng);
-                    }}
-                    workRegions={workRegions}
-                    onRegionSelect={setWorkRegions}
-                />
+                <View style={s.sectionCard}>
+                    <RegionSection
+                        address={form.address}
+                        latitude={form.latitude}
+                        longitude={form.longitude}
+                        onAddressSelect={(addr, lat, lng) => {
+                            form.setAddress(addr);
+                            form.setLatitude(lat);
+                            form.setLongitude(lng);
+                        }}
+                        workRegions={form.workRegions}
+                        onRegionSelect={form.setWorkRegions}
+                    />
+                </View>
 
-                <AgencySection
-                    agency={agency} onAgencyChange={setAgency}
-                    managerName={managerName} onManagerNameChange={setManagerName}
-                    managerPhone={managerPhone} onManagerPhoneChange={setManagerPhone}
-                />
+                <View style={s.sectionCard}>
+                    <AgencySection
+                        agency={form.agency} onAgencyChange={form.setAgency}
+                        managerName={form.managerName} onManagerNameChange={form.setManagerName}
+                        managerPhone={form.managerPhone} onManagerPhoneChange={form.setManagerPhone}
+                    />
+                </View>
 
-                <IndustrySection
-                    workIndustry={workIndustry}
-                    onToggle={(v) => toggleMulti(setWorkIndustry, v)}
-                />
+                <View style={s.sectionCard}>
+                    <IndustrySection
+                        workIndustry={form.workIndustry}
+                        onToggle={(v) => form.toggleMulti(form.setWorkIndustry, v)}
+                    />
+                </View>
 
-                <OccupationSection
-                    workOccupation={workOccupation}
-                    onToggle={(v) => toggleMulti(setWorkOccupation, v)}
-                    careerPeriod={careerPeriod} onCareerPeriodChange={setCareerPeriod}
-                    headCount={headCount} onHeadCountChange={setHeadCount}
-                />
+                <View style={s.sectionCard}>
+                    <OccupationSection
+                        workOccupation={form.workOccupation}
+                        onToggle={(v) => form.toggleMulti(form.setWorkOccupation, v)}
+                        careerPeriod={form.careerPeriod} onCareerPeriodChange={form.setCareerPeriod}
+                        headCount={form.headCount} onHeadCountChange={form.setHeadCount}
+                    />
+                </View>
 
-                <SalarySection
-                    feeType={feeType} onFeeTypeSelect={setFeeType}
-                    fee={fee} onFeeChange={setFee}
-                    dailyPay={dailyPay} onDailyPayChange={setDailyPay}
-                    accommodationPay={accommodationPay} onAccommodationPayChange={setAccommodationPay}
-                    promotion={promotion} onPromotionChange={setPromotion}
-                    baseSalary={baseSalary} onBaseSalaryChange={setBaseSalary}
-                />
+                <View style={s.sectionCard}>
+                    <SalarySection
+                        feeType={form.feeType} onFeeTypeSelect={form.setFeeType}
+                        fee={form.fee} onFeeChange={form.setFee}
+                        dailyPay={form.dailyPay} onDailyPayChange={form.setDailyPay}
+                        accommodationPay={form.accommodationPay} onAccommodationPayChange={form.setAccommodationPay}
+                        promotion={form.promotion} onPromotionChange={form.setPromotion}
+                        baseSalary={form.baseSalary} onBaseSalaryChange={form.setBaseSalary}
+                    />
+                </View>
 
-                <DetailSection
-                    detailContent={detailContent}
-                    onDetailContentChange={setDetailContent}
-                />
+                <View style={s.sectionCard}>
+                    <DetailSection
+                        detailContent={form.detailContent}
+                        onDetailContentChange={form.setDetailContent}
+                    />
+                </View>
 
                 <View style={{ height: keyboardVisible ? 150 : 0 }} />
 
                 <TouchableOpacity
-                    style={[s.submitBtn, createMutation.isPending && s.submitBtnDisabled]}
+                    style={s.submitBtn}
                     onPress={handleSubmit}
-                    disabled={createMutation.isPending}
                     activeOpacity={0.85}
                 >
-                    {createMutation.isPending
-                        ? <ActivityIndicator size="small" color="#fff" />
-                        : <Text style={s.submitText}>공고 등록하기</Text>}
+                    <Text style={s.submitText}>공고 등록하기</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>
@@ -402,6 +306,16 @@ const s = StyleSheet.create({
     },
     freebiesText: { fontSize: 11, fontWeight: '600', color: '#f59e0b' },
     scroll: { padding: 16, gap: 12 },
+    sectionCard: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
     submitBtn: {
         backgroundColor: '#3b82f6',
         borderRadius: 16,
@@ -414,7 +328,6 @@ const s = StyleSheet.create({
         shadowRadius: 8,
         elevation: 4,
     },
-    submitBtnDisabled: { opacity: 0.6 },
     submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
     modalOverlay: {
         flex: 1,

@@ -2,15 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { getCommunityPosts, getCommunityPostById, getCommunityReplies } from './api';
 
 export const COMMUNITY_KEYS = {
-  posts: ['community', 'posts'] as const,
+  posts: (search?: string) => ['community', 'posts', search ?? ''] as const,
   post:  (id: number) => ['community', 'post', id] as const,
   replies: (id: number) => ['community', 'replies', id] as const,
 };
 
-export function useGetCommunityPosts() {
+export function useGetCommunityPosts(search?: string) {
   return useQuery({
-    queryKey: COMMUNITY_KEYS.posts,
-    queryFn:  getCommunityPosts,
+    queryKey: COMMUNITY_KEYS.posts(search),
+    queryFn:  () => getCommunityPosts(search),
   });
 }
 

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   Share, ActivityIndicator, Modal, Pressable,
   Linking, useWindowDimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
+import Carousel from 'react-native-reanimated-carousel';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -61,7 +62,6 @@ export default function SiteDetailPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const scrollRef = useRef<ScrollView>(null);
   const qc = useQueryClient();
 
   const { data: job, isLoading } = useGetJobDetail(id);
@@ -71,7 +71,6 @@ export default function SiteDetailPage() {
   const [currentImg, setCurrentImg] = useState(0);
   const [applyState, setApplyState] = useState<ApplyState>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [imgDims, setImgDims] = useState<Record<number, { w: number; h: number }>>({});
 
   const liked = likeData?.liked ?? false;
 
@@ -139,13 +138,7 @@ export default function SiteDetailPage() {
     ? job.imgs.map(toImageUri)
     : [];
 
-  // 이미지 원본 크기 추적 → 가장 큰(가장 긴) 이미지 기준으로 슬라이더 높이 계산
-  const sliderHeight = (() => {
-    if (images.length === 0) return 240;
-    const heights = Object.values(imgDims).map(({ w, h }) => (w > 0 ? (h / w) * width : 0));
-    if (heights.length === 0) return 240;
-    return Math.max(...heights);
-  })();
+  const SLIDER_HEIGHT = width * 0.75;
   const icons: number[] = (() => { try { return job.icons ? JSON.parse(job.icons) : []; } catch { return []; } })();
   const isOwner = !!me?.id && job.user_id === me.id;
 
@@ -183,30 +176,20 @@ export default function SiteDetailPage() {
         {/* ── 이미지 갤러리 ── */}
         {images.length > 0 ? (
           <View>
-            <ScrollView
-              ref={scrollRef}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onScroll={(e) => setCurrentImg(Math.round(e.nativeEvent.contentOffset.x / width))}
-              scrollEventThrottle={16}
-            >
-              {images.map((uri, i) => (
+            <Carousel
+              width={width}
+              height={SLIDER_HEIGHT}
+              data={images}
+              loop={images.length > 1}
+              onSnapToItem={setCurrentImg}
+              renderItem={({ item }) => (
                 <Image
-                  key={i}
-                  source={{ uri }}
-                  style={{ width, height: sliderHeight, backgroundColor: '#f3f4f6' }}
+                  source={{ uri: item }}
+                  style={{ width, height: SLIDER_HEIGHT, backgroundColor: '#f3f4f6' }}
                   contentFit="contain"
-                  onLoad={(e) => {
-                    const w = e.source?.width ?? 0;
-                    const h = e.source?.height ?? 0;
-                    if (w > 0 && h > 0) {
-                      setImgDims((prev) => (prev[i] ? prev : { ...prev, [i]: { w, h } }));
-                    }
-                  }}
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
             {images.length > 1 && (
               <View style={s.dots}>
                 {images.map((_, i) => (

@@ -26,6 +26,7 @@ export function useCreateJobPost() {
     mutationFn: (payload: JobPostingPayload) => createJobPost(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-job-postings'] });
+      qc.invalidateQueries({ queryKey: ['jobs'] });
     },
   });
 }

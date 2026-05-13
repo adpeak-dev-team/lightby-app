@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts } from './api';
+import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, BannerItem } from './api';
 import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary } from './types';
 
 export function useGetJobDetail(id: string) {
@@ -19,9 +19,9 @@ export function useGetLikeStatus(siteId?: number) {
   });
 }
 
-export function useGetJobsByProduct(params: { product: 'PREMIUM' | 'TOP'; location?: string }) {
+export function useGetJobsByProduct(params: { product: 'PREMIUM' | 'TOP'; location?: string; search?: string }) {
   return useQuery<JobSummaryResponse[]>({
-    queryKey: ['jobs', params.product, params.location],
+    queryKey: ['jobs', params.product, params.location, params.search],
     queryFn: () => getJobsByProduct(params),
   });
 }
@@ -53,6 +53,14 @@ export function useGetMyRecentPosts() {
     queryKey: ['my-recent-posts'],
     queryFn: () => getMyRecentPosts(10),
     staleTime: 1000 * 60,
+  });
+}
+
+export function useGetBanners() {
+  return useQuery<BannerItem[]>({
+    queryKey: ['banners'],
+    queryFn: getBanners,
+    staleTime: 1000 * 60 * 5,
   });
 }
 

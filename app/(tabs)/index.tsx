@@ -1,16 +1,30 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
   FlatList, View, Text, StyleSheet, ActivityIndicator, Animated, TouchableOpacity,
+  Linking, useWindowDimensions,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Carousel from 'react-native-reanimated-carousel';
 
 import Header from '@/components/common/Header';
 import SearchBar from '@/components/main/SearchBar';
 import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
-import { useGetJobsByProduct, useGetFreeJobsInfinite } from '@/services/site/queries';
+import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
+
+// ─── 셔플 ────────────────────────────────────────────────────────────────────
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 // ─── 타입 변환 ─────────────────────────────────────────────────────────────────
 function toJobItem(job: JobSummaryResponse): JobItem {
@@ -120,6 +134,59 @@ function Section({
   );
 }
 
+// ─── 배너 캐러셀 ─────────────────────────────────────────────────────────────
+const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+
+function BannerCarousel() {
+  const { width } = useWindowDimensions();
+  const BANNER_HEIGHT = width * (75 / 620);
+  const { data: banners } = useGetBanners();
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  if (!banners || banners.length === 0) return null;
+
+  return (
+    <View style={bn.wrap}>
+      <Carousel
+        width={width}
+        height={BANNER_HEIGHT}
+        data={banners}
+        loop={banners.length > 1}
+        autoPlay={banners.length > 1}
+        autoPlayInterval={5000}
+        onSnapToItem={setCurrentIdx}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            activeOpacity={item.linkUrl ? 0.9 : 1}
+            onPress={() => item.linkUrl && Linking.openURL(item.linkUrl)}
+            style={{ width, height: BANNER_HEIGHT }}
+          >
+            <Image
+              source={{ uri: `${IMAGE_PREFIX}${item.imageUrl}` }}
+              style={{ width, height: BANNER_HEIGHT }}
+              contentFit="cover"
+            />
+          </TouchableOpacity>
+        )}
+      />
+      {banners.length > 1 && (
+        <View style={bn.dots}>
+          {banners.map((_, i) => (
+            <View key={i} style={[bn.dot, i === currentIdx && bn.dotActive]} />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+const bn = StyleSheet.create({
+  wrap: { position: 'relative', marginHorizontal: 16, marginBottom: 4, borderRadius: 12, overflow: 'hidden', backgroundColor: '#f3f4f6' },
+  dots: { position: 'absolute', bottom: 5, right: 8, flexDirection: 'row', gap: 4 },
+  dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.5)' },
+  dotActive: { width: 12, backgroundColor: '#fff' },
+});
+
 // ─── 메인 ─────────────────────────────────────────────────────────────────────
 type SortVal = 'DEFAULT' | 'HIGH_FEE' | 'LATEST' | 'VIEW_COUNT';
 
@@ -132,17 +199,20 @@ export default function HomePage() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortVal>('LATEST');
   const [location, setLocation] = useState('전국');
+  const [focusKey, setFocusKey] = useState(0);
+
+  useFocusEffect(useCallback(() => { setFocusKey((k) => k + 1); }, []));
 
   const { data: premiumData, isLoading: isPremiumLoading } =
-    useGetJobsByProduct({ product: 'PREMIUM', location });
+    useGetJobsByProduct({ product: 'PREMIUM', location, search });
   const { data: topData, isLoading: isTopLoading } =
-    useGetJobsByProduct({ product: 'TOP', location });
+    useGetJobsByProduct({ product: 'TOP', location, search });
   const {
     data: freeData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: isFreeLoading,
   } = useGetFreeJobsInfinite({ search, sort, location });
 
-  const premiumJobs = useMemo(() => (premiumData ?? []).map(toJobItem), [premiumData]);
-  const topJobs = useMemo(() => (topData ?? []).map(toJobItem), [topData]);
+  const premiumJobs = useMemo(() => shuffle((premiumData ?? []).map(toJobItem)), [premiumData, focusKey]);
+  const topJobs = useMemo(() => shuffle((topData ?? []).map(toJobItem)), [topData, focusKey]);
 
   const listData: ListRow[] = isFreeLoading
     ? [1, 2, 3, 4].map((i) => ({ _type: 'skeleton', id: `sk-${i}` }))
@@ -164,6 +234,7 @@ export default function HomePage() {
         sort={sort}
         onSortChange={setSort}
       />
+      <BannerCarousel />
       <LocationTabs location={location} onLocationChange={setLocation} />
       <Section type="premium" jobs={premiumJobs} isLoading={isPremiumLoading} hideOnEmpty onPressJob={handlePressJob} />
       <Section type="top" jobs={topJobs} isLoading={isTopLoading} hideOnEmpty onPressJob={handlePressJob} />

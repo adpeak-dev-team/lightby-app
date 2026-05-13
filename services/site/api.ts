@@ -116,6 +116,17 @@ interface GetJobsByProductParams {
   start?: number;
 }
 
+export interface BannerItem {
+  id: number;
+  imageUrl: string;
+  linkUrl: string;
+}
+
+export async function getBanners(): Promise<BannerItem[]> {
+  const { data } = await apiClient.get('/main/banners');
+  return data.data;
+}
+
 export async function getJobsByProduct(params: GetJobsByProductParams): Promise<JobSummaryResponse[]> {
   const payload: Record<string, unknown> = { product: params.product };
   if (params.search)             payload.search   = params.search;
