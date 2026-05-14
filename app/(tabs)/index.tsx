@@ -139,7 +139,8 @@ const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
 function BannerCarousel() {
   const { width } = useWindowDimensions();
-  const BANNER_HEIGHT = width * (75 / 620);
+  const carouselWidth = width - 32; // marginHorizontal: 16 양쪽 제외
+  const BANNER_HEIGHT = carouselWidth * (75 / 620);
   const { data: banners } = useGetBanners();
   const [currentIdx, setCurrentIdx] = useState(0);
 
@@ -148,7 +149,7 @@ function BannerCarousel() {
   return (
     <View style={bn.wrap}>
       <Carousel
-        width={width}
+        width={carouselWidth}
         height={BANNER_HEIGHT}
         data={banners}
         loop={banners.length > 1}
@@ -159,11 +160,11 @@ function BannerCarousel() {
           <TouchableOpacity
             activeOpacity={item.linkUrl ? 0.9 : 1}
             onPress={() => item.linkUrl && Linking.openURL(item.linkUrl)}
-            style={{ width, height: BANNER_HEIGHT }}
+            style={{ width: carouselWidth, height: BANNER_HEIGHT }}
           >
             <Image
               source={{ uri: `${IMAGE_PREFIX}${item.imageUrl}` }}
-              style={{ width, height: BANNER_HEIGHT }}
+              style={{ width: carouselWidth, height: BANNER_HEIGHT }}
               contentFit="cover"
             />
           </TouchableOpacity>

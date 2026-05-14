@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   Share, ActivityIndicator, Modal, Pressable,
-  Linking, useWindowDimensions,
+  Linking, useWindowDimensions, Image as RNImage,
 } from 'react-native';
 import { Image } from 'expo-image';
 import Carousel from 'react-native-reanimated-carousel';
@@ -71,6 +71,30 @@ export default function SiteDetailPage() {
   const [currentImg, setCurrentImg] = useState(0);
   const [applyState, setApplyState] = useState<ApplyState>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [sliderHeight, setSliderHeight] = useState(width * 0.75);
+
+  useEffect(() => {
+    if (!job?.imgs || !Array.isArray(job.imgs) || job.imgs.length === 0) return;
+    const uris = job.imgs.map(toImageUri);
+    let maxH = 0;
+    let settled = 0;
+    const total = uris.length;
+    uris.forEach((uri) => {
+      RNImage.getSize(
+        uri,
+        (w, h) => {
+          const scaled = (h / w) * width;
+          if (scaled > maxH) maxH = scaled;
+          settled++;
+          if (settled === total) setSliderHeight(Math.min(maxH, width * 1.5));
+        },
+        () => {
+          settled++;
+          if (settled === total && maxH > 0) setSliderHeight(Math.min(maxH, width * 1.5));
+        },
+      );
+    });
+  }, [job?.imgs, width]);
 
   const liked = likeData?.liked ?? false;
 
@@ -138,7 +162,6 @@ export default function SiteDetailPage() {
     ? job.imgs.map(toImageUri)
     : [];
 
-  const SLIDER_HEIGHT = width * 0.75;
   const icons: number[] = (() => { try { return job.icons ? JSON.parse(job.icons) : []; } catch { return []; } })();
   const isOwner = !!me?.id && job.user_id === me.id;
 
@@ -178,14 +201,14 @@ export default function SiteDetailPage() {
           <View>
             <Carousel
               width={width}
-              height={SLIDER_HEIGHT}
+              height={sliderHeight}
               data={images}
               loop={images.length > 1}
               onSnapToItem={setCurrentImg}
               renderItem={({ item }) => (
                 <Image
                   source={{ uri: item }}
-                  style={{ width, height: SLIDER_HEIGHT, backgroundColor: '#f3f4f6' }}
+                  style={{ width, height: sliderHeight, backgroundColor: '#f3f4f6' }}
                   contentFit="contain"
                 />
               )}

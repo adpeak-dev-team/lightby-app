@@ -1,15 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-    View, Text, TouchableOpacity, Modal,
-    ActivityIndicator, StyleSheet,
+    View, Text, TouchableOpacity, Modal, Pressable,
+    ActivityIndicator, StyleSheet, TextInput, Keyboard,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 const REST_KEY = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY ?? '';
 
-// Android/iOS 모두 안정적인 ReactNativeWebView.postMessage 방식
 const POSTCODE_HTML = `<!DOCTYPE html>
 <html>
 <head>
@@ -24,22 +23,15 @@ const POSTCODE_HTML = `<!DOCTYPE html>
   <div id="wrap"></div>
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
-    function rnLog(msg) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LOG', message: msg }));
-    }
-    rnLog('스크립트 시작, ReactNativeWebView 존재: ' + !!window.ReactNativeWebView);
-    rnLog('daum 존재: ' + !!window.daum);
     new daum.Postcode({
       oncomplete: function(data) {
         var addr = data.roadAddress || data.jibunAddress || data.address;
-        rnLog('oncomplete 실행됨, 주소: ' + addr);
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'POSTCODE_SELECTED',
           address: addr
         }));
       }
     }).embed(document.getElementById('wrap'));
-    rnLog('embed 완료');
   </script>
 </body>
 </html>`;
@@ -51,15 +43,10 @@ async function geocode(address: string): Promise<{ lat: number; lng: number } | 
             { headers: { Authorization: `KakaoAK ${REST_KEY}` } },
         );
         const json = await res.json();
-        console.log('[geocode] 응답:', JSON.stringify(json));
         const doc = json.documents?.[0];
-        if (!doc) {
-            console.warn('[geocode] documents 없음 - 키 등록 or 주소 문제');
-            return null;
-        }
+        if (!doc) return null;
         return { lat: parseFloat(doc.y), lng: parseFloat(doc.x) };
-    } catch (e) {
-        console.error('[KakaoPostcode] geocode error', e);
+    } catch {
         return null;
     }
 }
@@ -70,72 +57,104 @@ interface Props {
 }
 
 export function KakaoPostcode({ address, onSelect }: Props) {
-    const [visible, setVisible] = useState(false);
+    const insets = useSafeAreaInsets();
+    const [postcodeVisible, setPostcodeVisible] = useState(false);
+    const [errorVisible, setErrorVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [inputText, setInputText] = useState(address);
+
+    useEffect(() => {
+        setInputText(address);
+    }, [address]);
+
+    const showApplyButton = inputText.trim() !== '' && inputText !== address;
 
     const handleMessage = (event: any) => {
-        console.log('[KakaoPostcode] onMessage raw:', event.nativeEvent.data);
         try {
             const data = JSON.parse(event.nativeEvent.data);
-            if (data.type === 'LOG') {
-                console.log('[WebView]', data.message);
-                return;
-            }
             if (data.type !== 'POSTCODE_SELECTED' || !data.address) return;
-            console.log('[KakaoPostcode] 주소 선택됨:', data.address);
 
             const addr: string = data.address;
-            setVisible(false);
+            setPostcodeVisible(false);
+            setInputText(addr);
             setLoading(true);
 
             geocode(addr)
-                .then((coords) => {
-                    // geocoding 실패해도 주소는 반드시 반영
-                    onSelect(addr, coords?.lat ?? 0, coords?.lng ?? 0);
-                })
-                .catch(() => {
-                    onSelect(addr, 0, 0);
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        } catch (e) {
-            console.error('[KakaoPostcode] onMessage parse error', e);
+                .then((coords) => { onSelect(addr, coords?.lat ?? 0, coords?.lng ?? 0); })
+                .catch(() => { onSelect(addr, 0, 0); })
+                .finally(() => setLoading(false));
+        } catch { /* ignore */ }
+    };
+
+    const handleApply = async () => {
+        const trimmed = inputText.trim();
+        if (!trimmed) return;
+        Keyboard.dismiss();
+        setLoading(true);
+        try {
+            const coords = await geocode(trimmed);
+            if (!coords) {
+                setErrorVisible(true);
+                return;
+            }
+            onSelect(trimmed, coords.lat, coords.lng);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <>
-            <TouchableOpacity
-                style={s.btn}
-                onPress={() => setVisible(true)}
-                activeOpacity={0.8}
-            >
-                <Ionicons name="search-outline" size={16} color="#3b82f6" />
-                <Text style={[s.btnText, !!address && s.btnTextFilled]} numberOfLines={1}>
-                    {address || '주소 검색'}
-                </Text>
-                {loading && <ActivityIndicator size="small" color="#3b82f6" style={{ marginLeft: 4 }} />}
-            </TouchableOpacity>
+            <View style={s.row}>
+                <TextInput
+                    style={s.input}
+                    value={inputText}
+                    onChangeText={setInputText}
+                    placeholder="주소를 검색해주세요"
+                    placeholderTextColor="#9ca3af"
+                    returnKeyType="done"
+                    onSubmitEditing={handleApply}
+                />
 
+
+                {loading && (
+                    <ActivityIndicator size="small" color="#3b82f6" style={s.spinner} />
+                )}
+
+                {showApplyButton && !loading && (
+                    <TouchableOpacity style={[s.iconBtn, s.btnApply]} onPress={handleApply} activeOpacity={0.8}>
+                        <Ionicons name="map-outline" size={15} color="#fff" />
+                    </TouchableOpacity>
+                )}
+
+                <TouchableOpacity style={s.iconBtn} onPress={() => setPostcodeVisible(true)} activeOpacity={0.8}>
+                    <Ionicons name="search-outline" size={15} color="#fff" />
+                </TouchableOpacity>
+            </View>
+
+            <Text style={s.hint}>
+                <Ionicons name="search-outline" /> 버튼으로 주소 검색 또는, 주소 직접 입력 후 <Ionicons name="map-outline" /> 버튼으로 지도 적용
+            </Text>
+
+            {/* 카카오 우편번호 모달 */}
             <Modal
-                visible={visible}
+                visible={postcodeVisible}
                 animationType="slide"
                 statusBarTranslucent
-                onRequestClose={() => setVisible(false)}
+                onRequestClose={() => setPostcodeVisible(false)}
             >
-                <SafeAreaView style={s.modal}>
-                    <View style={s.header}>
-                        <Text style={s.headerTitle}>주소 검색</Text>
-                        <TouchableOpacity onPress={() => setVisible(false)} hitSlop={8}>
+                <SafeAreaView style={s.postcodeModal}>
+                    <View style={s.postcodeHeader}>
+                        <TouchableOpacity onPress={() => setPostcodeVisible(false)} hitSlop={8}>
+                            <Ionicons name="chevron-back" size={22} color="#111827" />
+                        </TouchableOpacity>
+                        <Text style={s.postcodeTitle}>주소 검색</Text>
+                        <TouchableOpacity onPress={() => setPostcodeVisible(false)} hitSlop={8}>
                             <Ionicons name="close" size={24} color="#111827" />
                         </TouchableOpacity>
                     </View>
                     <WebView
-                        source={{
-                            html: POSTCODE_HTML,
-                            baseUrl: 'https://localhost'
-                        }}
+                        source={{ html: POSTCODE_HTML, baseUrl: 'https://localhost' }}
                         onMessage={handleMessage}
                         javaScriptEnabled
                         domStorageEnabled
@@ -144,36 +163,75 @@ export function KakaoPostcode({ address, onSelect }: Props) {
                     />
                 </SafeAreaView>
             </Modal>
+
+            {/* 주소 검색 실패 모달 */}
+            <Modal
+                visible={errorVisible}
+                transparent
+                animationType="fade"
+                statusBarTranslucent
+                onRequestClose={() => setErrorVisible(false)}
+            >
+                <Pressable style={s.overlay} onPress={() => setErrorVisible(false)} />
+                <View style={[s.errorSheet, { paddingBottom: insets.bottom + 28 }]}>
+                    <View style={s.errorIconWrap}>
+                        <Ionicons name="location-outline" size={32} color="#ef4444" />
+                    </View>
+                    <Text style={s.errorTitle}>주소를 찾을 수 없습니다</Text>
+                    <Text style={s.errorDesc}>
+                        입력하신 주소로 위치를 확인하지 못했습니다.{'\n'}
+                        주소를 다시 확인하거나 주소 검색을 이용해 주세요.
+                    </Text>
+                    <TouchableOpacity
+                        style={s.errorBtn}
+                        onPress={() => setErrorVisible(false)}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={s.errorBtnText}>확인</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
         </>
     );
 }
 
 const s = StyleSheet.create({
-    btn: {
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        borderWidth: 1.5,
-        borderColor: '#3b82f6',
-        borderRadius: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        backgroundColor: '#eff6ff',
+        gap: 6,
     },
-    btnText: {
+    input: {
         flex: 1,
+        borderWidth: 1.5,
+        borderColor: '#e5e7eb',
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 11,
         fontSize: 14,
-        color: '#93c5fd',
+        color: '#111827',
+        backgroundColor: '#f9fafb',
     },
-    btnTextFilled: {
-        color: '#1d4ed8',
-        fontWeight: '500',
+    spinner: {
+        marginHorizontal: 4,
     },
-    modal: {
+    iconBtn: {
+        backgroundColor: '#374151',
+        borderRadius: 10,
+        padding: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    btnApply: {
+        backgroundColor: '#3b82f6',
+    },
+
+    // 우편번호 모달
+    postcodeModal: {
         flex: 1,
         backgroundColor: '#fff',
     },
-    header: {
+    postcodeHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -182,9 +240,68 @@ const s = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#f3f4f6',
     },
-    headerTitle: {
+    postcodeTitle: {
         fontSize: 16,
         fontWeight: '700',
         color: '#111827',
+    },
+
+    // 에러 모달
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.45)',
+    },
+    errorSheet: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        paddingTop: 28,
+        paddingHorizontal: 24,
+        alignItems: 'center',
+        gap: 8,
+    },
+    errorIconWrap: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: '#fef2f2',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 4,
+    },
+    errorTitle: {
+        fontSize: 17,
+        fontWeight: '800',
+        color: '#111827',
+    },
+    errorDesc: {
+        fontSize: 14,
+        color: '#6b7280',
+        textAlign: 'center',
+        lineHeight: 21,
+        marginBottom: 8,
+    },
+    errorBtn: {
+        width: '100%',
+        paddingVertical: 14,
+        borderRadius: 14,
+        backgroundColor: '#111827',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    errorBtnText: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#fff',
+    },
+    hint: {
+        marginTop: 0,
+        fontSize: 11,
+        color: '#9ca3af',
+        lineHeight: 16,
     },
 });

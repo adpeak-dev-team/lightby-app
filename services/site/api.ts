@@ -94,7 +94,7 @@ export interface JobPostingPayload {
 
 export async function getMyRecentPosts(limit = 10): Promise<MyPostSummary[]> {
   const { data } = await apiClient.get('/job-posting/my-posts', { params: { limit } });
-  return data.data ?? [];
+  return data.items ?? [];
 }
 
 export async function copyImages(imagePaths: string[]): Promise<string[]> {
@@ -129,11 +129,11 @@ export async function getBanners(): Promise<BannerItem[]> {
 
 export async function getJobsByProduct(params: GetJobsByProductParams): Promise<JobSummaryResponse[]> {
   const payload: Record<string, unknown> = { product: params.product };
-  if (params.search)             payload.search   = params.search;
-  if (params.sort)               payload.sort     = params.sort;
-  if (params.location)           payload.location = params.location;
-  if (params.limit !== undefined) payload.limit   = params.limit;
-  if (params.start !== undefined) payload.start   = params.start;
+  if (params.search) payload.search = params.search;
+  if (params.sort) payload.sort = params.sort;
+  if (params.location) payload.location = params.location;
+  if (params.limit !== undefined) payload.limit = params.limit;
+  if (params.start !== undefined) payload.start = params.start;
 
   const { data } = await apiClient.post('/main/by-product', payload);
   return data.items || [];

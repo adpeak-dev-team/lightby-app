@@ -17,6 +17,7 @@ interface Props {
 
 export function PreviousPostingModal({ visible, onClose, onSelect, isLoading: outerLoading }: Props) {
     const { data: posts, isLoading } = useGetMyRecentPosts();
+    console.log(posts)
 
     const formatDate = (dateStr: string) => {
         const d = new Date(dateStr);

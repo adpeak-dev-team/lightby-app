@@ -1,6 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, BannerItem } from './api';
 import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary } from './types';
+import { useGetMe } from '@/services/auth/queries';
 
 export function useGetJobDetail(id: string) {
   return useQuery<JobPostDetail>({
@@ -49,9 +50,11 @@ export function useGetPostApplicants(postingId: string) {
 }
 
 export function useGetMyRecentPosts() {
+  const { data: me } = useGetMe();
   return useQuery<MyPostSummary[]>({
-    queryKey: ['my-recent-posts'],
+    queryKey: ['my-recent-posts', me?.id],
     queryFn: () => getMyRecentPosts(10),
+    enabled: !!me?.id,
     staleTime: 1000 * 60,
   });
 }
