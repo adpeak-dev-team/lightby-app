@@ -36,7 +36,7 @@ function toJobItem(job: JobSummaryResponse): JobItem {
     point: job.point_content ?? '',
     title: job.title,
     feeType: job.feeType ?? '',
-    fee: `${job.fee.toLocaleString()}만원`,
+    fee: job.fee_max > 0 ? `${job.fee_max}만원` : '',
     tags: [
       ...(Array.isArray(job.industries) ? job.industries : []),
       ...(Array.isArray(job.jobCategories) ? job.jobCategories : []),

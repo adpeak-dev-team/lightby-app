@@ -1,3 +1,8 @@
+export interface FeeItem {
+  category: string;
+  amount: string;
+}
+
 export interface JobPostDetail {
   id: number;
   user_id: number;
@@ -18,9 +23,14 @@ export interface JobPostDetail {
   career_period: string | null;
   number_people: string | null;
   fee_type: string | null;
-  fee: number;
-  daily_expense: string | null;
+  fee: FeeItem[] | null;
+  fee_max: number;
+  meal_expense: string | null;
+  transport_expense: string | null;
+  housing: string | null;
   accommodation_expenses: string | null;
+  daily_expense: string | null;
+  business_expense: string | null;
   promotion: string | null;
   base_pay: string | null;
   detail_content: string | null;
@@ -35,7 +45,8 @@ export interface JobSummaryResponse {
   point_content: string | null;
   title: string;
   feeType: string | null;
-  fee: number;
+  fee: FeeItem[] | null;
+  fee_max: number;
   industries: string[];
   jobCategories: string[];
   product: string;

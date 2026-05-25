@@ -165,7 +165,7 @@ export default function SiteDetailPage() {
   const icons: number[] = (() => { try { return job.icons ? JSON.parse(job.icons) : []; } catch { return []; } })();
   const isOwner = !!me?.id && job.user_id === me.id;
 
-  const fee = job.fee ? `${job.fee_type || '직원'} ${job.fee.toLocaleString()}만원` : '-';
+  const fee = job.fee_max > 0 ? `${job.fee_type || '직원'} ${job.fee_max}만원` : '-';
   const headcount = job.number_people ? `${job.number_people}명` : '-';
   const industry = Array.isArray(job.industries) && job.industries.length > 0 ? job.industries.join(', ') : '-';
   const position = Array.isArray(job.job_categories) && job.job_categories.length > 0 ? job.job_categories.join(', ') : '-';
@@ -309,10 +309,14 @@ export default function SiteDetailPage() {
             <SectionTitle label="영업지원 및 복지" color="#f97316" />
             <View style={s.welfareGrid}>
               {[
-                { label: '일비', value: job.daily_expense || '-' },
-                { label: '숙소비', value: job.accommodation_expenses || '-' },
-                { label: '프로모션', value: job.promotion || '-' },
                 { label: '기본급', value: job.base_pay || '-' },
+                { label: '식사', value: job.meal_expense || '-' },
+                { label: '교통비', value: job.transport_expense || '-' },
+                { label: '숙소', value: job.housing || '-' },
+                { label: '숙소비', value: job.accommodation_expenses || '-' },
+                { label: '일비', value: job.daily_expense || '-' },
+                { label: '영업비', value: job.business_expense || '-' },
+                { label: '프로모션', value: job.promotion || '-' },
               ].map(({ label, value }) => (
                 <View key={label} style={s.welfareItem}>
                   <Text style={s.welfareLabel}>{label}</Text>

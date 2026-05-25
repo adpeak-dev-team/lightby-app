@@ -3,9 +3,11 @@ import { Alert } from 'react-native';
 import { apiClient } from '@/api/apiClient';
 import { getJobDetail, copyImages } from './api';
 import { useCreateJobPost } from './mutations';
-import { MyPostSummary } from './types';
+import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
 import { ProductType } from '@/components/site-post/ProductSelectModal';
+
+const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
 export function useSitePostForm() {
     // ── 폼 상태 ──
@@ -24,9 +26,13 @@ export function useSitePostForm() {
     const [careerPeriod, setCareerPeriod] = useState('');
     const [headCount, setHeadCount] = useState('');
     const [feeType, setFeeType] = useState('');
-    const [fee, setFee] = useState('');
-    const [dailyPay, setDailyPay] = useState('');
-    const [accommodationPay, setAccommodationPay] = useState('');
+    const [fee, setFee] = useState<FeeItem[]>([{ ...EMPTY_FEE_ITEM }]);
+    const [mealExpense, setMealExpense] = useState('');
+    const [transportExpense, setTransportExpense] = useState('');
+    const [housing, setHousing] = useState('');
+    const [accommodationExpenses, setAccommodationExpenses] = useState('');
+    const [dailyExpense, setDailyExpense] = useState('');
+    const [businessExpense, setBusinessExpense] = useState('');
     const [promotion, setPromotion] = useState('');
     const [baseSalary, setBaseSalary] = useState('');
     const [detailContent, setDetailContent] = useState('');
@@ -76,9 +82,13 @@ export function useSitePostForm() {
             setCareerPeriod(d.career_period ?? '');
             setHeadCount(d.number_people ?? '');
             setFeeType(d.fee_type ?? '');
-            setFee(d.fee ? String(d.fee) : '');
-            setDailyPay(d.daily_expense ?? '');
-            setAccommodationPay(d.accommodation_expenses ?? '');
+            setFee(Array.isArray(d.fee) && d.fee.length > 0 ? d.fee : [{ ...EMPTY_FEE_ITEM }]);
+            setMealExpense(d.meal_expense ?? '');
+            setTransportExpense(d.transport_expense ?? '');
+            setHousing(d.housing ?? '');
+            setAccommodationExpenses(d.accommodation_expenses ?? '');
+            setDailyExpense(d.daily_expense ?? '');
+            setBusinessExpense(d.business_expense ?? '');
             setPromotion(d.promotion ?? '');
             setBaseSalary(d.base_pay ?? '');
             setDetailContent(d.detail_content ?? '');
@@ -99,7 +109,8 @@ export function useSitePostForm() {
         if (workIndustry.length === 0) return '업종을 선택해주세요.';
         if (workOccupation.length === 0) return '직종을 선택해주세요.';
         if (!feeType)                 return '수수료 타입을 선택해주세요.';
-        if (!fee.trim())              return '수수료 금액을 입력해주세요.';
+        const validFee = fee.filter(f => f.category.trim() || f.amount.trim());
+        if (validFee.length === 0) return '수수료 금액을 입력해주세요.';
         return null;
     };
 
@@ -110,6 +121,7 @@ export function useSitePostForm() {
         totalAmount: number,
         callbacks: { onSuccess: () => void; onCloseModal: () => void },
     ) => {
+        const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
         createMutation.mutate(
             {
                 subject, intro, images,
@@ -119,8 +131,9 @@ export function useSitePostForm() {
                 agency, managerName, managerPhone,
                 workIndustry, workOccupation,
                 careerPeriod, headCount,
-                feeType, fee,
-                dailyPay, accommodationPay, promotion, baseSalary,
+                feeType, fee: cleanedFee,
+                mealExpense, transportExpense, housing, accommodationExpenses,
+                dailyExpense, businessExpense, promotion, baseSalary,
                 detailContent,
                 selectedProduct,
                 selectedIcons,
@@ -172,8 +185,12 @@ export function useSitePostForm() {
         headCount, setHeadCount,
         feeType, setFeeType,
         fee, setFee,
-        dailyPay, setDailyPay,
-        accommodationPay, setAccommodationPay,
+        mealExpense, setMealExpense,
+        transportExpense, setTransportExpense,
+        housing, setHousing,
+        accommodationExpenses, setAccommodationExpenses,
+        dailyExpense, setDailyExpense,
+        businessExpense, setBusinessExpense,
         promotion, setPromotion,
         baseSalary, setBaseSalary,
         detailContent, setDetailContent,

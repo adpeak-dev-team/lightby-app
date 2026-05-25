@@ -39,11 +39,12 @@ export default function SitePostPage() {
         const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
             if (form.isSuccessRef.current) return;
 
+            const hasFeeContent = form.fee.some(f => f.category.trim() || f.amount.trim());
             const hasContent =
                 form.subject || form.intro || form.imagesRef.current.length > 0 || form.address ||
                 form.workRegions || form.agency || form.managerName || form.managerPhone ||
                 form.workIndustry.length > 0 || form.workOccupation.length > 0 ||
-                form.feeType || form.fee || form.detailContent;
+                form.feeType || hasFeeContent || form.detailContent;
 
             if (!hasContent) return;
 
@@ -233,8 +234,12 @@ export default function SitePostPage() {
                     <SalarySection
                         feeType={form.feeType} onFeeTypeSelect={form.setFeeType}
                         fee={form.fee} onFeeChange={form.setFee}
-                        dailyPay={form.dailyPay} onDailyPayChange={form.setDailyPay}
-                        accommodationPay={form.accommodationPay} onAccommodationPayChange={form.setAccommodationPay}
+                        mealExpense={form.mealExpense} onMealExpenseChange={form.setMealExpense}
+                        transportExpense={form.transportExpense} onTransportExpenseChange={form.setTransportExpense}
+                        housing={form.housing} onHousingChange={form.setHousing}
+                        accommodationExpenses={form.accommodationExpenses} onAccommodationExpensesChange={form.setAccommodationExpenses}
+                        dailyExpense={form.dailyExpense} onDailyExpenseChange={form.setDailyExpense}
+                        businessExpense={form.businessExpense} onBusinessExpenseChange={form.setBusinessExpense}
                         promotion={form.promotion} onPromotionChange={form.setPromotion}
                         baseSalary={form.baseSalary} onBaseSalaryChange={form.setBaseSalary}
                     />

@@ -6,7 +6,7 @@ export interface FavoriteSiteItem {
   feeType: string;
   fee: string;
   tags: string[];
-  icons?: number[];
+  icons: number[];
 }
 
 export interface UserProfile {
@@ -42,7 +42,8 @@ export interface UserJobPostItem {
   feeType: string;
   fee: string;
   tags: string[];
-  icons?: number[];
+  icons: number[];
+  product: string;
 }
 
 export interface UserBoardPostItem {

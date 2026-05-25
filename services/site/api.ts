@@ -1,5 +1,5 @@
 import { apiClient } from '@/api/apiClient';
-import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary } from './types';
+import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary, FeeItem } from './types';
 
 export async function getJobDetail(id: string): Promise<JobPostDetail> {
   const { data } = await apiClient.get<{ success: boolean; data: JobPostDetail }>(`/detail/get-job-detail?id=${id}`);
@@ -65,15 +65,19 @@ export async function markApplyAsRead(applyId: number): Promise<void> {
 }
 
 export interface JobPostingPayload {
-  accommodationPay: string;
   address: string;
   agency: string;
   baseSalary: string;
   careerPeriod: string;
-  dailyPay: string;
   detailContent: string;
-  fee: string;
+  fee: FeeItem[];
   feeType: string;
+  mealExpense: string;
+  transportExpense: string;
+  housing: string;
+  accommodationExpenses: string;
+  dailyExpense: string;
+  businessExpense: string;
   headCount: string;
   images: string[];
   intro: string;

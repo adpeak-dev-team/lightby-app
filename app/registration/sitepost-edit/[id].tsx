@@ -10,6 +10,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useGetJobDetail } from '@/services/site/queries';
 import { useUpdateJobPost, useUpdateJobPostImages } from '@/services/site/mutations';
+import { FeeItem } from '@/services/site/types';
+
+const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
 import { ImageSection } from '@/components/site-post/ImageSection';
 import { PostInfoSection } from '@/components/site-post/PostInfoSection';
@@ -56,9 +59,13 @@ export default function SitePostEditPage() {
     const [careerPeriod, setCareerPeriod] = useState('');
     const [headCount, setHeadCount] = useState('');
     const [feeType, setFeeType] = useState('');
-    const [fee, setFee] = useState('');
-    const [dailyPay, setDailyPay] = useState('');
-    const [accommodationPay, setAccommodationPay] = useState('');
+    const [fee, setFee] = useState<FeeItem[]>([{ ...EMPTY_FEE_ITEM }]);
+    const [mealExpense, setMealExpense] = useState('');
+    const [transportExpense, setTransportExpense] = useState('');
+    const [housing, setHousing] = useState('');
+    const [accommodationExpenses, setAccommodationExpenses] = useState('');
+    const [dailyExpense, setDailyExpense] = useState('');
+    const [businessExpense, setBusinessExpense] = useState('');
     const [promotion, setPromotion] = useState('');
     const [baseSalary, setBaseSalary] = useState('');
     const [detailContent, setDetailContent] = useState('');
@@ -91,9 +98,13 @@ export default function SitePostEditPage() {
             setCareerPeriod(job.career_period ?? '');
             setHeadCount(job.number_people ?? '');
             setFeeType(job.fee_type ?? '');
-            setFee(job.fee ? String(job.fee) : '');
-            setDailyPay(job.daily_expense ?? '');
-            setAccommodationPay(job.accommodation_expenses ?? '');
+            setFee(Array.isArray(job.fee) && job.fee.length > 0 ? job.fee : [{ ...EMPTY_FEE_ITEM }]);
+            setMealExpense(job.meal_expense ?? '');
+            setTransportExpense(job.transport_expense ?? '');
+            setHousing(job.housing ?? '');
+            setAccommodationExpenses(job.accommodation_expenses ?? '');
+            setDailyExpense(job.daily_expense ?? '');
+            setBusinessExpense(job.business_expense ?? '');
             setPromotion(job.promotion ?? '');
             setBaseSalary(job.base_pay ?? '');
             setDetailContent(job.detail_content ?? '');
@@ -137,7 +148,8 @@ export default function SitePostEditPage() {
         if (workIndustry.length === 0) return Alert.alert('필수 입력', '업종을 선택해주세요.');
         if (workOccupation.length === 0) return Alert.alert('필수 입력', '직종을 선택해주세요.');
         if (!feeType) return Alert.alert('필수 입력', '수수료 타입을 선택해주세요.');
-        if (!fee.trim()) return Alert.alert('필수 입력', '수수료 금액을 입력해주세요.');
+        const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
+        if (cleanedFee.length === 0) return Alert.alert('필수 입력', '수수료 금액을 입력해주세요.');
 
         const selectedIcons: number[] = (() => {
             try { return job?.icons ? JSON.parse(job.icons) : []; } catch { return []; }
@@ -154,8 +166,9 @@ export default function SitePostEditPage() {
                     agency, managerName, managerPhone,
                     workIndustry, workOccupation,
                     careerPeriod, headCount,
-                    feeType, fee,
-                    dailyPay, accommodationPay, promotion, baseSalary,
+                    feeType, fee: cleanedFee,
+                    mealExpense, transportExpense, housing, accommodationExpenses,
+                    dailyExpense, businessExpense, promotion, baseSalary,
                     detailContent,
                     selectedProduct: job?.product ?? 'FREE',
                     selectedIcons,
@@ -289,8 +302,12 @@ export default function SitePostEditPage() {
                 <SalarySection
                     feeType={feeType} onFeeTypeSelect={setFeeType}
                     fee={fee} onFeeChange={setFee}
-                    dailyPay={dailyPay} onDailyPayChange={setDailyPay}
-                    accommodationPay={accommodationPay} onAccommodationPayChange={setAccommodationPay}
+                    mealExpense={mealExpense} onMealExpenseChange={setMealExpense}
+                    transportExpense={transportExpense} onTransportExpenseChange={setTransportExpense}
+                    housing={housing} onHousingChange={setHousing}
+                    accommodationExpenses={accommodationExpenses} onAccommodationExpensesChange={setAccommodationExpenses}
+                    dailyExpense={dailyExpense} onDailyExpenseChange={setDailyExpense}
+                    businessExpense={businessExpense} onBusinessExpenseChange={setBusinessExpense}
                     promotion={promotion} onPromotionChange={setPromotion}
                     baseSalary={baseSalary} onBaseSalaryChange={setBaseSalary}
                 />
