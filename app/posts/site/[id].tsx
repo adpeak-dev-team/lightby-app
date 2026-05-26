@@ -165,7 +165,7 @@ export default function SiteDetailPage() {
   const icons: number[] = (() => { try { return job.icons ? JSON.parse(job.icons) : []; } catch { return []; } })();
   const isOwner = !!me?.id && job.user_id === me.id;
 
-  const fee = job.fee_max > 0 ? `${job.fee_type || '직원'} ${job.fee_max}만원` : '-';
+  const feeItems = Array.isArray(job.fee) && job.fee.length > 0 ? job.fee.filter((f: any) => f.amount) : [];
   const headcount = job.number_people ? `${job.number_people}명` : '-';
   const industry = Array.isArray(job.industries) && job.industries.length > 0 ? job.industries.join(', ') : '-';
   const position = Array.isArray(job.job_categories) && job.job_categories.length > 0 ? job.job_categories.join(', ') : '-';
@@ -281,50 +281,97 @@ export default function SiteDetailPage() {
 
         {/* ── 기본 정보 ── */}
         <View style={s.section}>
-          {/* 수수료 + 모집인원 */}
-          <View style={s.cardRow}>
-            <View style={[s.card, s.cardHalf]}>
-              <Text style={s.cardLabel}>수수료</Text>
-              <Text style={[s.cardValue, { color: '#f97316' }]}>{fee}</Text>
-            </View>
-            <View style={[s.card, s.cardHalf]}>
-              <Text style={s.cardLabel}>모집인원</Text>
-              <Text style={s.cardValue}>{headcount}</Text>
-            </View>
+          {/* 급여정보 */}
+          <View style={[s.card, { borderWidth: 2, borderColor: '#4ade80' }]}>
+            <SectionTitle label="급여정보" color="#ef4444" />
+            {!!job.base_pay && (
+              <View style={s.salaryRow}>
+                <Text style={s.salaryLabel}>기본급</Text>
+                <Text style={s.salaryValue}>{job.base_pay} 만원</Text>
+              </View>
+            )}
+            <Text style={s.feeTypeText}>{job.fee_type || '수수료'}</Text>
+            {feeItems.length > 0 ? (
+              feeItems.map((item: any, i: number) => (
+                <View key={i} style={s.salaryRow}>
+                  <Text style={s.salaryLabel}>{item.category || `항목 ${i + 1}`}</Text>
+                  <Text style={s.salaryValue}>{item.amount} 만원</Text>
+                </View>
+              ))
+            ) : (
+              <View style={s.emptyFeeBox}>
+                <Text style={s.emptyFeeText}>수수료 정보를 확인해 주세요.</Text>
+              </View>
+            )}
           </View>
 
-          {/* 기본정보 테이블 */}
+          {/* 현장정보 */}
           <View style={s.card}>
-            <SectionTitle label="기본정보" color="#3b82f6" />
-            <View style={s.tableBody}>
-              <InfoRow label="담당자" value={job.name || '-'} />
-              <InfoRow label="업종" value={industry} />
-              <InfoRow label="직종" value={position} />
-              <InfoRow label="경력" value={job.career_period || '-'} />
-            </View>
-          </View>
-
-          {/* 영업지원 및 복지 */}
-          <View style={s.card}>
-            <SectionTitle label="영업지원 및 복지" color="#f97316" />
-            <View style={s.welfareGrid}>
+            <SectionTitle label="현장정보" color="#a855f7" />
+            <View style={s.infoGrid}>
               {[
-                { label: '기본급', value: job.base_pay || '-' },
-                { label: '식사', value: job.meal_expense || '-' },
-                { label: '교통비', value: job.transport_expense || '-' },
-                { label: '숙소', value: job.housing || '-' },
-                { label: '숙소비', value: job.accommodation_expenses || '-' },
-                { label: '일비', value: job.daily_expense || '-' },
-                { label: '영업비', value: job.business_expense || '-' },
-                { label: '프로모션', value: job.promotion || '-' },
+                { label: '시행사', value: job.enforcement || '-' },
+                { label: '시공사', value: job.construction || '-' },
+                { label: '대행사', value: job.agency || '-' },
+                { label: '담당자', value: job.name || '-' },
+                { label: '전화번호', value: job.phone || '-' },
               ].map(({ label, value }) => (
-                <View key={label} style={s.welfareItem}>
-                  <Text style={s.welfareLabel}>{label}</Text>
-                  <Text style={s.welfareValue}>{value}</Text>
+                <View key={label} style={s.infoGridItem}>
+                  <Text style={s.infoGridLabel}>{label}</Text>
+                  <Text style={s.infoGridValue}>{value}</Text>
                 </View>
               ))}
             </View>
           </View>
+
+          {/* 지원정보 */}
+          <View style={s.card}>
+            <SectionTitle label="지원정보" color="#3b82f6" />
+            <View style={s.infoGrid}>
+              {[
+                { label: '업종', value: industry },
+                { label: '직종', value: position },
+                { label: '성별', value: job.require_gender || '-' },
+                { label: '나이', value: job.require_age || '-' },
+                { label: '경력', value: job.career_period || '-' },
+                { label: '모집인원', value: headcount },
+              ].map(({ label, value }) => (
+                <View key={label} style={s.infoGridItem}>
+                  <Text style={s.infoGridLabel}>{label}</Text>
+                  <Text style={s.infoGridValue}>{value}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* 영업지원 및 복지 */}
+          {[job.meal_expense, job.transport_expense, job.housing, job.accommodation_expenses,
+            job.daily_expense, job.business_expense, job.promotion].some(Boolean) && (
+            <View style={s.card}>
+              <SectionTitle label="영업지원 및 복지" color="#f97316" />
+              <View style={s.welfareGrid}>
+                {[
+                  { label: '식사', value: job.meal_expense },
+                  { label: '교통비', value: job.transport_expense },
+                  { label: '숙소', value: job.housing },
+                  { label: '숙소비', value: job.accommodation_expenses },
+                  { label: '일비', value: job.daily_expense },
+                  { label: '영업비', value: job.business_expense },
+                ].filter(({ value }) => !!value).map(({ label, value }) => (
+                  <View key={label} style={s.welfareItem}>
+                    <Text style={s.welfareLabel}>{label}</Text>
+                    <Text style={s.welfareValue}>{value}</Text>
+                  </View>
+                ))}
+              </View>
+              {!!job.promotion && (
+                <View style={s.promotionBox}>
+                  <Text style={s.promotionLabel}>프로모션</Text>
+                  <Text style={s.promotionValue}>{job.promotion}</Text>
+                </View>
+              )}
+            </View>
+          )}
         </View>
 
         {/* ── 상세 모집내용 ── */}
@@ -334,6 +381,19 @@ export default function SiteDetailPage() {
             <View style={s.detailContentBox}>
               <Text style={s.detailContentText}>{job.detail_content || '상세 내용이 없습니다.'}</Text>
             </View>
+            {!!job.site_url && (
+              <TouchableOpacity
+                style={s.siteUrlBox}
+                onPress={() => Linking.openURL(job.site_url)}
+                activeOpacity={0.75}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={s.siteUrlLabel}>공식 사이트</Text>
+                  <Text style={s.siteUrlText} numberOfLines={1}>{job.site_url}</Text>
+                </View>
+                <Ionicons name="open-outline" size={16} color="#3b82f6" />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -495,21 +555,41 @@ const s = StyleSheet.create({
   sectionAccent: { width: 3, height: 16, borderRadius: 2 },
   sectionTitleText: { fontSize: 15, fontWeight: '700', color: '#111827' },
 
-  // 기본정보 테이블
+  // 급여정보
+  salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f0fdf4', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 8, borderWidth: 1, borderColor: '#bbf7d0' },
+  salaryLabel: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
+  salaryValue: { fontSize: 16, fontWeight: '800', color: '#16a34a' },
+  feeTypeText: { fontSize: 15, fontWeight: '700', color: '#111827', marginBottom: 10 },
+  emptyFeeBox: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, alignItems: 'center' },
+  emptyFeeText: { fontSize: 13, color: '#9ca3af' },
+
+  // 현장정보 / 지원정보 그리드
+  infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  infoGridItem: { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
+  infoGridLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
+  infoGridValue: { fontSize: 13, fontWeight: '600', color: '#111827' },
+
+  // 복지 그리드
+  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
+  welfareItem: { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
+  welfareLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
+  welfareValue: { fontSize: 14, fontWeight: '600', color: '#111827' },
+  promotionBox: { backgroundColor: '#fffbeb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#fde68a' },
+  promotionLabel: { fontSize: 12, fontWeight: '700', color: '#d97706', marginBottom: 4 },
+  promotionValue: { fontSize: 13, fontWeight: '600', color: '#111827' },
+
+  // 상세 내용
+  detailContentBox: { backgroundColor: '#f9fafb', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', marginBottom: 10 },
+  detailContentText: { fontSize: 14, color: '#374151', lineHeight: 22 },
+  siteUrlBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: '#bfdbfe' },
+  siteUrlLabel: { fontSize: 11, fontWeight: '600', color: '#93c5fd', marginBottom: 2 },
+  siteUrlText: { fontSize: 13, color: '#1d4ed8', flex: 1 },
+
+  // 기본정보 테이블 (하위 호환)
   tableBody: { gap: 0 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
   infoLabel: { fontSize: 14, color: '#6b7280' },
   infoValue: { fontSize: 14, fontWeight: '600', color: '#111827', textAlign: 'right', flex: 1, marginLeft: 12 },
-
-  // 복지 그리드
-  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  welfareItem: { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
-  welfareLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
-  welfareValue: { fontSize: 14, fontWeight: '600', color: '#111827' },
-
-  // 상세 내용
-  detailContentBox: { backgroundColor: '#f9fafb', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' },
-  detailContentText: { fontSize: 14, color: '#374151', lineHeight: 22 },
 
   // 근무지역
   regionChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },

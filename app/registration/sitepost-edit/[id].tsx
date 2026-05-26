@@ -47,15 +47,20 @@ export default function SitePostEditPage() {
     const [intro, setIntro] = useState('');
     const [images, setImages] = useState<string[]>([]);
     const [address, setAddress] = useState('');
+    const [addressDetail, setAddressDetail] = useState('');
     const [resultAddress, setResultAddress] = useState('');
     const [latitude, setLatitude] = useState<number | null>(null);
     const [longitude, setLongitude] = useState<number | null>(null);
     const [workRegions, setWorkRegions] = useState('');
+    const [enforcement, setEnforcement] = useState('');
+    const [construction, setConstruction] = useState('');
     const [agency, setAgency] = useState('');
     const [managerName, setManagerName] = useState('');
     const [managerPhone, setManagerPhone] = useState('');
     const [workIndustry, setWorkIndustry] = useState<string[]>([]);
     const [workOccupation, setWorkOccupation] = useState<string[]>([]);
+    const [requireGender, setRequireGender] = useState('');
+    const [requireAge, setRequireAge] = useState('');
     const [careerPeriod, setCareerPeriod] = useState('');
     const [headCount, setHeadCount] = useState('');
     const [feeType, setFeeType] = useState('');
@@ -69,6 +74,7 @@ export default function SitePostEditPage() {
     const [promotion, setPromotion] = useState('');
     const [baseSalary, setBaseSalary] = useState('');
     const [detailContent, setDetailContent] = useState('');
+    const [siteUrl, setSiteUrl] = useState('');
 
     const [isInitialized, setIsInitialized] = useState(false);
     const [leaveModalVisible, setLeaveModalVisible] = useState(false);
@@ -86,15 +92,20 @@ export default function SitePostEditPage() {
             setIntro(job.point_content ?? '');
             setImages(imgs);
             setAddress(job.address ?? '');
+            setAddressDetail(job.address_detail ?? '');
             setResultAddress(job.result_address ?? '');
             setLatitude(job.latitude ?? null);
             setLongitude(job.longitude ?? null);
             setWorkRegions(regions[0] ?? '');
+            setEnforcement(job.enforcement ?? '');
+            setConstruction(job.construction ?? '');
             setAgency(job.agency ?? '');
             setManagerName(job.name ?? '');
             setManagerPhone(job.phone ?? '');
             setWorkIndustry(industries);
             setWorkOccupation(jobCategories);
+            setRequireGender(job.require_gender ?? '');
+            setRequireAge(job.require_age ?? '');
             setCareerPeriod(job.career_period ?? '');
             setHeadCount(job.number_people ?? '');
             setFeeType(job.fee_type ?? '');
@@ -108,6 +119,7 @@ export default function SitePostEditPage() {
             setPromotion(job.promotion ?? '');
             setBaseSalary(job.base_pay ?? '');
             setDetailContent(job.detail_content ?? '');
+            setSiteUrl(job.site_url ?? '');
             setIsInitialized(true);
         }
     }, [job, isInitialized]);
@@ -155,21 +167,24 @@ export default function SitePostEditPage() {
             try { return job?.icons ? JSON.parse(job.icons) : []; } catch { return []; }
         })();
 
+        const combinedResultAddress = addressDetail ? `${address} ${addressDetail}`.trim() : resultAddress;
         updateMutation.mutate(
             {
                 id: postId,
                 payload: {
                     subject, intro, images,
-                    address, resultAddress,
+                    address, addressDetail, resultAddress: combinedResultAddress,
                     latitude, longitude,
                     workRegions: workRegions ? [workRegions] : [],
+                    enforcement, construction,
                     agency, managerName, managerPhone,
                     workIndustry, workOccupation,
+                    requireGender, requireAge,
                     careerPeriod, headCount,
                     feeType, fee: cleanedFee,
                     mealExpense, transportExpense, housing, accommodationExpenses,
                     dailyExpense, businessExpense, promotion, baseSalary,
-                    detailContent,
+                    detailContent, siteUrl,
                     selectedProduct: job?.product ?? 'FREE',
                     selectedIcons,
                     totalAmount: 0,
@@ -269,6 +284,8 @@ export default function SitePostEditPage() {
 
                 <RegionSection
                     address={address}
+                    addressDetail={addressDetail}
+                    onAddressDetailChange={setAddressDetail}
                     latitude={latitude}
                     longitude={longitude}
                     onAddressSelect={(addr, lat, lng) => {
@@ -282,6 +299,8 @@ export default function SitePostEditPage() {
                 />
 
                 <AgencySection
+                    enforcement={enforcement} onEnforcementChange={setEnforcement}
+                    construction={construction} onConstructionChange={setConstruction}
                     agency={agency} onAgencyChange={setAgency}
                     managerName={managerName} onManagerNameChange={setManagerName}
                     managerPhone={managerPhone} onManagerPhoneChange={setManagerPhone}
@@ -295,6 +314,8 @@ export default function SitePostEditPage() {
                 <OccupationSection
                     workOccupation={workOccupation}
                     onToggle={(v) => toggleMulti(setWorkOccupation, v)}
+                    requireGender={requireGender} onRequireGenderChange={setRequireGender}
+                    requireAge={requireAge} onRequireAgeChange={setRequireAge}
                     careerPeriod={careerPeriod} onCareerPeriodChange={setCareerPeriod}
                     headCount={headCount} onHeadCountChange={setHeadCount}
                 />
@@ -315,6 +336,8 @@ export default function SitePostEditPage() {
                 <DetailSection
                     detailContent={detailContent}
                     onDetailContentChange={setDetailContent}
+                    siteUrl={siteUrl}
+                    onSiteUrlChange={setSiteUrl}
                 />
 
                 <TouchableOpacity

@@ -42,9 +42,10 @@ export default function SitePostPage() {
             const hasFeeContent = form.fee.some(f => f.category.trim() || f.amount.trim());
             const hasContent =
                 form.subject || form.intro || form.imagesRef.current.length > 0 || form.address ||
-                form.workRegions || form.agency || form.managerName || form.managerPhone ||
+                form.workRegions || form.enforcement || form.construction ||
+                form.agency || form.managerName || form.managerPhone ||
                 form.workIndustry.length > 0 || form.workOccupation.length > 0 ||
-                form.feeType || hasFeeContent || form.detailContent;
+                form.feeType || hasFeeContent || form.detailContent || form.siteUrl;
 
             if (!hasContent) return;
 
@@ -53,9 +54,9 @@ export default function SitePostPage() {
             setLeaveModalVisible(true);
         });
         return unsubscribe;
-    }, [navigation, form.subject, form.intro, form.address, form.workRegions, form.agency,
-        form.managerName, form.managerPhone, form.workIndustry, form.workOccupation,
-        form.feeType, form.fee, form.detailContent]);
+    }, [navigation, form.subject, form.intro, form.address, form.workRegions,
+        form.enforcement, form.construction, form.agency, form.managerName, form.managerPhone,
+        form.workIndustry, form.workOccupation, form.feeType, form.fee, form.detailContent, form.siteUrl]);
 
     const handleConfirmLeave = async () => {
         setIsDeletingImages(true);
@@ -194,6 +195,8 @@ export default function SitePostPage() {
                 <View style={s.sectionCard}>
                     <RegionSection
                         address={form.address}
+                        addressDetail={form.addressDetail}
+                        onAddressDetailChange={form.setAddressDetail}
                         latitude={form.latitude}
                         longitude={form.longitude}
                         onAddressSelect={(addr, lat, lng) => {
@@ -208,6 +211,8 @@ export default function SitePostPage() {
 
                 <View style={s.sectionCard}>
                     <AgencySection
+                        enforcement={form.enforcement} onEnforcementChange={form.setEnforcement}
+                        construction={form.construction} onConstructionChange={form.setConstruction}
                         agency={form.agency} onAgencyChange={form.setAgency}
                         managerName={form.managerName} onManagerNameChange={form.setManagerName}
                         managerPhone={form.managerPhone} onManagerPhoneChange={form.setManagerPhone}
@@ -225,6 +230,8 @@ export default function SitePostPage() {
                     <OccupationSection
                         workOccupation={form.workOccupation}
                         onToggle={(v) => form.toggleMulti(form.setWorkOccupation, v)}
+                        requireGender={form.requireGender} onRequireGenderChange={form.setRequireGender}
+                        requireAge={form.requireAge} onRequireAgeChange={form.setRequireAge}
                         careerPeriod={form.careerPeriod} onCareerPeriodChange={form.setCareerPeriod}
                         headCount={form.headCount} onHeadCountChange={form.setHeadCount}
                     />
@@ -249,6 +256,8 @@ export default function SitePostPage() {
                     <DetailSection
                         detailContent={form.detailContent}
                         onDetailContentChange={form.setDetailContent}
+                        siteUrl={form.siteUrl}
+                        onSiteUrlChange={form.setSiteUrl}
                     />
                 </View>
 

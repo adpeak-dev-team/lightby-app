@@ -15,14 +15,19 @@ export function useSitePostForm() {
     const [intro, setIntro] = useState('');
     const [images, setImages] = useState<string[]>([]);
     const [address, setAddress] = useState('');
+    const [addressDetail, setAddressDetail] = useState('');
     const [latitude, setLatitude] = useState<number | null>(null);
     const [longitude, setLongitude] = useState<number | null>(null);
     const [workRegions, setWorkRegions] = useState('');
+    const [enforcement, setEnforcement] = useState('');
+    const [construction, setConstruction] = useState('');
     const [agency, setAgency] = useState('');
     const [managerName, setManagerName] = useState('');
     const [managerPhone, setManagerPhone] = useState('');
     const [workIndustry, setWorkIndustry] = useState<string[]>([]);
     const [workOccupation, setWorkOccupation] = useState<string[]>([]);
+    const [requireGender, setRequireGender] = useState('');
+    const [requireAge, setRequireAge] = useState('');
     const [careerPeriod, setCareerPeriod] = useState('');
     const [headCount, setHeadCount] = useState('');
     const [feeType, setFeeType] = useState('');
@@ -36,6 +41,7 @@ export function useSitePostForm() {
     const [promotion, setPromotion] = useState('');
     const [baseSalary, setBaseSalary] = useState('');
     const [detailContent, setDetailContent] = useState('');
+    const [siteUrl, setSiteUrl] = useState('');
 
     // ── API ──
     const { data: userProfile } = useGetUserProfile();
@@ -71,14 +77,19 @@ export function useSitePostForm() {
             setIntro(d.point_content ?? '');
             setImages(copiedImgs);
             setAddress(d.address ?? '');
+            setAddressDetail(d.address_detail ?? '');
             setLatitude(typeof d.latitude === 'number' ? d.latitude : null);
             setLongitude(typeof d.longitude === 'number' ? d.longitude : null);
             setWorkRegions(Array.isArray(d.regions) ? (d.regions[0] ?? '') : '');
+            setEnforcement(d.enforcement ?? '');
+            setConstruction(d.construction ?? '');
             setAgency(d.agency ?? '');
             setManagerName(d.name ?? '');
             setManagerPhone(d.phone ?? '');
             setWorkIndustry(d.industries ?? []);
             setWorkOccupation(d.job_categories ?? []);
+            setRequireGender(d.require_gender ?? '');
+            setRequireAge(d.require_age ?? '');
             setCareerPeriod(d.career_period ?? '');
             setHeadCount(d.number_people ?? '');
             setFeeType(d.fee_type ?? '');
@@ -92,6 +103,7 @@ export function useSitePostForm() {
             setPromotion(d.promotion ?? '');
             setBaseSalary(d.base_pay ?? '');
             setDetailContent(d.detail_content ?? '');
+            setSiteUrl(d.site_url ?? '');
         } catch {
             Alert.alert('오류', '공고를 불러오는 중 오류가 발생했습니다.');
         } finally {
@@ -122,19 +134,22 @@ export function useSitePostForm() {
         callbacks: { onSuccess: () => void; onCloseModal: () => void },
     ) => {
         const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
+        const resultAddress = addressDetail ? `${address} ${addressDetail}`.trim() : address;
         createMutation.mutate(
             {
                 subject, intro, images,
-                address, resultAddress: address,
+                address, addressDetail, resultAddress,
                 latitude, longitude,
                 workRegions: workRegions ? [workRegions] : [],
+                enforcement, construction,
                 agency, managerName, managerPhone,
                 workIndustry, workOccupation,
+                requireGender, requireAge,
                 careerPeriod, headCount,
                 feeType, fee: cleanedFee,
                 mealExpense, transportExpense, housing, accommodationExpenses,
                 dailyExpense, businessExpense, promotion, baseSalary,
-                detailContent,
+                detailContent, siteUrl,
                 selectedProduct,
                 selectedIcons,
                 totalAmount,
@@ -173,14 +188,19 @@ export function useSitePostForm() {
         intro, setIntro,
         images, setImages,
         address, setAddress,
+        addressDetail, setAddressDetail,
         latitude, setLatitude,
         longitude, setLongitude,
         workRegions, setWorkRegions,
+        enforcement, setEnforcement,
+        construction, setConstruction,
         agency, setAgency,
         managerName, setManagerName,
         managerPhone, setManagerPhone,
         workIndustry, setWorkIndustry,
         workOccupation, setWorkOccupation,
+        requireGender, setRequireGender,
+        requireAge, setRequireAge,
         careerPeriod, setCareerPeriod,
         headCount, setHeadCount,
         feeType, setFeeType,
@@ -194,6 +214,7 @@ export function useSitePostForm() {
         promotion, setPromotion,
         baseSalary, setBaseSalary,
         detailContent, setDetailContent,
+        siteUrl, setSiteUrl,
         // 유저/API
         userProfile,
         isLoadingPrev,

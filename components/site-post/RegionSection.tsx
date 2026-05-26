@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import { KakaoPostcode } from '@/components/common/KakaoPostcode';
 import { KakaoMap } from '@/components/common/KakaoMap';
 import { SectionHeader, Label, RadioChipGroup, REGIONS, ss } from './shared';
 
 interface Props {
     address: string;
+    addressDetail: string;
+    onAddressDetailChange: (v: string) => void;
     latitude: number | null;
     longitude: number | null;
     onAddressSelect: (address: string, lat: number, lng: number) => void;
@@ -14,18 +16,17 @@ interface Props {
 }
 
 export function RegionSection({
-    address, latitude, longitude, onAddressSelect,
+    address, addressDetail, onAddressDetailChange,
+    latitude, longitude, onAddressSelect,
     workRegions, onRegionSelect,
 }: Props) {
     const [showMap, setShowMap] = useState(false);
 
     const handleAddressSelect = (addr: string, lat: number, lng: number) => {
-        console.log('[RegionSection] 주소 수신:', addr, lat, lng);
         if (addr) setShowMap(true);
         onAddressSelect(addr, lat, lng);
     };
 
-    // 지도는 실제 좌표가 있을 때만, 없으면 주소 텍스트만 표시
     const hasCoords = showMap && latitude !== null && longitude !== null && latitude !== 0;
 
     return (
@@ -41,6 +42,15 @@ export function RegionSection({
                         📍 {address}
                     </Text>
             )}
+
+            <Label text="상세 주소" />
+            <TextInput
+                style={ss.input}
+                value={addressDetail}
+                onChangeText={onAddressDetailChange}
+                placeholder="ex) 101동 / 3층"
+                placeholderTextColor="#9ca3af"
+            />
 
             <Label text="근무 지역" required />
             <RadioChipGroup
