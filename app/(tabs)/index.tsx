@@ -15,6 +15,7 @@ import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
 import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
+import { getImageUrl } from '@/lib/lib';
 
 // ─── 셔플 ────────────────────────────────────────────────────────────────────
 function shuffle<T>(arr: T[]): T[] {
@@ -135,8 +136,6 @@ function Section({
 }
 
 // ─── 배너 캐러셀 ─────────────────────────────────────────────────────────────
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
-
 function BannerCarousel() {
   const { width } = useWindowDimensions();
   const carouselWidth = width - 32; // marginHorizontal: 16 양쪽 제외
@@ -163,7 +162,7 @@ function BannerCarousel() {
             style={{ width: carouselWidth, height: BANNER_HEIGHT }}
           >
             <Image
-              source={{ uri: `${IMAGE_PREFIX}${item.imageUrl}` }}
+              source={{ uri: getImageUrl(item.imageUrl) ?? undefined }}
               style={{ width: carouselWidth, height: BANNER_HEIGHT }}
               contentFit="cover"
             />

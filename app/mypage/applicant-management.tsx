@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetMyJobPostings } from '@/services/site/queries';
 import { ApplicantItem } from '@/services/site/types';
+import { getImageUrl } from '@/lib/lib';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -25,7 +26,7 @@ function SkeletonCard() {
 
 function ApplicantCard({ item }: { item: ApplicantItem }) {
   const router = useRouter();
-  const imageUri = item.thumbnail ? `${IMAGE_PREFIX}${item.thumbnail}` : null;
+  const imageUri = item.thumbnail ? getImageUrl(item.thumbnail) : null;
   const d = new Date(item.created_at);
   const dateStr = `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
   const endDate = new Date(d);

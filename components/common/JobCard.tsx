@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
+import { getImageUrl } from '@/lib/lib';
 
 export interface JobItem {
   id: number;
@@ -25,10 +26,8 @@ const TAG_COLORS = [
   { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
 ];
 
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
-
 export function JobCard({ job, onPress }: JobCardProps) {
-  const imageUri = job.thumbnail ? `${IMAGE_PREFIX}${job.thumbnail}` : null;
+  const imageUri = job.thumbnail ? getImageUrl(job.thumbnail) : null;
 
   return (
     <TouchableOpacity
