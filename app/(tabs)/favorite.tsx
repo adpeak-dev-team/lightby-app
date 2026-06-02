@@ -124,7 +124,7 @@ export default function FavoritePage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
+  container: { flex: 1, backgroundColor: '#fff' },
 
   /* 로그인 유도 */
   loginPrompt: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
@@ -153,7 +153,7 @@ const s = StyleSheet.create({
   tabUnderlineActive: { backgroundColor: '#111827' },
 
   /* 리스트 */
-  list: { padding: 12, paddingBottom: 24 },
+  list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 },
   emptyText: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 14 },
   errorText: { textAlign: 'center', color: '#f87171', marginTop: 60, fontSize: 14 },
 });

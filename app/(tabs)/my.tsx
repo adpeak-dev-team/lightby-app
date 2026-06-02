@@ -250,8 +250,8 @@ export default function MyPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
-  scroll: { padding: 12, paddingBottom: 32, gap: 10 },
+  container: { flex: 1, backgroundColor: '#fff' },
+  scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 32, gap: 10 },
 
   /* 로그인 유도 */
   loginPrompt: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
