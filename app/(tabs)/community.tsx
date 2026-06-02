@@ -102,7 +102,7 @@ export default function CommunityPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
+  container: { flex: 1, backgroundColor: '#fff' },
   searchWrap: {
     backgroundColor: '#fff',
     paddingHorizontal: 12,
@@ -128,7 +128,7 @@ const s = StyleSheet.create({
   },
   searchResult: { fontSize: 11, color: '#9ca3af', paddingHorizontal: 2 },
   searchKeyword: { fontWeight: '700', color: '#374151' },
-  list: { padding: 12, paddingBottom: 96 },
+  list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 96 },
   empty: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 15 },
   fab: {
     position: 'absolute', right: 16, bottom: 24,

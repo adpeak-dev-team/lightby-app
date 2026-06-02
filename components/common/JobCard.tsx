@@ -61,7 +61,7 @@ export function JobCard({ job, onPress }: JobCardProps) {
           </View>
 
           {/* 제목 */}
-          <Text style={styles.title} numberOfLines={2}>{job.title}</Text>
+          <Text style={styles.title} numberOfLines={1}>{job.title}</Text>
 
           {/* 수수료 */}
           <View style={styles.feeRow}>
@@ -69,14 +69,14 @@ export function JobCard({ job, onPress }: JobCardProps) {
             <Text style={styles.fee}>{job.fee}</Text>
           </View>
 
-          {/* 태그 */}
+          {/* 태그 — 무조건 한 줄, 넘치면 잘림 */}
           {job.tags.length > 0 && (
             <View style={styles.tags}>
-              {job.tags.slice(0, 3).map((tag, i) => {
+              {job.tags.map((tag, i) => {
                 const c = TAG_COLORS[i % TAG_COLORS.length];
                 return (
                   <View key={tag} style={[styles.tag, { backgroundColor: c.bg, borderColor: c.border }]}>
-                    <Text style={[styles.tagText, { color: c.text }]}>{tag}</Text>
+                    <Text style={[styles.tagText, { color: c.text }]} numberOfLines={1}>{tag}</Text>
                   </View>
                 );
               })}
@@ -107,11 +107,11 @@ export function JobCard({ job, onPress }: JobCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#f3f4f6',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   thumbWrap: {
-    width: 84,
-    height: 84,
+    width: 80,
+    height: 80,
     borderRadius: 10,
     overflow: 'hidden',
     flexShrink: 0,
@@ -176,7 +176,8 @@ const styles = StyleSheet.create({
   },
   tags: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    overflow: 'hidden',
     gap: 4,
     marginTop: 2,
   },
@@ -185,6 +186,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
+    flexShrink: 0,
   },
   tagText: {
     fontSize: 10,

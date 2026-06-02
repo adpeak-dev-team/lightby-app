@@ -245,8 +245,8 @@ export default function HomePage() {
   ), [search, sort, location, premiumJobs, isPremiumLoading, topJobs, isTopLoading, handlePressJob]);
 
   const renderItem = useCallback(({ item }: { item: ListRow }) => {
-    if (item._type === 'skeleton') return <SkeletonCard />;
-    return <JobCard job={toJobItem(item)} onPress={handlePressJob} />;
+    if (item._type === 'skeleton') return <View style={s.freeRow}><SkeletonCard /></View>;
+    return <View style={s.freeRow}><JobCard job={toJobItem(item)} onPress={handlePressJob} /></View>;
   }, [handlePressJob]);
 
   const listFooter = isFetchingNextPage ? (
@@ -284,14 +284,17 @@ export default function HomePage() {
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#fff',
   },
   listContent: {
     paddingBottom: 24,
   },
+  freeRow: {
+    paddingHorizontal: 16,
+  },
   sectionWrap: {
     backgroundColor: '#fff',
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
     marginTop: 8,
