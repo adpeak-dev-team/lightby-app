@@ -52,7 +52,7 @@ export default function SetUserInfoProfilePage() {
       {
         onSuccess: (res) => {
           if (res.success) {
-            toast.success('라이트바이를 시작합니다. ⚡');
+            toast.success('번개분양을 시작합니다. ⚡');
             router.replace('/');
           } else {
             Alert.alert('오류', '저장에 실패했습니다.');
