@@ -104,7 +104,7 @@ export default function MyPage() {
           </View>
           <Text style={s.loginTitle}>로그인이 필요합니다</Text>
           <Text style={s.loginDesc}>
-            <Text style={s.accent}>라이트바이</Text>에 로그인하시면{'\n'}
+            <Text style={s.accent}>번개분양</Text>에 로그인하시면{'\n'}
             맞춤 현장 추천부터 내 공고 관리까지{'\n'}
             모든 기능을 즉시 이용할 수 있습니다.
           </Text>
