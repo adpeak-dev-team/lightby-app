@@ -53,7 +53,7 @@ export function CommunityCard({ item, onPress }: Props) {
               <Ionicons name="person-outline" size={13} color="#9ca3af" />
             )}
           </View>
-          <Text style={s.authorText}>{isAnon ? '익명' : item.nickname}</Text>
+          <Text style={s.authorText}>{isAnon ? '익명' : item.is_withdrawn ? '탈퇴한 회원' : item.nickname}</Text>
           <Text style={s.dot}>·</Text>
           <Text style={s.dateText}>{formatDate(item.date)}</Text>
         </View>

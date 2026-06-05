@@ -11,6 +11,7 @@ type Reply = {
   created_at: string;
   user_id: number;
   content: string;
+  is_withdrawn?: number | boolean;
 };
 
 type Props = {
@@ -32,8 +33,8 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
           <View key={reply.id} style={s.item}>
             <View style={s.itemHeader}>
               <View style={s.meta}>
-                <Text style={s.author}>{reply.author_name}</Text>
-                {postAuthorId != null && reply.user_id === postAuthorId && (
+                <Text style={s.author}>{reply.is_withdrawn ? '탈퇴한 회원' : reply.author_name}</Text>
+                {postAuthorId != null && reply.user_id === postAuthorId && !reply.is_withdrawn && (
                   <View style={s.authorBadge}>
                     <Text style={s.authorBadgeText}>글쓴이</Text>
                   </View>
