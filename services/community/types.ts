@@ -8,6 +8,7 @@ export interface CommunityItem {
   profile_thumbnail?: string | null;
   nickname: string;
   is_anonymous: number | boolean;
+  is_withdrawn?: number | boolean;
   date: string;
   likes: number;
   comments: number;
@@ -18,6 +19,7 @@ export interface Comment {
   user_id: number;
   board_id: number;
   author_name: string;
+  is_withdrawn?: number | boolean;
   content: string;
   created_at: string;
 }

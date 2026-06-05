@@ -177,7 +177,7 @@ export default function BoardDetailPage() {
               )}
             </View>
             <View>
-              <Text style={s.authorName}>{isAnon ? '익명' : post.nickname}</Text>
+              <Text style={s.authorName}>{isAnon ? '익명' : post.is_withdrawn ? '탈퇴한 회원' : post.nickname}</Text>
               <Text style={s.authorDate}>{formatDate(post.date)}</Text>
             </View>
           </View>
