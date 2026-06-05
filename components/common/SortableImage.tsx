@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  View, Image, Text, StyleSheet, Alert, ActivityIndicator,
-  TouchableOpacity, LayoutChangeEvent,
+  View, Image, StyleSheet, Alert, ActivityIndicator, TouchableOpacity, LayoutChangeEvent,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import Animated, {
   useSharedValue, useAnimatedStyle, useAnimatedReaction, withSpring, SharedValue,
 } from 'react-native-reanimated';
@@ -312,10 +312,14 @@ export default function SortableImage({
       ]);
       onUploaded?.(uploadedPaths);
     } catch (err: any) {
-      console.log('[Upload Error]', err?.message);
-      console.log('[Upload Error] status:', err?.response?.status);
-      console.log('[Upload Error] data:', JSON.stringify(err?.response?.data));
-      Alert.alert('오류', '이미지 업로드 중 오류가 발생했습니다.');
+      const status = err?.response?.status;
+      let message = '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+      if (status === 413) message = '이미지 용량이 너무 큽니다. 더 작은 이미지를 선택해 주세요.';
+      else if (status === 415 || status === 400) message = '지원하지 않는 이미지 형식입니다.';
+      else if (status === 429) message = '요청이 많습니다. 잠시 후 다시 시도해 주세요.';
+      else if (err?.message === 'Network Error') message = '네트워크 연결을 확인해 주세요.';
+      console.log('[Upload Error]', status, err?.message);
+      Alert.alert('업로드 실패', message);
     } finally {
       setIsUploading(false);
     }
@@ -428,7 +432,7 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
   },
   addBtn: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0ea5e9',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 8,

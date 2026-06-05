@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  Modal, StyleSheet, Pressable, Animated, PanResponder,
+  View, TextInput, TouchableOpacity, Modal, StyleSheet, Pressable, Animated, PanResponder,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 
 type SortVal = 'DEFAULT' | 'HIGH_FEE' | 'LATEST' | 'VIEW_COUNT';
@@ -71,8 +71,6 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
     onSearchChange('');
   };
 
-  const currentSortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? '최신순';
-
   return (
     <View style={styles.wrap}>
       <View style={[styles.bar, focused && styles.barFocused]}>
@@ -101,7 +99,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
         <View style={styles.divider} />
 
         <TouchableOpacity style={styles.sortBtn} onPress={openSheet}>
-          <Text style={styles.sortLabel}>{currentSortLabel}</Text>
+          <Text style={styles.sortLabel}>필터</Text>
           <Ionicons name="funnel-outline" size={13} color="#6b7280" />
         </TouchableOpacity>
       </View>
@@ -121,7 +119,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
               <Text style={[styles.sheetItemText, sort === opt.value && styles.sheetItemTextActive]}>
                 {opt.label}
               </Text>
-              {sort === opt.value && <Ionicons name="checkmark" size={16} color="#0ea5e9" />}
+              {sort === opt.value && <Ionicons name="checkmark" size={16} color="#06b6d4" />}
             </TouchableOpacity>
           ))}
         </Animated.View>
@@ -148,7 +146,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   barFocused: {
-    borderColor: '#0ea5e9',
+    borderColor: '#06b6d4',
     backgroundColor: '#fff',
   },
   input: {
@@ -211,14 +209,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   sheetItemActive: {
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#ecfeff',
   },
   sheetItemText: {
     fontSize: 14,
     color: '#374151',
   },
   sheetItemTextActive: {
-    color: '#0ea5e9',
+    color: '#06b6d4',
     fontWeight: '700',
   },
 });

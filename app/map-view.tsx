@@ -1,4 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View, StyleSheet, TouchableOpacity, ActivityIndicator,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -116,7 +119,7 @@ export default function MapViewPage() {
 
       {loading && isValid && (
         <View style={s.loading} pointerEvents="none">
-          <ActivityIndicator size="large" color="#3b82f6" />
+          <ActivityIndicator size="large" color="#0ea5e9" />
         </View>
       )}
 

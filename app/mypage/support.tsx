@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Image, LayoutAnimation, Platform, UIManager,
+  View, ScrollView, TouchableOpacity, StyleSheet, Image, LayoutAnimation, Platform, UIManager,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -206,7 +206,7 @@ const s = StyleSheet.create({
   navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
   scroll: { padding: 16 },
   hero: { alignItems: 'center', paddingVertical: 24, gap: 6 },
-  heroTitle: { fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 },
+  heroTitle: { fontSize: 22, fontWeight: '700', color: '#111827', letterSpacing: -0.5 },
   heroSub: { fontSize: 13, color: '#9ca3af' },
   tabSwitch: {
     flexDirection: 'row', backgroundColor: '#e5e7eb', borderRadius: 14,
@@ -218,7 +218,7 @@ const s = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 2,
   },
   switchLabel: { fontSize: 13, fontWeight: '600', color: '#9ca3af' },
-  switchLabelActive: { color: '#3b82f6' },
+  switchLabelActive: { color: '#0ea5e9' },
   list: { gap: 10 },
   empty: { textAlign: 'center', color: '#9ca3af', fontSize: 14, paddingVertical: 40 },
   fab: {
@@ -231,7 +231,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#2563eb', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
-  fabText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  fabText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });
 
 const a = StyleSheet.create({
@@ -242,7 +242,7 @@ const a = StyleSheet.create({
   },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
   questionRow: { flexDirection: 'row', gap: 8, flex: 1 },
-  qLabel: { fontSize: 14, fontWeight: '800', color: '#60a5fa' },
+  qLabel: { fontSize: 14, fontWeight: '700', color: '#60a5fa' },
   question: { fontSize: 14, fontWeight: '600', color: '#1f2937', flex: 1 },
   answerWrap: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: '#f9fafb' },
   answer: { fontSize: 13, color: '#6b7280', lineHeight: 20, paddingTop: 12 },

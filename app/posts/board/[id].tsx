@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity,
-  KeyboardAvoidingView, Modal, StyleSheet,
-  Share, ActivityIndicator, Pressable,
+  View, ScrollView, TouchableOpacity, KeyboardAvoidingView, Modal, StyleSheet, Share, ActivityIndicator, Pressable,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -83,23 +82,23 @@ export default function BoardDetailPage() {
   const handleLike = useCallback(() => {
     if (!me?.id) { toast.info('로그인이 필요한 서비스입니다.'); return; }
     if (liked) { setShowUnlikeModal(true); return; }
+    // 옵티미스틱: 즉시 반영 후 실패 시 롤백
+    setLiked(true);
+    setLikeCount((p) => p + 1);
     toggleLikeMutation.mutate(
       { postId, userId: me.id },
-      { onSuccess: () => { setLiked(true); setLikeCount((p) => p + 1); } },
+      { onError: () => { setLiked(false); setLikeCount((p) => Math.max(0, p - 1)); toast.error('잠시 후 다시 시도해 주세요.'); } },
     );
   }, [liked, me?.id, postId]);
 
   const handleConfirmUnlike = useCallback(() => {
     if (!me?.id) return;
+    setShowUnlikeModal(false);
+    setLiked(false);
+    setLikeCount((p) => Math.max(0, p - 1));
     toggleLikeMutation.mutate(
       { postId, userId: me.id },
-      {
-        onSuccess: () => {
-          setLiked(false);
-          setLikeCount((p) => Math.max(0, p - 1));
-          setShowUnlikeModal(false);
-        },
-      },
+      { onError: () => { setLiked(true); setLikeCount((p) => p + 1); toast.error('잠시 후 다시 시도해 주세요.'); } },
     );
   }, [me?.id, postId]);
 
@@ -159,7 +158,7 @@ export default function BoardDetailPage() {
         onBack={() => router.back()}
         rightActions={[
           ...(isOwner ? [
-            { icon: 'pencil-outline', color: '#3b82f6', onPress: () => router.push({ pathname: '/registration/communitypost-edit/[id]', params: { id } } as never) },
+            { icon: 'pencil-outline', color: '#0ea5e9', onPress: () => router.push({ pathname: '/registration/communitypost-edit/[id]', params: { id } } as never) },
             { icon: 'trash-outline', color: '#ef4444', onPress: () => setShowDeleteModal(true) },
           ] : []),
           { icon: 'share-outline', onPress: handleShare },
@@ -219,11 +218,10 @@ export default function BoardDetailPage() {
             </TouchableOpacity>
           </View>
 
-          <View style={s.separator} />
-
           <CommentsSection
             replies={replies}
             myId={me?.id}
+            postAuthorId={post?.user_id}
             onDeleteReply={handleDeleteReply}
           />
         </ScrollView>
@@ -297,7 +295,7 @@ const s = StyleSheet.create({
   authorDate: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
 
   titleSection: { paddingHorizontal: 16, paddingBottom: 12 },
-  postTitle: { fontSize: 19, fontWeight: '800', color: '#111827', lineHeight: 28 },
+  postTitle: { fontSize: 19, fontWeight: '700', color: '#111827', lineHeight: 28 },
 
   imagesSection: { paddingHorizontal: 16, gap: 10, marginBottom: 4 },
   postImage: { width: '100%', borderRadius: 12, backgroundColor: '#f3f4f6' },
@@ -313,7 +311,7 @@ const s = StyleSheet.create({
 
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
   modal: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40 },
-  modalTitle: { fontSize: 16, fontWeight: '800', color: '#111827', textAlign: 'center', marginBottom: 6 },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#111827', textAlign: 'center', marginBottom: 6 },
   modalSub: { fontSize: 13, color: '#6b7280', textAlign: 'center', marginBottom: 22 },
   modalBtns: { flexDirection: 'row', gap: 10 },
   modalBtnSecondary: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },

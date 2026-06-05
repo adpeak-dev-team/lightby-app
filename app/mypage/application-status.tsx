@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator,
+  View, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -147,7 +148,7 @@ const c = StyleSheet.create({
   thumb: { width: '100%', height: '100%' },
   thumbPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   newBadge: { position: 'absolute', top: 4, left: 4, backgroundColor: '#ef4444', borderRadius: 4, paddingHorizontal: 4, paddingVertical: 2 },
-  newBadgeText: { color: '#fff', fontSize: 8, fontWeight: '900' },
+  newBadgeText: { color: '#fff', fontSize: 8, fontWeight: '700' },
   content: { flex: 1, gap: 4 },
   title: { fontSize: 14, fontWeight: '700', color: '#111827' },
   metaRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },

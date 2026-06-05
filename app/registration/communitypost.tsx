@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
-  Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
+  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -115,7 +115,7 @@ export default function CommunityPostPage() {
             <View style={[s.modalIconWrap, { backgroundColor: '#fef2f2' }]}>
               <Ionicons name="alert-circle" size={36} color="#f87171" />
             </View>
-            <Text style={s.modalTitle}>작성을 그만두시겠어요?</Text>
+            <Text style={s.modalTitle}>정말 나가시겠어요?</Text>
             <Text style={s.modalDesc}>
               작성 중인 내용은 저장되지 않으며{'\n'}
               업로드된 이미지도 모두 삭제됩니다.
@@ -192,7 +192,7 @@ export default function CommunityPostPage() {
                 value={anonymous}
                 onValueChange={setAnonymous}
                 trackColor={{ false: '#e5e7eb', true: '#93c5fd' }}
-                thumbColor={anonymous ? '#3b82f6' : '#f3f4f6'}
+                thumbColor={anonymous ? '#0ea5e9' : '#f3f4f6'}
               />
             </View>
           </View>
@@ -318,7 +318,7 @@ const s = StyleSheet.create({
     flexDirection: 'row', gap: 8, padding: 14, borderRadius: 12,
     backgroundColor: '#fff7ed',
   },
-  noticeTitle: { fontSize: 12, fontWeight: '800', color: '#fb923c', marginBottom: 2 },
+  noticeTitle: { fontSize: 12, fontWeight: '700', color: '#fb923c', marginBottom: 2 },
   noticeBody: { fontSize: 12, color: '#fb923c', lineHeight: 18 },
 
   actionRow: { flexDirection: 'row', gap: 10 },
@@ -328,13 +328,13 @@ const s = StyleSheet.create({
   },
   cancelBtnText: { fontSize: 15, fontWeight: '700', color: '#6b7280' },
   submitBtn: {
-    flex: 2, backgroundColor: '#3b82f6', borderRadius: 16,
+    flex: 2, backgroundColor: '#0ea5e9', borderRadius: 16,
     paddingVertical: 16, alignItems: 'center',
-    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
   submitBtnDisabled: { backgroundColor: '#cbd5e1', shadowOpacity: 0, elevation: 0 },
-  submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   /* 모달 공통 */
   modalOverlay: {
@@ -352,7 +352,7 @@ const s = StyleSheet.create({
     width: 64, height: 64, borderRadius: 32,
     alignItems: 'center', justifyContent: 'center', marginBottom: 14,
   },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: '#111827', marginBottom: 8, textAlign: 'center' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 8, textAlign: 'center' },
   modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
   modalBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
   modalCancelBtn: {
@@ -369,5 +369,5 @@ const s = StyleSheet.create({
     width: '100%', backgroundColor: '#60a5fa', borderRadius: 14,
     paddingVertical: 14, alignItems: 'center',
   },
-  modalPrimaryText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  modalPrimaryText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

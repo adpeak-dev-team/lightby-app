@@ -1,8 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  updateNickname, sendPhoneAuthCode, verifyPhoneAuthCode, changePassword, saveTalentInfo, savePreferences, uploadProfileImage,
+  updateNickname, sendPhoneAuthCode, verifyPhoneAuthCode, changePassword, saveTalentInfo, savePreferences, uploadProfileImage, withdrawUser,
 } from './api';
 import { USER_KEYS, PREFERENCES_KEYS, FAVORITE_KEYS } from './queries';
+
+// 회원 탈퇴 (성공 시 호출부에서 토큰/캐시 정리 및 화면 이동)
+export function useWithdrawUser() {
+  return useMutation({
+    mutationFn: () => withdrawUser(),
+  });
+}
 
 export function useUpdateNickname() {
   const qc = useQueryClient();

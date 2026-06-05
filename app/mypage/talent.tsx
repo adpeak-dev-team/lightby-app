@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, TextInput,
-  StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
+  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -106,7 +106,12 @@ export default function TalentPage() {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
       return;
     }
-    const birthYear = new Date().getFullYear() - parseInt(age);
+    const ageNum = parseInt(age, 10);
+    if (Number.isNaN(ageNum) || ageNum < 10 || ageNum > 120) {
+      Alert.alert('오류', '나이를 올바르게 입력해 주세요.');
+      return;
+    }
+    const birthYear = new Date().getFullYear() - ageNum;
     saveMutation.mutate(
       { gender, birthday: `${birthYear}-01-01`, introduction, careers },
       {
@@ -362,9 +367,9 @@ const s = StyleSheet.create({
   scroll: { padding: 16, paddingBottom: 30, gap: 12 },
 
   heroSection: { paddingVertical: 20, alignItems: 'center' },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#111827', marginBottom: 8 },
+  heroTitle: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 8 },
   heroSub: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 20 },
-  heroAccent: { color: '#3b82f6', fontWeight: '600' },
+  heroAccent: { color: '#0ea5e9', fontWeight: '600' },
 
   avatarSection: { alignItems: 'center', gap: 6 },
   avatarWrap: {
@@ -375,7 +380,7 @@ const s = StyleSheet.create({
   avatar: { width: 96, height: 96, borderRadius: 48 },
   avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   avatarHint: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
-  avatarSubHint: { fontSize: 11, color: '#3b82f6' },
+  avatarSubHint: { fontSize: 11, color: '#0ea5e9' },
   cameraBtn: {
     position: 'absolute', bottom: 0, right: 0,
     width: 30, height: 30, borderRadius: 15,
@@ -389,8 +394,8 @@ const s = StyleSheet.create({
     gap: 16,
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#3b82f6' },
-  sectionTitle: { fontSize: 15, fontWeight: '800', color: '#1f2937' },
+  sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#0ea5e9' },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937' },
 
   field: { gap: 6 },
   row: { flexDirection: 'row', gap: 12 },
@@ -414,9 +419,9 @@ const s = StyleSheet.create({
     flex: 1, paddingVertical: 10, borderRadius: 12,
     borderWidth: 1.5, borderColor: '#e5e7eb', alignItems: 'center', backgroundColor: '#f9fafb',
   },
-  choiceBtnActive: { borderColor: '#3b82f6', backgroundColor: '#fff' },
+  choiceBtnActive: { borderColor: '#0ea5e9', backgroundColor: '#fff' },
   choiceText: { fontSize: 14, fontWeight: '600', color: '#9ca3af' },
-  choiceTextActive: { color: '#3b82f6' },
+  choiceTextActive: { color: '#0ea5e9' },
 
   careerInputRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   careerInput: {
@@ -453,7 +458,7 @@ const s = StyleSheet.create({
     backgroundColor: '#60a5fa', borderRadius: 16, paddingVertical: 14,
     alignItems: 'center',
   },
-  submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   btnDisabled: { opacity: 0.6 },
 
   modalOverlay: {
@@ -470,12 +475,12 @@ const s = StyleSheet.create({
     backgroundColor: '#60a5fa', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
     shadowColor: '#60a5fa', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
   },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: '#111827', marginBottom: 8 },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: '#111827', marginBottom: 8 },
   modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
-  modalAccent: { color: '#3b82f6', fontWeight: '700' },
+  modalAccent: { color: '#0ea5e9', fontWeight: '700' },
   modalBtn: {
     width: '100%', backgroundColor: '#60a5fa', borderRadius: 14,
     paddingVertical: 14, alignItems: 'center',
   },
-  modalBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  modalBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

@@ -15,6 +15,8 @@ export interface UserProfile {
   nickname: string;
   phone: string;
   role: string;
+  login_id?: string | null;
+  sns_type?: string | null;
   gender?: string | null;
   birthday?: string | null;
   introduction?: string | null;

@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Text, StyleSheet, View } from 'react-native';
+import {
+  Animated, StyleSheet, View,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { registerToastHandler, ToastOptions, ToastType } from '@/hooks/use-toast';

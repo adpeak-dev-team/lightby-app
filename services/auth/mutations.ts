@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tokenStorage } from '@/api/apiClient';
 import {
   signIn, SignInRequest,
@@ -64,6 +64,7 @@ export function useSignIn() {
 }
 
 export function useLogout() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       const refreshToken = await tokenStorage.getRefresh();
@@ -71,6 +72,8 @@ export function useLogout() {
     },
     onSettled: async () => {
       await tokenStorage.clearAll();
+      // 이전 사용자 데이터가 남지 않도록 캐시 전체 정리
+      qc.clear();
     },
   });
 }

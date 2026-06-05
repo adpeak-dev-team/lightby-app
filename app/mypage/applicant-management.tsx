@@ -1,6 +1,7 @@
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet, Image,
+  View, FlatList, TouchableOpacity, StyleSheet, Image,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -155,8 +156,8 @@ const s = StyleSheet.create({
     flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center',
     borderWidth: 1, borderColor: '#e5e7eb',
   },
-  statLabel: { fontSize: 9, fontWeight: '800', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  statVal: { fontSize: 20, fontWeight: '900' },
+  statLabel: { fontSize: 9, fontWeight: '700', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  statVal: { fontSize: 20, fontWeight: '700' },
   skeletons: { gap: 10 },
   empty: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 14 },
 });
@@ -184,7 +185,7 @@ const c = StyleSheet.create({
   statusBadge: { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   badgeActive: { backgroundColor: '#e0f2fe', borderWidth: 1, borderColor: '#bae6fd' },
   badgeEnded: { backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' },
-  statusText: { fontSize: 9, fontWeight: '900', textTransform: 'uppercase' },
+  statusText: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
   statusTextActive: { color: '#0284c7' },
   statusTextEnded: { color: '#9ca3af' },
   dateRange: { fontSize: 10, color: '#9ca3af', fontWeight: '500' },
@@ -193,7 +194,7 @@ const c = StyleSheet.create({
   stats: { flexDirection: 'row', gap: 20 },
   stat: { gap: 2 },
   statLabel: { fontSize: 10, color: '#9ca3af', fontWeight: '600' },
-  statVal: { fontSize: 14, fontWeight: '900', color: '#1f2937' },
+  statVal: { fontSize: 14, fontWeight: '700', color: '#1f2937' },
   statUnit: { fontSize: 10, fontWeight: '500' },
   unreadLabel: { color: '#fb7185' },
   unreadVal: { color: '#e11d48' },

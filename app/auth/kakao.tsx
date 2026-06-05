@@ -1,7 +1,7 @@
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Alert,
+  View, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -394,7 +394,7 @@ const s = StyleSheet.create({
   },
   inputDone: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
   subBtn: {
-    backgroundColor: '#6366f1', borderRadius: 12, paddingHorizontal: 14,
+    backgroundColor: '#0ea5e9', borderRadius: 12, paddingHorizontal: 14,
     alignItems: 'center', justifyContent: 'center', minWidth: 80,
   },
   subBtnDone: { backgroundColor: '#9ca3af' },
@@ -409,7 +409,7 @@ const s = StyleSheet.create({
     alignItems: 'center', marginTop: 8,
   },
   submitBtnDisabled: { backgroundColor: '#e5e7eb' },
-  submitBtnText: { color: '#191919', fontWeight: '800', fontSize: 16 },
+  submitBtnText: { color: '#191919', fontWeight: '700', fontSize: 16 },
   cancelBtn: { alignItems: 'center', marginTop: 16 },
   cancelText: { fontSize: 13, color: '#9ca3af', textDecorationLine: 'underline' },
 });

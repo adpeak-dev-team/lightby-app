@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal,
+  View, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import Header from '@/components/common/Header';
 import PreferencesForm from '@/components/common/PreferencesForm';
+import { Colors } from '@/lib/theme';
 import { tokenStorage } from '@/api/apiClient';
 import { useLogout } from '@/services/auth/mutations';
 import { useGetUserProfile, useGetUserPostCount, USER_KEYS } from '@/services/user/queries';
@@ -27,14 +29,14 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   {
     icon: 'card',
-    iconBg: '#dbeafe', iconColor: '#3b82f6',
+    iconBg: '#dbeafe', iconColor: '#0ea5e9',
     label: '프로필 관리',
     route: '/mypage/talent',
   },
   {
     icon: 'paper-plane',
     iconBg: '#fef9c3', iconColor: '#eab308',
-    label: '지원 현황',
+    label: '내 지원 현황',
     route: '/mypage/application-status',
   },
   {
@@ -167,7 +169,7 @@ export default function MyPage() {
             activeOpacity={0.85}
           >
             <View style={[s.quickIcon, { backgroundColor: '#dbeafe' }]}>
-              <Ionicons name="settings" size={22} color="#3b82f6" />
+              <Ionicons name="settings" size={22} color="#0ea5e9" />
             </View>
             <Text style={s.quickTitle}>관심 설정</Text>
             <Text style={s.quickSub}>맞춤 정보 수신</Text>
@@ -214,16 +216,6 @@ export default function MyPage() {
             </TouchableOpacity>
           ))}
         </View>
-
-        {/* 회원 탈퇴 */}
-        <View style={s.withdrawWrap}>
-          <TouchableOpacity
-            onPress={() => router.push('/mypage/withdraw' as never)}
-            activeOpacity={0.7}
-          >
-            <Text style={s.withdrawText}>회원 탈퇴</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
 
       {/* 관심 설정 모달 */}
@@ -240,7 +232,7 @@ export default function MyPage() {
             </TouchableOpacity>
           </View>
           <PreferencesForm
-            buttonText="저장하기"
+            buttonText="관심 설정 저장"
             onComplete={() => setPrefsVisible(false)}
           />
         </View>
@@ -250,7 +242,7 @@ export default function MyPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: Colors.bgGray },
   scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 32, gap: 10 },
 
   /* 로그인 유도 */
@@ -259,7 +251,7 @@ const s = StyleSheet.create({
     width: 80, height: 80, borderRadius: 40, backgroundColor: '#fefce8',
     alignItems: 'center', justifyContent: 'center', marginBottom: 20,
   },
-  loginTitle: { fontSize: 18, fontWeight: '800', color: '#111827', marginBottom: 10 },
+  loginTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10 },
   loginDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22 },
   accent: { color: '#0ea5e9', fontWeight: '700' },
   loginBtn: {
@@ -279,7 +271,7 @@ const s = StyleSheet.create({
   avatar: { width: 60, height: 60, borderRadius: 30 },
   avatarPlaceholder: { backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
   profileInfo: { flex: 1 },
-  profileName: { fontSize: 15, fontWeight: '800', color: '#111827' },
+  profileName: { fontSize: 15, fontWeight: '700', color: '#111827' },
   profileSub: { fontSize: 13, color: '#9ca3af', marginTop: 3 },
   logoutBtn: { padding: 4 },
 
@@ -301,7 +293,7 @@ const s = StyleSheet.create({
     backgroundColor: '#fb923c', minWidth: 20, height: 20,
     borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
   },
-  quickBadgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
+  quickBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
 
   /* 메뉴 */
   menuCard: {
@@ -324,11 +316,7 @@ const s = StyleSheet.create({
     backgroundColor: '#f87171', paddingHorizontal: 7, paddingVertical: 2,
     borderRadius: 10, marginRight: 4,
   },
-  newBadgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
-
-  /* 회원 탈퇴 */
-  withdrawWrap: { alignItems: 'center', paddingTop: 4 },
-  withdrawText: { fontSize: 12, color: '#9ca3af', textDecorationLine: 'underline' },
+  newBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
 
   /* 관심 설정 모달 */
   modalContainer: { flex: 1, backgroundColor: '#fff' },
@@ -337,5 +325,5 @@ const s = StyleSheet.create({
     paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
-  modalTitle: { fontSize: 17, fontWeight: '800', color: '#111827' },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827' },
 });

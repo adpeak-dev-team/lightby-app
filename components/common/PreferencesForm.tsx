@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator,
+  View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 
 import { regions, industries, roles } from '@/lib/constants';
 import { useGetPreferences } from '@/services/user/queries';
 import { useSavePreferences } from '@/services/user/mutations';
+import { toast } from '@/hooks/use-toast';
 
 interface PreferencesFormProps {
   onComplete?: () => void;
@@ -35,9 +37,20 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
   };
 
   const handleSave = () => {
+    // 모달 안에서 호출될 수 있어 toast(모달 뒤) 대신 Alert 사용
+    if (selectedRegions.length === 0) {
+      Alert.alert('알림', '근무지역은 최소 1개 이상 선택해야 합니다.');
+      return;
+    }
     saveMutation.mutate(
       { industryCodes: selectedIndustries, roleCodes: selectedRoles, regionCodes: selectedRegions },
-      { onSuccess: () => onComplete?.() },
+      {
+        onSuccess: () => {
+          toast.success('관심 설정이 저장되었습니다.');
+          onComplete?.();
+        },
+        onError: () => Alert.alert('오류', '저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
+      },
     );
   };
 
@@ -138,7 +151,7 @@ const s = StyleSheet.create({
   scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
 
   section: { marginBottom: 36 },
-  sectionTitle: { fontSize: 15, fontWeight: '800', color: '#1f2937', marginBottom: 14 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937', marginBottom: 14 },
   hint: { fontSize: 11, color: '#9ca3af', marginTop: 8 },
 
   regionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -175,6 +188,6 @@ const s = StyleSheet.create({
     backgroundColor: '#38bdf8', borderRadius: 16, paddingVertical: 16,
     alignItems: 'center', justifyContent: 'center', marginTop: 8,
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   btnDisabled: { opacity: 0.6 },
 });

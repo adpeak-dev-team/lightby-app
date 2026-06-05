@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
-  Alert, ActivityIndicator, Modal, KeyboardAvoidingView, Platform,
+  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -88,7 +88,7 @@ export default function CommunityPostEditPage() {
   if (isLoading || !isInitialized) {
     return (
       <View style={s.centered}>
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
   }
@@ -184,7 +184,7 @@ export default function CommunityPostEditPage() {
           {/* 이미지 저장 중 표시 */}
           {updateImagesMutation.isPending && (
             <View style={s.imageSavingBar}>
-              <ActivityIndicator size="small" color="#3b82f6" />
+              <ActivityIndicator size="small" color="#0ea5e9" />
               <Text style={s.imageSavingText}>이미지 저장 중...</Text>
             </View>
           )}
@@ -257,13 +257,13 @@ const s = StyleSheet.create({
   },
   cancelBtnText: { fontSize: 15, fontWeight: '700', color: '#6b7280' },
   submitBtn: {
-    flex: 2, backgroundColor: '#3b82f6', borderRadius: 16,
+    flex: 2, backgroundColor: '#0ea5e9', borderRadius: 16,
     paddingVertical: 16, alignItems: 'center',
-    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
   submitBtnDisabled: { backgroundColor: '#cbd5e1', shadowOpacity: 0, elevation: 0 },
-  submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(17,24,39,0.55)',
@@ -280,7 +280,7 @@ const s = StyleSheet.create({
     width: 64, height: 64, borderRadius: 32,
     alignItems: 'center', justifyContent: 'center', marginBottom: 14,
   },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: '#111827', marginBottom: 8, textAlign: 'center' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 8, textAlign: 'center' },
   modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
   modalBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
   modalCancelBtn: {
