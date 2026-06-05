@@ -152,6 +152,7 @@ export default function SitePostEditPage() {
     };
 
     const handleSubmit = () => {
+        if (images.length === 0) return Alert.alert('필수 입력', '이미지를 1장 이상 등록해주세요.');
         if (!subject.trim()) return Alert.alert('필수 입력', '공고 제목을 입력해주세요.');
         if (!workRegions) return Alert.alert('필수 입력', '근무 지역을 선택해주세요.');
         if (!agency.trim()) return Alert.alert('필수 입력', '분양대행사를 입력해주세요.');

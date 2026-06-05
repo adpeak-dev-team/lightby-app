@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator,
+  View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 
@@ -37,8 +37,9 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
   };
 
   const handleSave = () => {
+    // 모달 안에서 호출될 수 있어 toast(모달 뒤) 대신 Alert 사용
     if (selectedRegions.length === 0) {
-      toast.info('근무지역은 최소 1개 이상 선택해야 합니다.');
+      Alert.alert('알림', '근무지역은 최소 1개 이상 선택해야 합니다.');
       return;
     }
     saveMutation.mutate(
@@ -48,7 +49,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
           toast.success('관심 설정이 저장되었습니다.');
           onComplete?.();
         },
-        onError: () => toast.error('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
+        onError: () => Alert.alert('오류', '저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
       },
     );
   };

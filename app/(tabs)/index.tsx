@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  FlatList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, Linking, useWindowDimensions,
+  FlatList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, Linking, useWindowDimensions, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -13,6 +13,7 @@ import SearchBar from '@/components/main/SearchBar';
 import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
 import { Fab } from '@/components/common/Fab';
+import { useRequireLogin } from '@/hooks/use-require-login';
 import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
 import { getImageUrl } from '@/lib/lib';
@@ -186,17 +187,28 @@ type ListRow =
 
 export default function HomePage() {
   const router = useRouter();
+  const { requireLogin, loginPrompt } = useRequireLogin('로그인 후 구인공고를 등록할 수 있습니다.');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortVal>('LATEST');
   const [location, setLocation] = useState('전국');
+  const [refreshing, setRefreshing] = useState(false);
 
-  const { data: premiumData, isLoading: isPremiumLoading } =
+  const { data: premiumData, isLoading: isPremiumLoading, refetch: refetchPremium } =
     useGetJobsByProduct({ product: 'PREMIUM', location, search });
-  const { data: topData, isLoading: isTopLoading } =
+  const { data: topData, isLoading: isTopLoading, refetch: refetchTop } =
     useGetJobsByProduct({ product: 'TOP', location, search });
   const {
-    data: freeData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: isFreeLoading,
+    data: freeData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: isFreeLoading, refetch: refetchFree,
   } = useGetFreeJobsInfinite({ search, sort, location });
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([refetchPremium(), refetchTop(), refetchFree()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchPremium, refetchTop, refetchFree]);
 
   const premiumJobs = useMemo(() => (premiumData ?? []).map(toJobItem), [premiumData]);
   const topJobs = useMemo(() => (topData ?? []).map(toJobItem), [topData]);
@@ -253,10 +265,14 @@ export default function HomePage() {
         onEndReachedThreshold={0.6}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+        }
       />
 
       {/* 구인 등록 FAB */}
-      <Fab label="구인등록" icon="create" onPress={() => router.push('/registration/sitepost')} />
+      <Fab label="구인등록" icon="create" onPress={() => requireLogin(() => router.push('/registration/sitepost'))} />
+      {loginPrompt}
     </View>
   );
 }

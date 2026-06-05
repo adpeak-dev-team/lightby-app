@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
-  View, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Modal,
+  View, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Modal, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
@@ -48,8 +48,14 @@ export default function FavoritePage() {
     (preferences?.jobCategories?.length ?? 0) > 0;
 
   const {
-    data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage,
+    data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch,
   } = useGetFavoriteSitesInfinite(activeTab, { enabled: isLoggedIn === true });
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try { await refetch(); } finally { setRefreshing(false); }
+  }, [refetch]);
 
   const rawSites = data?.pages.flatMap((p) => p) ?? [];
   const seen = new Set<number>();
@@ -152,6 +158,9 @@ export default function FavoritePage() {
         showsVerticalScrollIndicator={false}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+        }
         ListHeaderComponent={ListHeader}
         ListEmptyComponent={EmptyView}
         ListFooterComponent={

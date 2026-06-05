@@ -48,6 +48,13 @@ export function useSitePostForm() {
     const createMutation = useCreateJobPost();
     const [isLoadingPrev, setIsLoadingPrev] = useState(false);
 
+    // 담당자 성함/연락처를 내 프로필에서 자동 입력 (사용자가 이미 입력했으면 유지)
+    useEffect(() => {
+        if (!userProfile) return;
+        setManagerName((prev) => prev || userProfile.name || userProfile.nickname || '');
+        setManagerPhone((prev) => prev || userProfile.phone || '');
+    }, [userProfile]);
+
     // ── 나가기/성공 플래그 ──
     const isSuccessRef = useRef(false);
     const imagesRef = useRef<string[]>([]);
@@ -113,6 +120,7 @@ export function useSitePostForm() {
 
     // ── 유효성 검사 ──
     const validate = (): string | null => {
+        if (images.length === 0)      return '이미지를 1장 이상 등록해주세요.';
         if (!subject.trim())          return '공고 제목을 입력해주세요.';
         if (!workRegions)             return '근무 지역을 선택해주세요.';
         if (!agency.trim())           return '분양대행사를 입력해주세요.';

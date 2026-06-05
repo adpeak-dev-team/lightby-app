@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput,
+  View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
@@ -10,9 +10,11 @@ import Header from '@/components/common/Header';
 import { CommunityCard } from '@/components/common/CommunityCard';
 import { Fab } from '@/components/common/Fab';
 import { useGetCommunityPosts } from '@/services/community/queries';
+import { useRequireLogin } from '@/hooks/use-require-login';
 
 export default function CommunityPage() {
   const router = useRouter();
+  const { requireLogin, loginPrompt } = useRequireLogin('로그인 후 현장소통을 이용할 수 있습니다.');
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
 
@@ -47,6 +49,12 @@ export default function CommunityPage() {
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try { await refetch(); } finally { setRefreshing(false); }
+  }, [refetch]);
 
   return (
     <View style={s.container}>
@@ -89,13 +97,16 @@ export default function CommunityPage() {
         renderItem={({ item }) => (
           <CommunityCard
             item={item}
-            onPress={() => router.push({ pathname: '/posts/board/[id]', params: { id: item.id } })}
+            onPress={() => requireLogin(() => router.push({ pathname: '/posts/board/[id]', params: { id: item.id } }))}
           />
         )}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+        }
         ListEmptyComponent={
           isLoading ? (
             <ActivityIndicator size="large" color="#38bdf8" style={{ marginTop: 60 }} />
@@ -114,7 +125,8 @@ export default function CommunityPage() {
         }
       />
 
-      <Fab label="게시글 등록" icon="create" onPress={() => router.push('/registration/communitypost')} />
+      <Fab label="게시글 등록" icon="create" onPress={() => requireLogin(() => router.push('/registration/communitypost'))} />
+      {loginPrompt}
     </View>
   );
 }

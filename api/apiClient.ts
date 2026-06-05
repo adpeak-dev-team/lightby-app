@@ -108,7 +108,12 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    // 로그인/회원가입/OTP 등 인증 엔드포인트의 401은 "토큰 만료"가 아니라
+    // 자격 증명 오류이므로 리프레시/리다이렉트를 타지 않고 호출부로 그대로 전달
+    const reqUrl = originalRequest?.url ?? '';
+    const isAuthRoute = reqUrl.includes('/auth/');
+
+    if (error.response?.status !== 401 || originalRequest._retry || isAuthRoute) {
       return Promise.reject(error);
     }
 

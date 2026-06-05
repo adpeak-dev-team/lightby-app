@@ -221,6 +221,7 @@ export default function BoardDetailPage() {
           <CommentsSection
             replies={replies}
             myId={me?.id}
+            postAuthorId={post?.user_id}
             onDeleteReply={handleDeleteReply}
           />
         </ScrollView>

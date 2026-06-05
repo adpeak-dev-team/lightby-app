@@ -102,7 +102,8 @@ export async function savePreferences(body: {
 }
 
 // 회원 탈퇴 (소프트 삭제)
+// 주의: Fastify는 application/json + 빈 body를 400으로 거부하므로 빈 객체를 보낸다
 export async function withdrawUser(): Promise<{ success: boolean; message: string }> {
-  const { data } = await apiClient.post('/auth/withdrawal');
+  const { data } = await apiClient.post('/auth/withdrawal', {});
   return data;
 }
