@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import {
-    Modal, View, Text, TouchableOpacity,
-    ScrollView, ActivityIndicator, StyleSheet,
+  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
 
@@ -85,7 +85,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                     </View>
                                     <View style={s.productPriceWrap}>
                                         <Text style={s.productOriginalPrice}>132,000원</Text>
-                                        <Text style={[s.productPrice, freebies && { color: '#3b82f6' }]}>
+                                        <Text style={[s.productPrice, freebies && { color: '#0ea5e9' }]}>
                                             {freebies ? '0원 (무료)' : '66,000원'}
                                         </Text>
                                     </View>
@@ -101,7 +101,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                 activeOpacity={0.8}
                             >
                                 <View style={s.productRow}>
-                                    <View style={[s.productBadge, { backgroundColor: '#3b82f6' }]}>
+                                    <View style={[s.productBadge, { backgroundColor: '#0ea5e9' }]}>
                                         <Text style={s.productBadgeText}>지역 탑</Text>
                                     </View>
                                     <View style={s.productPriceWrap}>
@@ -270,7 +270,7 @@ const s = StyleSheet.create({
         justifyContent: 'center',
     },
     headerTextWrap: { flex: 1 },
-    headerTitle: { fontSize: 15, fontWeight: '800', color: '#111827' },
+    headerTitle: { fontSize: 15, fontWeight: '700', color: '#111827' },
     headerSub: { fontSize: 11, color: '#6b7280', marginTop: 2 },
     body: { padding: 16, gap: 12 },
     productList: { gap: 10 },
@@ -286,10 +286,10 @@ const s = StyleSheet.create({
     },
     productRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
     productBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-    productBadgeText: { fontSize: 10, fontWeight: '800', color: '#fff' },
+    productBadgeText: { fontSize: 10, fontWeight: '700', color: '#fff' },
     productPriceWrap: { alignItems: 'flex-end' },
     productOriginalPrice: { fontSize: 10, color: '#9ca3af', textDecorationLine: 'line-through' },
-    productPrice: { fontSize: 15, fontWeight: '800', color: '#111827' },
+    productPrice: { fontSize: 15, fontWeight: '700', color: '#111827' },
     productDesc: { fontSize: 11, color: '#6b7280', lineHeight: 18 },
     productCheck: { position: 'absolute', top: 12, right: 12 },
     iconSection: {
@@ -333,7 +333,7 @@ const s = StyleSheet.create({
     summaryValue: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
     summaryDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 4 },
     summaryTotalLabel: { fontSize: 14, fontWeight: '700', color: '#fff' },
-    summaryTotal: { fontSize: 18, fontWeight: '900', color: '#34d399' },
+    summaryTotal: { fontSize: 18, fontWeight: '700', color: '#34d399' },
     footer: { paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
     confirmBtn: {
         backgroundColor: '#10b981',
@@ -341,7 +341,7 @@ const s = StyleSheet.create({
         paddingVertical: 14,
         alignItems: 'center',
     },
-    confirmBtnText: { fontSize: 15, fontWeight: '800', color: '#fff' },
+    confirmBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
     payOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)',
@@ -370,7 +370,7 @@ const s = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 16,
     },
-    payTitle: { fontSize: 17, fontWeight: '800', color: '#111827', marginBottom: 10, textAlign: 'center' },
+    payTitle: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 10, textAlign: 'center' },
     paySub: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 20, marginBottom: 24 },
     payBtn: {
         width: '100%',
@@ -379,5 +379,5 @@ const s = StyleSheet.create({
         paddingVertical: 14,
         alignItems: 'center',
     },
-    payBtnText: { fontSize: 15, fontWeight: '800', color: '#fff' },
+    payBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });

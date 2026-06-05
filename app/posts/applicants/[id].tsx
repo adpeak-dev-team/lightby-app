@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Modal, Pressable, FlatList, Linking,
+  View, ScrollView, TouchableOpacity, StyleSheet, Modal, Pressable, FlatList, Linking,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -170,7 +170,7 @@ function ResumeModal({
                 </View>
                 <View style={s.contactBtns}>
                   <TouchableOpacity
-                    style={[s.contactBtn, { backgroundColor: '#3b82f6' }]}
+                    style={[s.contactBtn, { backgroundColor: '#0ea5e9' }]}
                     onPress={() => Linking.openURL(`tel:${applicant.phone}`)}
                   >
                     <Ionicons name="call" size={15} color="#fff" />
@@ -354,14 +354,14 @@ const s = StyleSheet.create({
 
   // NEW 뱃지
   newBadge: { backgroundColor: '#fef3c7', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999 },
-  newBadgeText: { fontSize: 10, fontWeight: '800', color: '#d97706' },
+  newBadgeText: { fontSize: 10, fontWeight: '700', color: '#d97706' },
 
   // 성별 뱃지
   genderBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
   genderMale: { backgroundColor: '#eff6ff' },
   genderFemale: { backgroundColor: '#fff1f2' },
   genderText: { fontSize: 11, fontWeight: '600' },
-  genderMaleText: { color: '#3b82f6' },
+  genderMaleText: { color: '#0ea5e9' },
   genderFemaleText: { color: '#f43f5e' },
 
   // 스켈레톤
@@ -406,7 +406,7 @@ const s = StyleSheet.create({
   },
   profileAvatar: { width: '100%', height: '100%' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
-  profileName: { fontSize: 20, fontWeight: '800', color: '#111827' },
+  profileName: { fontSize: 20, fontWeight: '700', color: '#111827' },
   profileMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
 
   // 전화번호
@@ -416,7 +416,7 @@ const s = StyleSheet.create({
     backgroundColor: '#eff6ff', borderWidth: 1, borderColor: '#bfdbfe',
     borderRadius: 12, paddingHorizontal: 18, paddingVertical: 10,
   },
-  phoneText: { fontSize: 15, fontWeight: '700', color: '#3b82f6', letterSpacing: 1 },
+  phoneText: { fontSize: 15, fontWeight: '700', color: '#0ea5e9', letterSpacing: 1 },
   contactBtns: { flexDirection: 'row', gap: 8, width: '100%' },
   contactBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -429,7 +429,7 @@ const s = StyleSheet.create({
   // 섹션
   section: { marginBottom: 22 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
-  sectionLabel: { fontSize: 12, fontWeight: '800', color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase' },
+  sectionLabel: { fontSize: 12, fontWeight: '700', color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase' },
 
   // 경력
   careerItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 8 },

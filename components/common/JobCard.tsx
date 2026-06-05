@@ -1,4 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View, TouchableOpacity, StyleSheet,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
@@ -56,7 +59,7 @@ export function JobCard({ job, onPress }: JobCardProps) {
         <View style={styles.content}>
           {/* 위치 */}
           <View style={styles.locationRow}>
-            <Ionicons name="location-sharp" size={11} color="#d97706" />
+            <Ionicons name="location-sharp" size={11} color="#b45309" />
             <Text style={styles.locationText} numberOfLines={1}>{job.point || '-'}</Text>
           </View>
 
@@ -112,11 +115,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#f3f4f6',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
   },
   row: {
     flexDirection: 'row',
@@ -151,14 +149,14 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 11,
-    color: '#d97706',
+    color: '#b45309',
     flex: 1,
   },
   title: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#111827',
-    lineHeight: 20,
+    lineHeight: 21,
   },
   feeRow: {
     flexDirection: 'row',
@@ -171,7 +169,7 @@ const styles = StyleSheet.create({
   },
   fee: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#0284c7',
   },
   tags: {

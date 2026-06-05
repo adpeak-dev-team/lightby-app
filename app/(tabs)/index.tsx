@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
 import {
-  FlatList, View, Text, StyleSheet, ActivityIndicator, Animated, TouchableOpacity,
-  Linking, useWindowDimensions,
+  FlatList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, Linking, useWindowDimensions,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,19 +12,10 @@ import Header from '@/components/common/Header';
 import SearchBar from '@/components/main/SearchBar';
 import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
+import { Fab } from '@/components/common/Fab';
 import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
 import { getImageUrl } from '@/lib/lib';
-
-// ─── 셔플 ────────────────────────────────────────────────────────────────────
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 // ─── 타입 변환 ─────────────────────────────────────────────────────────────────
 function toJobItem(job: JobSummaryResponse): JobItem {
@@ -139,7 +129,7 @@ function Section({
 function BannerCarousel() {
   const { width } = useWindowDimensions();
   const carouselWidth = width - 32; // marginHorizontal: 16 양쪽 제외
-  const BANNER_HEIGHT = carouselWidth * (75 / 620);
+  const BANNER_HEIGHT = carouselWidth * (160 / 734); // front 배너 비율(aspect-734/160)에 맞춤
   const { data: banners } = useGetBanners();
   const [currentIdx, setCurrentIdx] = useState(0);
 
@@ -199,9 +189,6 @@ export default function HomePage() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortVal>('LATEST');
   const [location, setLocation] = useState('전국');
-  const [focusKey, setFocusKey] = useState(0);
-
-  useFocusEffect(useCallback(() => { setFocusKey((k) => k + 1); }, []));
 
   const { data: premiumData, isLoading: isPremiumLoading } =
     useGetJobsByProduct({ product: 'PREMIUM', location, search });
@@ -211,8 +198,8 @@ export default function HomePage() {
     data: freeData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: isFreeLoading,
   } = useGetFreeJobsInfinite({ search, sort, location });
 
-  const premiumJobs = useMemo(() => shuffle((premiumData ?? []).map(toJobItem)), [premiumData, focusKey]);
-  const topJobs = useMemo(() => shuffle((topData ?? []).map(toJobItem)), [topData, focusKey]);
+  const premiumJobs = useMemo(() => (premiumData ?? []).map(toJobItem), [premiumData]);
+  const topJobs = useMemo(() => (topData ?? []).map(toJobItem), [topData]);
 
   const listData: ListRow[] = isFreeLoading
     ? [1, 2, 3, 4].map((i) => ({ _type: 'skeleton', id: `sk-${i}` }))
@@ -228,13 +215,13 @@ export default function HomePage() {
 
   const listHeader = useMemo(() => (
     <View>
+      <BannerCarousel />
       <SearchBar
         search={search}
         onSearchChange={setSearch}
         sort={sort}
         onSortChange={setSort}
       />
-      <BannerCarousel />
       <LocationTabs location={location} onLocationChange={setLocation} />
       <Section type="premium" jobs={premiumJobs} isLoading={isPremiumLoading} hideOnEmpty onPressJob={handlePressJob} />
       <Section type="top" jobs={topJobs} isLoading={isTopLoading} hideOnEmpty onPressJob={handlePressJob} />
@@ -268,15 +255,8 @@ export default function HomePage() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* 공고 등록 FAB */}
-      <TouchableOpacity
-        style={s.fab}
-        onPress={() => router.push('/registration/sitepost')}
-        activeOpacity={0.85}
-      >
-        <Ionicons name="create-outline" size={20} color="#fff" />
-        <Text style={s.fabText}>공고 등록</Text>
-      </TouchableOpacity>
+      {/* 구인 등록 FAB */}
+      <Fab label="구인등록" icon="create" onPress={() => router.push('/registration/sitepost')} />
     </View>
   );
 }
@@ -314,7 +294,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#111827',
   },
   sectionSubtitle: {
@@ -324,13 +304,4 @@ const s = StyleSheet.create({
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
-  fab: {
-    position: 'absolute', right: 16, bottom: 24,
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#3b82f6', paddingHorizontal: 18, paddingVertical: 10,
-    borderRadius: 999,
-    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
-  },
-  fabText: { color: '#fff', fontSize: 14, fontWeight: '800' },
 });

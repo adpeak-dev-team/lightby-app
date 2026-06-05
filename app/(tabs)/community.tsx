@@ -1,13 +1,14 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  View, FlatList, ActivityIndicator, Text, StyleSheet,
-  TouchableOpacity, TextInput,
+  View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '@/components/common/Header';
 import { CommunityCard } from '@/components/common/CommunityCard';
+import { Fab } from '@/components/common/Fab';
 import { useGetCommunityPosts } from '@/services/community/queries';
 
 export default function CommunityPage() {
@@ -15,7 +16,18 @@ export default function CommunityPage() {
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
 
-  const { data: posts = [], isLoading, refetch } = useGetCommunityPosts(search);
+  const {
+    data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage,
+  } = useGetCommunityPosts(search);
+
+  // 여러 페이지를 하나의 배열로 평탄화
+  const posts = data?.pages.flatMap((p) => p.data) ?? [];
+
+  // 입력하는 대로 실시간 검색 (300ms 디바운스) — front 동일
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(input.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [input]);
 
   useFocusEffect(
     useCallback(() => {
@@ -31,6 +43,10 @@ export default function CommunityPage() {
     setInput('');
     setSearch('');
   };
+
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <View style={s.container}>
@@ -57,7 +73,7 @@ export default function CommunityPage() {
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={handleSubmit} hitSlop={8}>
-            <Ionicons name="arrow-forward-circle" size={20} color="#3b82f6" />
+            <Ionicons name="arrow-forward-circle" size={20} color="#0ea5e9" />
           </TouchableOpacity>
         </View>
         {!!search && (
@@ -78,6 +94,8 @@ export default function CommunityPage() {
         )}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
         ListEmptyComponent={
           isLoading ? (
             <ActivityIndicator size="large" color="#38bdf8" style={{ marginTop: 60 }} />
@@ -87,16 +105,16 @@ export default function CommunityPage() {
             </Text>
           )
         }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator color="#38bdf8" style={{ paddingVertical: 20 }} />
+          ) : !hasNextPage && posts.length > 0 ? (
+            <Text style={s.endText}>마지막 게시글입니다.</Text>
+          ) : null
+        }
       />
 
-      <TouchableOpacity
-        style={s.fab}
-        onPress={() => router.push('/registration/communitypost')}
-        activeOpacity={0.85}
-      >
-        <Ionicons name="create-outline" size={20} color="#fff" />
-        <Text style={s.fabText}>글쓰기</Text>
-      </TouchableOpacity>
+      <Fab label="게시글 등록" icon="create" onPress={() => router.push('/registration/communitypost')} />
     </View>
   );
 }
@@ -130,13 +148,5 @@ const s = StyleSheet.create({
   searchKeyword: { fontWeight: '700', color: '#374151' },
   list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 96 },
   empty: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 15 },
-  fab: {
-    position: 'absolute', right: 16, bottom: 24,
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#3b82f6', paddingHorizontal: 18, paddingVertical: 10,
-    borderRadius: 999,
-    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
-  },
-  fabText: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  endText: { textAlign: 'center', color: '#d1d5db', fontSize: 12, paddingVertical: 16 },
 });

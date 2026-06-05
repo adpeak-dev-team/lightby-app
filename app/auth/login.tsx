@@ -1,12 +1,13 @@
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Image, KeyboardAvoidingView, Platform, ScrollView,
+  View, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSignIn } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
+import { getPreferences } from '@/services/user/api';
 import { toast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
@@ -28,13 +29,23 @@ export default function LoginPage() {
     signInMutate.mutate(
       { loginId, password, deviceId },
       {
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
           if (data.needsPhoneAuth) {
             router.push({ pathname: '/auth/phoneauth', params: { userId: data.id } });
             return;
           }
           toast.success('로그인 되었습니다.');
-          router.replace('/');
+          // 첫 로그인 여부 확인: 관심설정(지역·업종·직종)이 모두 비어있으면 관심 설정 페이지로
+          try {
+            const prefs = await getPreferences();
+            const isEmpty =
+              prefs.industries.length === 0 &&
+              prefs.jobCategories.length === 0 &&
+              prefs.userWorkRegions.length === 0;
+            router.replace(isEmpty ? '/set-user-info/interest' : '/');
+          } catch {
+            router.replace('/');
+          }
         },
         onError: (err: any) => {
           // PhoneAuthRequiredException (401 + errorCode)
@@ -140,21 +151,21 @@ const s = StyleSheet.create({
     fontSize: 15, backgroundColor: '#fff', color: '#111827',
   },
   loginBtn: {
-    backgroundColor: '#6366f1', paddingVertical: 14,
+    backgroundColor: '#0ea5e9', paddingVertical: 14,
     borderRadius: 12, alignItems: 'center', marginTop: 4,
   },
-  loginBtnDisabled: { backgroundColor: '#a5b4fc' },
-  loginBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  loginBtnDisabled: { backgroundColor: '#7dd3fc' },
+  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   findPwdBtn: { alignItems: 'center', marginTop: -4 },
   findPwdText: { fontSize: 13, color: '#6b7280', textDecorationLine: 'underline' },
   dividerWrap: { flexDirection: 'row', alignItems: 'center', marginVertical: 28, gap: 8 },
   dividerLine: { flex: 1, height: 1, backgroundColor: '#e5e7eb' },
   dividerText: { fontSize: 11, color: '#9ca3af', fontWeight: '500', flexShrink: 1, textAlign: 'center' },
   kakaoBtn: { backgroundColor: '#FEE500', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-  kakaoText: { color: '#191919', fontWeight: '800', fontSize: 15 },
+  kakaoText: { color: '#191919', fontWeight: '700', fontSize: 15 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   footerText: { fontSize: 13, color: '#6b7280' },
-  footerLink: { fontSize: 13, color: '#6366f1', fontWeight: '700', textDecorationLine: 'underline' },
+  footerLink: { fontSize: 13, color: '#0ea5e9', fontWeight: '700', textDecorationLine: 'underline' },
   errorText: {
     fontSize: 13, color: '#ef4444', backgroundColor: '#fef2f2',
     padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#fee2e2',

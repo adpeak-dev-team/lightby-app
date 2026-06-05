@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Keyboard } from 'react-native';
 import {
-    View, Text, ScrollView, TouchableOpacity,
-    StyleSheet, Alert, ActivityIndicator, Modal,
+  View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -118,7 +118,7 @@ export default function SitePostPage() {
                         <View style={s.modalIconWrap}>
                             <Ionicons name="alert-circle" size={40} color="#f87171" />
                         </View>
-                        <Text style={s.modalTitle}>작성을 그만두시겠어요?</Text>
+                        <Text style={s.modalTitle}>정말 나가시겠어요?</Text>
                         <Text style={s.modalDesc}>
                             작성 중인 내용은 저장되지 않으며{'\n'}
                             업로드된 이미지도 모두 삭제됩니다.
@@ -170,8 +170,8 @@ export default function SitePostPage() {
                     activeOpacity={0.75}
                 >
                     {form.isLoadingPrev
-                        ? <ActivityIndicator size="small" color="#3b82f6" />
-                        : <Ionicons name="documents-outline" size={14} color="#3b82f6" />}
+                        ? <ActivityIndicator size="small" color="#0ea5e9" />
+                        : <Ionicons name="documents-outline" size={14} color="#0ea5e9" />}
                     <Text style={s.navPrevText}>이전 공고 불러오기</Text>
                 </TouchableOpacity>
             </View>
@@ -276,7 +276,7 @@ export default function SitePostPage() {
 }
 
 const s = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f3f4f6' },
+    container: { flex: 1, backgroundColor: '#fff' },
     nav: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -311,7 +311,7 @@ const s = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#bfdbfe',
     },
-    navPrevText: { fontSize: 12, fontWeight: '700', color: '#3b82f6' },
+    navPrevText: { fontSize: 12, fontWeight: '700', color: '#0ea5e9' },
     freebiesBadge: {
         flex: 1,
         flexDirection: 'row',
@@ -319,30 +319,22 @@ const s = StyleSheet.create({
         gap: 4,
     },
     freebiesText: { fontSize: 11, fontWeight: '600', color: '#f59e0b' },
-    scroll: { padding: 16, gap: 12 },
-    sectionCard: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
+    scroll: { paddingHorizontal: 16, paddingVertical: 8, gap: 24 },
+    // 평면형: 카드 그림자/배경 제거 (front처럼 여백으로만 구분)
+    sectionCard: {},
     submitBtn: {
-        backgroundColor: '#3b82f6',
+        backgroundColor: '#0ea5e9',
         borderRadius: 16,
         paddingVertical: 16,
         alignItems: 'center',
         marginTop: 4,
-        shadowColor: '#3b82f6',
+        shadowColor: '#0ea5e9',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 4,
     },
-    submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+    submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
@@ -375,7 +367,7 @@ const s = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 18,
-        fontWeight: '800',
+        fontWeight: '700',
         color: '#111827',
         marginBottom: 10,
         textAlign: 'center',

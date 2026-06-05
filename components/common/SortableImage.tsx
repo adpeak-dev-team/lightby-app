@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  View, Image, Text, StyleSheet, Alert, ActivityIndicator,
-  TouchableOpacity, LayoutChangeEvent,
+  View, Image, StyleSheet, Alert, ActivityIndicator, TouchableOpacity, LayoutChangeEvent,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import Animated, {
   useSharedValue, useAnimatedStyle, useAnimatedReaction, withSpring, SharedValue,
 } from 'react-native-reanimated';
@@ -428,7 +428,7 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
   },
   addBtn: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0ea5e9',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 8,

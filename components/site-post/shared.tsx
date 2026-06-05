@@ -1,4 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import {
+  View, StyleSheet, TextInput,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -27,7 +31,19 @@ export const JOB_TYPES = [
     'TM상담사', '알바',
 ];
 
-export const FEE_TYPES = ['본부', '팀', '직원', '상담시'];
+export const FEE_TYPES = ['계약 수수료', '기본급', '기본급 + 수수료', '시급', '일급', '주급', '월급'];
+
+// 수수료 형태에 따른 표시 조건 (front WorkPayInfo와 동일)
+export const shouldShowFee = (feeType: string) => feeType === '계약 수수료' || feeType === '기본급 + 수수료';
+export const shouldShowBaseSalary = (feeType: string) => feeType !== '계약 수수료' && !!feeType;
+export const baseSalaryLabelFor = (feeType: string) => (feeType === '기본급 + 수수료' ? '기본급' : (feeType || '기본 급여'));
+
+// 직종분류 하위 옵션 (front 기준)
+export const GENDER_OPTIONS = ['무관', '남자', '여자'];
+export const AGE_OPTIONS = ['무관', '40세 미만', '50세 미만', '60세 미만'];
+export const CAREER_OPTIONS = ['경력무관', '1개월 이상', '3개월 이상', '6개월 이상', '12개월 이상', '24개월 이상'];
+export const HEADCOUNT_OPTIONS = ['0명', '00명', '1명', '2명', '3명', '4명', '5명 이상'];
+const MEAL_OPTIONS = ['미제공', '조식', '중식', '석식', '간식'];
 
 // ─── 공용 UI 컴포넌트 ──────────────────────────────────────────────────────────
 
@@ -70,6 +86,155 @@ export function ChipButton({
                 <Text style={[ss.chipText, active && activeTextStyle]}>{label}</Text>
             </View>
         </GestureDetector>
+    );
+}
+
+// ─── 옵션 알약 버튼 (front의 px-3 py-1.5 옵션 칩과 동일, 자동 너비 + 줄바꿈) ─────
+function Pill({
+    label, active, onPress, variant = 'sky',
+}: {
+    label: string;
+    active: boolean;
+    onPress: () => void;
+    variant?: 'sky' | 'green';
+}) {
+    const green = variant === 'green';
+    const tap = Gesture.Tap().onEnd(() => {
+        'worklet';
+        scheduleOnRN(onPress);
+    });
+    return (
+        <GestureDetector gesture={tap}>
+            <View style={[ss.pill, green && ss.pillGreenIdle, active && (green ? ss.pillGreenActive : ss.pillActive)]}>
+                <Text style={[ss.pillText, active && (green ? ss.pillGreenTextActive : ss.pillTextActive)]}>{label}</Text>
+            </View>
+        </GestureDetector>
+    );
+}
+
+// ─── 프리셋 선택 + 직접입력 (성별/나이/경력/인원) ──────────────────────────────
+export function ChoiceField({
+    label, options, value, onChange, allowCustom = false, customPlaceholder = '직접 입력',
+}: {
+    label: string;
+    options: string[];
+    value: string;
+    onChange: (v: string) => void;
+    allowCustom?: boolean;
+    customPlaceholder?: string;
+}) {
+    const isPreset = options.includes(value);
+    const [isCustom, setIsCustom] = useState(allowCustom && !!value && !isPreset);
+    const [customValue, setCustomValue] = useState(!isPreset ? value : '');
+
+    return (
+        <View style={ss.fieldCol}>
+            <Label text={label} />
+            <View style={ss.pillRow}>
+                {options.map((opt) => (
+                    <Pill
+                        key={opt}
+                        label={opt}
+                        active={!isCustom && value === opt}
+                        onPress={() => { setIsCustom(false); onChange(opt); }}
+                    />
+                ))}
+                {allowCustom && (
+                    <Pill
+                        label="직접입력"
+                        active={isCustom}
+                        onPress={() => { setIsCustom(true); onChange(customValue); }}
+                    />
+                )}
+            </View>
+            {isCustom && (
+                <TextInput
+                    style={ss.input}
+                    value={customValue}
+                    onChangeText={(t) => { setCustomValue(t); onChange(t); }}
+                    placeholder={customPlaceholder}
+                    placeholderTextColor="#9ca3af"
+                />
+            )}
+        </View>
+    );
+}
+
+// ─── 미제공/제공 + 상세 (교통비/숙소/숙소비/일비/영업비/프로모션) ──────────────
+export function ProvideField({
+    label, placeholder, value, onChange,
+}: {
+    label: string;
+    placeholder: string;
+    value: string;
+    onChange: (v: string) => void;
+}) {
+    const isProvide = !!value && value !== '미제공';
+    const [showDetail, setShowDetail] = useState(isProvide);
+    const [detail, setDetail] = useState(isProvide ? value : '');
+
+    return (
+        <View style={ss.fieldCol}>
+            <Label text={label} />
+            <View style={ss.pillRow}>
+                <Pill label="미제공" active={value === '미제공'} onPress={() => { setShowDetail(false); onChange('미제공'); }} />
+                <Pill label="제공" active={showDetail} onPress={() => { setShowDetail(true); onChange(detail); }} />
+            </View>
+            {showDetail && (
+                <TextInput
+                    style={ss.input}
+                    value={detail}
+                    onChangeText={(t) => { setDetail(t); onChange(t); }}
+                    placeholder={placeholder}
+                    placeholderTextColor="#9ca3af"
+                />
+            )}
+        </View>
+    );
+}
+
+// ─── 식사 (다중 선택 + 직접입력) ──────────────────────────────────────────────
+export function MealField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+    const parsePreset = (): string[] => {
+        if (!value) return [];
+        const parts = value.split(', ');
+        return parts.every((p) => MEAL_OPTIONS.includes(p)) ? parts : [];
+    };
+    const initialIsCustom = !!value && !value.split(', ').every((p) => MEAL_OPTIONS.includes(p));
+    const [isCustom, setIsCustom] = useState(initialIsCustom);
+    const [selected, setSelected] = useState<string[]>(parsePreset);
+    const [customValue, setCustomValue] = useState(initialIsCustom ? value : '');
+
+    const toggleMeal = (meal: string) => {
+        const next = selected.includes(meal) ? selected.filter((m) => m !== meal) : [...selected, meal];
+        setSelected(next);
+        setIsCustom(false);
+        onChange(next.join(', '));
+    };
+
+    return (
+        <View style={ss.fieldCol}>
+            <Label text="식사" />
+            <View style={ss.pillRow}>
+                {MEAL_OPTIONS.map((meal) => (
+                    <Pill key={meal} label={meal} active={!isCustom && selected.includes(meal)} onPress={() => toggleMeal(meal)} />
+                ))}
+                <Pill
+                    label="직접입력"
+                    active={isCustom}
+                    onPress={() => { setIsCustom(true); setSelected([]); onChange(customValue); }}
+                />
+            </View>
+            {isCustom && (
+                <TextInput
+                    style={ss.input}
+                    value={customValue}
+                    onChangeText={(t) => { setCustomValue(t); onChange(t); }}
+                    placeholder="ex) 식사 제공 / 식대 10만"
+                    placeholderTextColor="#9ca3af"
+                />
+            )}
+        </View>
     );
 }
 
@@ -127,16 +292,14 @@ export function FeeTypeChipGroup({
     onSelect: (v: string) => void;
 }) {
     return (
-        <View style={ss.chipRow}>
+        <View style={ss.pillRow}>
             {options.map((opt) => (
-                <ChipButton
+                <Pill
                     key={opt}
                     label={opt}
                     active={selected === opt}
                     onPress={() => onSelect(opt)}
-                    extraChipStyle={ss.chipGreen}
-                    activeChipStyle={ss.chipGreenActive}
-                    activeTextStyle={ss.chipGreenTextActive}
+                    variant="green"
                 />
             ))}
         </View>
@@ -145,23 +308,16 @@ export function FeeTypeChipGroup({
 
 // ─── 공용 스타일 ───────────────────────────────────────────────────────────────
 
-const CHIP_WIDTH = '31%';
 
 export const ss = StyleSheet.create({
+    // 평면형: front처럼 흰 배경에 카드/그림자 없이 여백으로 구분 (가로 여백은 페이지에서 처리)
     section: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 1,
-        gap: 10,
+        paddingVertical: 4,
+        gap: 12,
     },
     sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-    sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#3b82f6' },
-    sectionTitle: { fontSize: 15, fontWeight: '800', color: '#1f2937' },
+    sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#0ea5e9' },
+    sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937' },
     sectionSub: { fontSize: 11, color: '#9ca3af', marginLeft: 'auto' },
     label: { fontSize: 13, fontWeight: '600', color: '#374151', marginTop: 2 },
     required: { color: '#f87171' },
@@ -175,22 +331,42 @@ export const ss = StyleSheet.create({
         color: '#111827',
         backgroundColor: '#f9fafb',
     },
-    chipRow: { flexDirection: 'row', flexWrap: 'wrap' },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     chip: {
-        width: CHIP_WIDTH,
-        marginRight: '2%',
-        marginBottom: 8,
+        // 줄 너비를 꽉 채우도록: 기본 3칸(basis 30%) + 남는 공간을 균등 분배(flexGrow)
+        flexGrow: 1,
+        flexBasis: '30%',
         paddingVertical: 10,
+        paddingHorizontal: 4,
         borderRadius: 10,
         borderWidth: 1.5,
         borderColor: '#e5e7eb',
         backgroundColor: '#fff',
         alignItems: 'center',
     },
-    chipActive: { backgroundColor: '#eff6ff', borderColor: '#3b82f6' },
+    chipActive: { backgroundColor: '#eff6ff', borderColor: '#0ea5e9' },
     chipText: { fontSize: 12, fontWeight: '500', color: '#6b7280' },
-    chipTextActive: { color: '#3b82f6', fontWeight: '700' },
+    chipTextActive: { color: '#0ea5e9', fontWeight: '700' },
     chipGreen: { borderColor: '#e5e7eb', backgroundColor: '#fff' },
     chipGreenActive: { backgroundColor: '#16a34a', borderColor: '#16a34a' },
     chipGreenTextActive: { color: '#fff', fontWeight: '700' },
+
+    // 옵션 알약(작은 칩) — 성별/나이/경력/인원, 식사, 미제공/제공 등
+    fieldCol: { gap: 6 },
+    pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    pill: {
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+        backgroundColor: '#fff',
+    },
+    pillActive: { backgroundColor: '#e0f2fe', borderColor: '#0ea5e9' },
+    pillText: { fontSize: 12, fontWeight: '500', color: '#6b7280' },
+    pillTextActive: { color: '#0369a1', fontWeight: '700' },
+    // 수수료 형태(초록) 변형 — front의 green 칩
+    pillGreenIdle: { borderColor: '#86efac' },
+    pillGreenActive: { backgroundColor: '#16a34a', borderColor: '#16a34a' },
+    pillGreenTextActive: { color: '#fff', fontWeight: '700' },
 });

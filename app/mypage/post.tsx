@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Modal, Alert,
+  View, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Modal, Alert,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
@@ -219,7 +220,7 @@ const m = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center', padding: 24 },
   box: { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 320, alignItems: 'center' },
   iconWrap: { width: 52, height: 52, borderRadius: 26, backgroundColor: '#fef2f2', alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
-  title: { fontSize: 16, fontWeight: '800', color: '#111827', marginBottom: 6 },
+  title: { fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 6 },
   desc: { fontSize: 13, color: '#9ca3af', marginBottom: 20 },
   btnRow: { flexDirection: 'row', gap: 10, width: '100%' },
   cancelBtn: { flex: 1, backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },

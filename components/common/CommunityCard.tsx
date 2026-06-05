@@ -1,7 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View, TouchableOpacity, StyleSheet,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { CommunityItem } from '@/services/community/types';
+import { Colors, Radius, flatCard } from '@/lib/theme';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -71,17 +75,12 @@ export function CommunityCard({ item, onPress }: Props) {
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 12,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    // 웹과 동일하게 그림자 없는 평면 카드 + 보더로 구분
+    ...flatCard,
+    borderRadius: Radius.xl,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    marginBottom: 10,
   },
   body: {
     flexDirection: 'row',

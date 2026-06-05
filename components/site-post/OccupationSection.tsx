@@ -1,5 +1,8 @@
-import { View, TextInput } from 'react-native';
-import { SectionHeader, Label, MultiChipGroup, JOB_TYPES, ss } from './shared';
+import { View } from 'react-native';
+import {
+    SectionHeader, MultiChipGroup, ChoiceField,
+    JOB_TYPES, GENDER_OPTIONS, AGE_OPTIONS, CAREER_OPTIONS, HEADCOUNT_OPTIONS, ss,
+} from './shared';
 
 interface Props {
     workOccupation: string[];
@@ -29,37 +32,35 @@ export function OccupationSection({
                 selected={workOccupation}
                 onToggle={onToggle}
             />
-            <Label text="성별" />
-            <TextInput
-                style={ss.input}
+            <ChoiceField
+                label="성별"
+                options={GENDER_OPTIONS}
                 value={requireGender}
-                onChangeText={onRequireGenderChange}
-                placeholder="ex) 남자 / 여자 / 무관"
-                placeholderTextColor="#9ca3af"
+                onChange={onRequireGenderChange}
             />
-            <Label text="나이" />
-            <TextInput
-                style={ss.input}
+            <ChoiceField
+                label="나이"
+                options={AGE_OPTIONS}
                 value={requireAge}
-                onChangeText={onRequireAgeChange}
-                placeholder="ex) 30대 / 40대 / 무관"
-                placeholderTextColor="#9ca3af"
+                onChange={onRequireAgeChange}
+                allowCustom
+                customPlaceholder="ex) 30대 이상"
             />
-            <Label text="경력" />
-            <TextInput
-                style={ss.input}
+            <ChoiceField
+                label="경력"
+                options={CAREER_OPTIONS}
                 value={careerPeriod}
-                onChangeText={onCareerPeriodChange}
-                placeholder="ex) 10년 / 초보"
-                placeholderTextColor="#9ca3af"
+                onChange={onCareerPeriodChange}
+                allowCustom
+                customPlaceholder="ex) 10년 이상"
             />
-            <Label text="인원" />
-            <TextInput
-                style={ss.input}
+            <ChoiceField
+                label="인원"
+                options={HEADCOUNT_OPTIONS}
                 value={headCount}
-                onChangeText={onHeadCountChange}
-                placeholder="ex) 2명 / 00명"
-                placeholderTextColor="#9ca3af"
+                onChange={onHeadCountChange}
+                allowCustom
+                customPlaceholder="ex) 10명"
             />
         </View>
     );

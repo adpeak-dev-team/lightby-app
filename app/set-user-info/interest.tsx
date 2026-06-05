@@ -1,4 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View, StyleSheet,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 
 import PreferencesForm from '@/components/common/PreferencesForm';
@@ -25,6 +28,6 @@ export default function InterestPage() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: { paddingTop: 64, paddingHorizontal: 24, paddingBottom: 28, alignItems: 'center' },
-  headerTitle: { fontSize: 22, fontWeight: '800', color: '#111827', marginBottom: 10, textAlign: 'center' },
+  headerTitle: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 10, textAlign: 'center' },
   headerSub: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22 },
 });

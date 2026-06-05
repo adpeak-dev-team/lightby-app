@@ -1,4 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View, TouchableOpacity, StyleSheet,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { formatDate } from '@/lib/lib';
 

@@ -1,7 +1,7 @@
 import {
-    Modal, View, Text, TouchableOpacity,
-    FlatList, Image, ActivityIndicator, StyleSheet,
+  Modal, View, TouchableOpacity, FlatList, Image, ActivityIndicator, StyleSheet,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetMyRecentPosts } from '@/services/site/queries';
 import { MyPostSummary } from '@/services/site/types';
@@ -45,7 +45,7 @@ export function PreviousPostingModal({ visible, onClose, onSelect, isLoading: ou
                     {/* 콘텐츠 */}
                     {isLoading ? (
                         <View style={s.center}>
-                            <ActivityIndicator size="large" color="#3b82f6" />
+                            <ActivityIndicator size="large" color="#0ea5e9" />
                         </View>
                     ) : !posts || posts.length === 0 ? (
                         <View style={s.center}>
@@ -132,7 +132,7 @@ const s = StyleSheet.create({
         borderBottomColor: '#f3f4f6',
     },
     headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    headerBar: { width: 4, height: 18, borderRadius: 2, backgroundColor: '#3b82f6' },
+    headerBar: { width: 4, height: 18, borderRadius: 2, backgroundColor: '#0ea5e9' },
     headerTitle: { fontSize: 15, fontWeight: '700', color: '#111827' },
     center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, gap: 12 },
     emptyText: { fontSize: 14, color: '#9ca3af' },
@@ -159,11 +159,11 @@ const s = StyleSheet.create({
     badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1 },
     badgeActive: { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' },
     badgeInactive: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
-    badgeText: { fontSize: 10, fontWeight: '800' },
+    badgeText: { fontSize: 10, fontWeight: '700' },
     badgeTextActive: { color: '#2563eb' },
     badgeTextInactive: { color: '#9ca3af' },
     date: { fontSize: 11, color: '#9ca3af' },
-    loadText: { fontSize: 11, fontWeight: '700', color: '#3b82f6' },
+    loadText: { fontSize: 11, fontWeight: '700', color: '#0ea5e9' },
     footer: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16 },
     closeBtn: {
         paddingVertical: 14,

@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 const JS_KEY = process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? '';
@@ -35,9 +35,9 @@ function buildMapHTML(lat: number, lng: number, label: string) {
             });
             infowindow.open(map, marker);
             ` : ''}
-            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_OK' }));
+            if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_OK' }));
           } catch(e) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: e.message }));
+            if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: e.message }));
           }
         });
       }
@@ -47,7 +47,7 @@ function buildMapHTML(lat: number, lng: number, label: string) {
       script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=${JS_KEY}&autoload=false';
       script.onload = initMap;
       script.onerror = function() {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: 'SDK load failed' }));
+        if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'MAP_ERROR', message: 'SDK load failed' }));
       };
       document.head.appendChild(script);
     })();
@@ -64,6 +64,20 @@ interface Props {
 }
 
 export function KakaoMap({ latitude, longitude, label = '', height = 200 }: Props) {
+  // 웹에서는 react-native-webview 의 html source 가 동작하지 않아 iframe 으로 렌더
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[s.wrap, { height }]} pointerEvents="none">
+        {/* @ts-ignore - 웹 전용 DOM iframe (react-native-web) */}
+        <iframe
+          srcDoc={buildMapHTML(latitude, longitude, label)}
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          title="map"
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={[s.wrap, { height }]} pointerEvents="none">
       <WebView

@@ -1,7 +1,7 @@
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, Alert,
+  View, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -232,16 +232,16 @@ const s = StyleSheet.create({
   inputDone: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
   inputErr: { borderColor: '#ef4444' },
   subBtn: {
-    backgroundColor: '#3b82f6', borderRadius: 12, paddingHorizontal: 14,
+    backgroundColor: '#0ea5e9', borderRadius: 12, paddingHorizontal: 14,
     alignItems: 'center', justifyContent: 'center', minWidth: 90,
   },
   subBtnDisabled: { backgroundColor: '#9ca3af' },
   subBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   btn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
-  btnBlue: { backgroundColor: '#3b82f6' },
+  btnBlue: { backgroundColor: '#0ea5e9' },
   btnGreen: { backgroundColor: '#10b981', marginTop: 10 },
   btnDisabled: { backgroundColor: '#9ca3af' },
-  btnText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  btnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   timer: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
   timerExpired: { color: '#ef4444' },
   errText: { fontSize: 12, color: '#ef4444', marginTop: 4 },

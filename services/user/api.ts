@@ -100,3 +100,9 @@ export async function savePreferences(body: {
   const { data } = await apiClient.post('/user/preferences', body);
   return data;
 }
+
+// 회원 탈퇴 (소프트 삭제)
+export async function withdrawUser(): Promise<{ success: boolean; message: string }> {
+  const { data } = await apiClient.post('/auth/withdrawal');
+  return data;
+}

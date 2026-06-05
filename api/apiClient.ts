@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.219.43:4000';
@@ -7,26 +8,65 @@ export const ACCESS_TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
 const DEVICE_ID_KEY = 'device_id';
 
-// SecureStore 헬퍼
+// 플랫폼별 보안 저장소: 네이티브는 SecureStore, 웹은 localStorage 사용
+// (expo-secure-store 는 웹에서 동작하지 않음)
+const isWeb = Platform.OS === 'web';
+
+const secureStorage = {
+  getItem: async (key: string): Promise<string | null> => {
+    if (isWeb) {
+      try {
+        return globalThis.localStorage?.getItem(key) ?? null;
+      } catch {
+        return null;
+      }
+    }
+    return SecureStore.getItemAsync(key);
+  },
+  setItem: async (key: string, value: string): Promise<void> => {
+    if (isWeb) {
+      try {
+        globalThis.localStorage?.setItem(key, value);
+      } catch {
+        /* no-op */
+      }
+      return;
+    }
+    await SecureStore.setItemAsync(key, value);
+  },
+  removeItem: async (key: string): Promise<void> => {
+    if (isWeb) {
+      try {
+        globalThis.localStorage?.removeItem(key);
+      } catch {
+        /* no-op */
+      }
+      return;
+    }
+    await SecureStore.deleteItemAsync(key);
+  },
+};
+
+// 토큰 저장소 헬퍼
 export const tokenStorage = {
-  get: () => SecureStore.getItemAsync(ACCESS_TOKEN_KEY),
-  set: (token: string) => SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token),
-  remove: () => SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY),
-  setRefresh: (token: string) => SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token),
-  getRefresh: () => SecureStore.getItemAsync(REFRESH_TOKEN_KEY),
-  removeRefresh: () => SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY),
+  get: () => secureStorage.getItem(ACCESS_TOKEN_KEY),
+  set: (token: string) => secureStorage.setItem(ACCESS_TOKEN_KEY, token),
+  remove: () => secureStorage.removeItem(ACCESS_TOKEN_KEY),
+  setRefresh: (token: string) => secureStorage.setItem(REFRESH_TOKEN_KEY, token),
+  getRefresh: () => secureStorage.getItem(REFRESH_TOKEN_KEY),
+  removeRefresh: () => secureStorage.removeItem(REFRESH_TOKEN_KEY),
   clearAll: async () => {
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    await secureStorage.removeItem(ACCESS_TOKEN_KEY);
+    await secureStorage.removeItem(REFRESH_TOKEN_KEY);
   },
 };
 
 // 앱 설치 시 한 번 생성하고 계속 재사용하는 기기 고유 ID
 export const getOrCreateDeviceId = async (): Promise<string> => {
-  let id = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+  let id = await secureStorage.getItem(DEVICE_ID_KEY);
   if (!id) {
     id = `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 10)}`;
-    await SecureStore.setItemAsync(DEVICE_ID_KEY, id);
+    await secureStorage.setItem(DEVICE_ID_KEY, id);
   }
   return id;
 };

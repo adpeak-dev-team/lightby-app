@@ -120,9 +120,13 @@ export function useSitePostForm() {
         if (!managerPhone.trim())     return '연락처를 입력해주세요.';
         if (workIndustry.length === 0) return '업종을 선택해주세요.';
         if (workOccupation.length === 0) return '직종을 선택해주세요.';
-        if (!feeType)                 return '수수료 타입을 선택해주세요.';
-        const validFee = fee.filter(f => f.category.trim() || f.amount.trim());
-        if (validFee.length === 0) return '수수료 금액을 입력해주세요.';
+        if (!feeType)                 return '수수료 형태를 선택해주세요.';
+        // 수수료 항목은 '계약 수수료' / '기본급 + 수수료'일 때만 필수 (front 기준)
+        const showFee = feeType === '계약 수수료' || feeType === '기본급 + 수수료';
+        if (showFee) {
+            const validFee = fee.filter(f => f.category.trim() || f.amount.trim());
+            if (validFee.length === 0) return '수수료 금액을 입력해주세요.';
+        }
         return null;
     };
 

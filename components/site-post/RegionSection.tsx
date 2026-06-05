@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import {
+  View, TextInput,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { KakaoPostcode } from '@/components/common/KakaoPostcode';
 import { KakaoMap } from '@/components/common/KakaoMap';
 import { SectionHeader, Label, RadioChipGroup, REGIONS, ss } from './shared';

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Share, ActivityIndicator, Modal, Pressable,
-  Linking, useWindowDimensions, Image as RNImage,
+  View, ScrollView, TouchableOpacity, StyleSheet, Share, ActivityIndicator, Modal, Pressable, Linking, useWindowDimensions, Image as RNImage,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import Carousel from 'react-native-reanimated-carousel';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -166,9 +165,9 @@ export default function SiteDetailPage() {
   const isOwner = !!me?.id && job.user_id === me.id;
 
   const feeItems = Array.isArray(job.fee) && job.fee.length > 0 ? job.fee.filter((f: any) => f.amount) : [];
-  const headcount = job.number_people ? `${job.number_people}명` : '-';
-  const industry = Array.isArray(job.industries) && job.industries.length > 0 ? job.industries.join(', ') : '-';
-  const position = Array.isArray(job.job_categories) && job.job_categories.length > 0 ? job.job_categories.join(', ') : '-';
+  const headcount = job.number_people ? `${job.number_people}명` : '';
+  const industry = Array.isArray(job.industries) && job.industries.length > 0 ? job.industries.join(', ') : '';
+  const position = Array.isArray(job.job_categories) && job.job_categories.length > 0 ? job.job_categories.join(', ') : '';
 
   const applyContent = applyState ? APPLY_CONTENT[applyState] : null;
 
@@ -236,7 +235,7 @@ export default function SiteDetailPage() {
                 style={s.editBtn}
                 onPress={() => router.push({ pathname: '/registration/sitepost-edit/[id]', params: { id } } as never)}
               >
-                <Ionicons name="pencil-outline" size={14} color="#3b82f6" />
+                <Ionicons name="pencil-outline" size={14} color="#0ea5e9" />
                 <Text style={s.editBtnText}>수정</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.deleteBtn} onPress={() => setShowDeleteModal(true)}>
@@ -262,7 +261,6 @@ export default function SiteDetailPage() {
               {!!job.agency && <Text style={s.agencyText}>{job.agency}</Text>}
             </View>
           )}
-          {!icons.length && !!job.agency && <Text style={[s.agencyText, { marginBottom: 4 }]}>{job.agency}</Text>}
 
           {/* 제목 */}
           <Text style={s.jobTitle}>{job.subject}</Text>
@@ -270,11 +268,11 @@ export default function SiteDetailPage() {
           {/* FIELD POINT */}
           {!!job.point_content && (
             <View style={s.fieldPointCard}>
-              <Ionicons name="star" size={16} color="#fbbf24" />
-              <View style={{ flex: 1 }}>
+              <View style={s.fieldPointHeader}>
+                <Ionicons name="star" size={14} color="#fbbf24" />
                 <Text style={s.fieldPointLabel}>FIELD POINT</Text>
-                <Text style={s.fieldPointText}>{job.point_content}</Text>
               </View>
+              <Text style={s.fieldPointText}>{job.point_content}</Text>
             </View>
           )}
         </View>
@@ -282,7 +280,7 @@ export default function SiteDetailPage() {
         {/* ── 기본 정보 ── */}
         <View style={s.section}>
           {/* 급여정보 */}
-          <View style={[s.card, { borderWidth: 2, borderColor: '#4ade80' }]}>
+          <View style={s.card}>
             <SectionTitle label="급여정보" color="#ef4444" />
             {!!job.base_pay && (
               <View style={s.salaryRow}>
@@ -310,12 +308,12 @@ export default function SiteDetailPage() {
             <SectionTitle label="현장정보" color="#a855f7" />
             <View style={s.infoGrid}>
               {[
-                { label: '시행사', value: job.enforcement || '-' },
-                { label: '시공사', value: job.construction || '-' },
-                { label: '대행사', value: job.agency || '-' },
-                { label: '담당자', value: job.name || '-' },
-                { label: '전화번호', value: job.phone || '-' },
-              ].map(({ label, value }) => (
+                { label: '시행사', value: job.enforcement },
+                { label: '시공사', value: job.construction },
+                { label: '대행사', value: job.agency },
+                { label: '담당자', value: job.name },
+                { label: '전화번호', value: job.phone },
+              ].filter(({ value }) => !!value).map(({ label, value }) => (
                 <View key={label} style={s.infoGridItem}>
                   <Text style={s.infoGridLabel}>{label}</Text>
                   <Text style={s.infoGridValue}>{value}</Text>
@@ -326,16 +324,16 @@ export default function SiteDetailPage() {
 
           {/* 지원정보 */}
           <View style={s.card}>
-            <SectionTitle label="지원정보" color="#3b82f6" />
+            <SectionTitle label="지원정보" color="#0ea5e9" />
             <View style={s.infoGrid}>
               {[
                 { label: '업종', value: industry },
                 { label: '직종', value: position },
-                { label: '성별', value: job.require_gender || '-' },
-                { label: '나이', value: job.require_age || '-' },
-                { label: '경력', value: job.career_period || '-' },
+                { label: '성별', value: job.require_gender },
+                { label: '나이', value: job.require_age },
+                { label: '경력', value: job.career_period },
                 { label: '모집인원', value: headcount },
-              ].map(({ label, value }) => (
+              ].filter(({ value }) => !!value).map(({ label, value }) => (
                 <View key={label} style={s.infoGridItem}>
                   <Text style={s.infoGridLabel}>{label}</Text>
                   <Text style={s.infoGridValue}>{value}</Text>
@@ -374,33 +372,10 @@ export default function SiteDetailPage() {
           )}
         </View>
 
-        {/* ── 상세 모집내용 ── */}
+        {/* ── 근무지역 (front 순서: 상세 모집내용 앞) ── */}
         <View style={[s.section, { paddingTop: 0 }]}>
           <View style={s.card}>
-            <SectionTitle label="상세 모집내용" color="#3b82f6" />
-            <View style={s.detailContentBox}>
-              <Text style={s.detailContentText}>{job.detail_content || '상세 내용이 없습니다.'}</Text>
-            </View>
-            {!!job.site_url && (
-              <TouchableOpacity
-                style={s.siteUrlBox}
-                onPress={() => Linking.openURL(job.site_url)}
-                activeOpacity={0.75}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={s.siteUrlLabel}>공식 사이트</Text>
-                  <Text style={s.siteUrlText} numberOfLines={1}>{job.site_url}</Text>
-                </View>
-                <Ionicons name="open-outline" size={16} color="#3b82f6" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {/* ── 근무지역 ── */}
-        <View style={[s.section, { paddingTop: 0, paddingBottom: 16 }]}>
-          <View style={s.card}>
-            <SectionTitle label="근무지역" color="#f97316" />
+            <SectionTitle label="근무지역" color="#ec4899" />
             {Array.isArray(job.regions) && job.regions.length > 0 && (
               <View style={s.regionChips}>
                 {job.regions.map((r, i) => (
@@ -441,6 +416,29 @@ export default function SiteDetailPage() {
           </View>
         </View>
 
+        {/* ── 상세 모집내용 (front 순서: 근무지역 뒤) ── */}
+        <View style={[s.section, { paddingTop: 0, paddingBottom: 16 }]}>
+          <View style={s.card}>
+            <SectionTitle label="상세 모집내용" color="#0ea5e9" />
+            <View style={s.detailContentBox}>
+              <Text style={s.detailContentText}>{job.detail_content || '상세 내용이 없습니다.'}</Text>
+            </View>
+            {!!job.site_url && (
+              <TouchableOpacity
+                style={s.siteUrlBox}
+                onPress={() => Linking.openURL(job.site_url)}
+                activeOpacity={0.75}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={s.siteUrlLabel}>공식 사이트</Text>
+                  <Text style={s.siteUrlText} numberOfLines={1}>{job.site_url}</Text>
+                </View>
+                <Ionicons name="open-outline" size={16} color="#0ea5e9" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
         {/* 하단 바 여백 */}
         <View style={{ height: 90 + insets.bottom }} />
       </ScrollView>
@@ -451,12 +449,12 @@ export default function SiteDetailPage() {
           <Ionicons name="call-outline" size={16} color="#fff" />
           <Text style={s.actionBtnText}>전화하기</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#34d399' }]} onPress={handleSms}>
+        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#22c55e' }]} onPress={handleSms}>
           <Ionicons name="chatbubble-outline" size={16} color="#fff" />
           <Text style={s.actionBtnText}>문자하기</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[s.actionBtn, { backgroundColor: '#f59e0b' }, applyMutation.isPending && s.actionBtnDisabled]}
+          style={[s.actionBtn, { backgroundColor: '#eab308' }, applyMutation.isPending && s.actionBtnDisabled]}
           onPress={handleApply}
           disabled={applyMutation.isPending}
         >
@@ -502,7 +500,7 @@ export default function SiteDetailPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
+  container: { flex: 1, backgroundColor: '#fff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyText: { color: '#9ca3af', fontSize: 15 },
   scroll: { flex: 1 },
@@ -530,25 +528,26 @@ const s = StyleSheet.create({
   summarySection: { backgroundColor: '#fff', padding: 16, gap: 10 },
   ownerBtns: { flexDirection: 'row', alignSelf: 'flex-end', gap: 8 },
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#bfdbfe' },
-  editBtnText: { color: '#3b82f6', fontSize: 13, fontWeight: '700' },
+  editBtnText: { color: '#0ea5e9', fontSize: 13, fontWeight: '700' },
   deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
   deleteBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
   badgeText: { fontSize: 11, fontWeight: '700' },
   agencyText: { fontSize: 14, color: '#6b7280' },
-  jobTitle: { fontSize: 22, fontWeight: '800', color: '#111827', lineHeight: 30 },
-  fieldPointCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#bfdbfe' },
-  fieldPointLabel: { fontSize: 10, fontWeight: '800', color: '#3b82f6', letterSpacing: 1.5, marginBottom: 3 },
+  jobTitle: { fontSize: 22, fontWeight: '700', color: '#111827', lineHeight: 30 },
+  fieldPointCard: { gap: 8, backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#bfdbfe' },
+  fieldPointHeader: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  fieldPointLabel: { fontSize: 10, fontWeight: '700', color: '#0ea5e9', letterSpacing: 1.5 },
   fieldPointText: { fontSize: 14, fontWeight: '700', color: '#1e3a5f' },
 
   // 섹션 / 카드
-  section: { padding: 12, gap: 10 },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
+  section: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
+  card: { paddingVertical: 14 }, // 평면형: front처럼 카드 배경/테두리/그림자 없이 흰 배경에 여백으로 구분 (가로 여백은 section에서 통일 관리)
   cardRow: { flexDirection: 'row', gap: 10 },
   cardHalf: { flex: 1 },
   cardLabel: { fontSize: 13, color: '#6b7280', marginBottom: 6 },
-  cardValue: { fontSize: 17, fontWeight: '800', color: '#111827' },
+  cardValue: { fontSize: 17, fontWeight: '700', color: '#111827' },
 
   // 섹션 제목
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
@@ -558,20 +557,20 @@ const s = StyleSheet.create({
   // 급여정보
   salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f0fdf4', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 8, borderWidth: 1, borderColor: '#bbf7d0' },
   salaryLabel: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
-  salaryValue: { fontSize: 16, fontWeight: '800', color: '#16a34a' },
+  salaryValue: { fontSize: 16, fontWeight: '700', color: '#16a34a' },
   feeTypeText: { fontSize: 15, fontWeight: '700', color: '#111827', marginBottom: 10 },
   emptyFeeBox: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, alignItems: 'center' },
   emptyFeeText: { fontSize: 13, color: '#9ca3af' },
 
   // 현장정보 / 지원정보 그리드
   infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  infoGridItem: { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
+  infoGridItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
   infoGridLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
   infoGridValue: { fontSize: 13, fontWeight: '600', color: '#111827' },
 
   // 복지 그리드
   welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  welfareItem: { width: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
+  welfareItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
   welfareLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
   welfareValue: { fontSize: 14, fontWeight: '600', color: '#111827' },
   promotionBox: { backgroundColor: '#fffbeb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#fde68a' },
@@ -594,8 +593,8 @@ const s = StyleSheet.create({
   // 근무지역
   regionChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
   regionChip: { backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
-  regionChipText: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
-  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  regionChipText: { fontSize: 13, color: '#0ea5e9', fontWeight: '600' },
+  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 12 },
   addressText: { fontSize: 13, color: '#6b7280', flex: 1 },
 
   // 하단 액션 바
@@ -608,7 +607,7 @@ const s = StyleSheet.create({
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
   modal: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40, alignItems: 'center' },
   modalIcon: { fontSize: 48, marginBottom: 12 },
-  modalTitle: { fontSize: 17, fontWeight: '800', color: '#111827', marginBottom: 6 },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 6 },
   modalSub: { fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 24, lineHeight: 21 },
   modalCloseBtn: { width: '100%', paddingVertical: 14, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
   modalCloseBtnText: { fontSize: 15, fontWeight: '700', color: '#374151' },

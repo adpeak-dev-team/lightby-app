@@ -1,5 +1,8 @@
 import { useRef } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  ScrollView, View, TouchableOpacity, StyleSheet,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { regions } from '@/lib/constants';
 
 interface LocationTabsProps {
@@ -47,8 +50,6 @@ export default function LocationTabs({ location, onLocationChange }: LocationTab
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
   },
   content: {
     paddingHorizontal: 12,

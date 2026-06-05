@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
@@ -15,8 +17,25 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+/**
+ * 웹(react-native-web)에서 한글이 글자 단위로 끊기지 않고 단어 단위로 줄바꿈되도록
+ * 전역 CSS를 주입한다. (긴 URL 등 끊을 곳 없는 문자열은 overflow-wrap으로 넘침 방지)
+ */
+function useWebWordBreak() {
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const STYLE_ID = 'global-word-break';
+    if (document.getElementById(STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = `* { word-break: keep-all; overflow-wrap: anywhere; }`;
+    document.head.appendChild(style);
+  }, []);
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  useWebWordBreak();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -38,6 +57,7 @@ export default function RootLayout() {
                 <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
+                <Stack.Screen name="mypage/withdraw" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/sitepost-edit/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/qna" options={{ headerShown: false }} />

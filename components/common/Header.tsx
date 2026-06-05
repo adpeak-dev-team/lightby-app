@@ -1,10 +1,14 @@
 import { useCallback, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View, Image, TouchableOpacity, StyleSheet,
+} from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { tokenStorage } from '@/api/apiClient';
 import { useLogout } from '@/services/auth/mutations';
+import { Colors } from '@/lib/theme';
 
 export default function Header() {
   const router = useRouter();
@@ -61,10 +65,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 10,
-    marginBottom: 5,
+    marginBottom: 14,
     backgroundColor: 'rgba(255,255,255,0.97)',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -80,14 +82,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#38bdf8',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 7,
     borderRadius: 999,
   },
   loginText: {
     color: '#fff',
-    fontWeight: '800',
+    fontWeight: '700',
     fontSize: 13,
   },
   logoutBtn: {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
-    View, Text, TouchableOpacity, Modal, Pressable,
-    ActivityIndicator, StyleSheet, TextInput, Keyboard,
+  View, TouchableOpacity, Modal, Pressable, ActivityIndicator, StyleSheet, TextInput, Keyboard,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -118,7 +118,7 @@ export function KakaoPostcode({ address, onSelect }: Props) {
 
 
                 {loading && (
-                    <ActivityIndicator size="small" color="#3b82f6" style={s.spinner} />
+                    <ActivityIndicator size="small" color="#0ea5e9" style={s.spinner} />
                 )}
 
                 {showApplyButton && !loading && (
@@ -223,7 +223,7 @@ const s = StyleSheet.create({
         justifyContent: 'center',
     },
     btnApply: {
-        backgroundColor: '#3b82f6',
+        backgroundColor: '#0ea5e9',
     },
 
     // 우편번호 모달
@@ -275,7 +275,7 @@ const s = StyleSheet.create({
     },
     errorTitle: {
         fontSize: 17,
-        fontWeight: '800',
+        fontWeight: '700',
         color: '#111827',
     },
     errorDesc: {

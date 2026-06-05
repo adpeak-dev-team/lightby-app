@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-    View, Text, ScrollView, TouchableOpacity,
-    StyleSheet, Alert, ActivityIndicator, Modal,
+  View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -159,9 +159,11 @@ export default function SitePostEditPage() {
         if (!managerPhone.trim()) return Alert.alert('필수 입력', '연락처를 입력해주세요.');
         if (workIndustry.length === 0) return Alert.alert('필수 입력', '업종을 선택해주세요.');
         if (workOccupation.length === 0) return Alert.alert('필수 입력', '직종을 선택해주세요.');
-        if (!feeType) return Alert.alert('필수 입력', '수수료 타입을 선택해주세요.');
+        if (!feeType) return Alert.alert('필수 입력', '수수료 형태를 선택해주세요.');
         const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
-        if (cleanedFee.length === 0) return Alert.alert('필수 입력', '수수료 금액을 입력해주세요.');
+        // 수수료 항목은 '계약 수수료' / '기본급 + 수수료'일 때만 필수 (front 기준)
+        const showFee = feeType === '계약 수수료' || feeType === '기본급 + 수수료';
+        if (showFee && cleanedFee.length === 0) return Alert.alert('필수 입력', '수수료 금액을 입력해주세요.');
 
         const selectedIcons: number[] = (() => {
             try { return job?.icons ? JSON.parse(job.icons) : []; } catch { return []; }
@@ -211,7 +213,7 @@ export default function SitePostEditPage() {
     if (isLoading || !isInitialized) {
         return (
             <View style={s.centered}>
-                <ActivityIndicator size="large" color="#3b82f6" />
+                <ActivityIndicator size="large" color="#0ea5e9" />
             </View>
         );
     }
@@ -354,7 +356,7 @@ export default function SitePostEditPage() {
                 {/* 이미지 저장 중 인디케이터 */}
                 {updateImagesMutation.isPending && (
                     <View style={s.imageSavingBar}>
-                        <ActivityIndicator size="small" color="#3b82f6" />
+                        <ActivityIndicator size="small" color="#0ea5e9" />
                         <Text style={s.imageSavingText}>이미지 저장 중...</Text>
                     </View>
                 )}
@@ -364,7 +366,7 @@ export default function SitePostEditPage() {
 }
 
 const s = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f3f4f6' },
+    container: { flex: 1, backgroundColor: '#fff' },
     centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
     nav: {
@@ -380,22 +382,22 @@ const s = StyleSheet.create({
     navBack: { width: 40, alignItems: 'flex-start' },
     navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
 
-    scroll: { padding: 16, gap: 12 },
+    scroll: { paddingHorizontal: 16, paddingVertical: 8, gap: 24 },
 
     submitBtn: {
-        backgroundColor: '#3b82f6',
+        backgroundColor: '#0ea5e9',
         borderRadius: 16,
         paddingVertical: 16,
         alignItems: 'center',
         marginTop: 4,
-        shadowColor: '#3b82f6',
+        shadowColor: '#0ea5e9',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 4,
     },
     submitBtnDisabled: { opacity: 0.6 },
-    submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+    submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
     imageSavingBar: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -418,7 +420,7 @@ const s = StyleSheet.create({
         width: 72, height: 72, borderRadius: 36,
         backgroundColor: '#fef2f2', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
     },
-    modalTitle: { fontSize: 18, fontWeight: '800', color: '#111827', marginBottom: 10, textAlign: 'center' },
+    modalTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10, textAlign: 'center' },
     modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22, marginBottom: 28 },
     modalBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
     modalCancelBtn: {

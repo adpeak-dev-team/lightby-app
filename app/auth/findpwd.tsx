@@ -1,7 +1,7 @@
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, Alert,
+  View, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useState, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -306,7 +306,7 @@ const stepDot = (active: boolean) => ({
   width: active ? 24 : 8,
   height: 8,
   borderRadius: 4,
-  backgroundColor: active ? '#6366f1' : '#d1d5db',
+  backgroundColor: active ? '#0ea5e9' : '#d1d5db',
 });
 
 const s = StyleSheet.create({
@@ -326,16 +326,16 @@ const s = StyleSheet.create({
   },
   inputErr: { borderColor: '#ef4444' },
   btn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
-  btnBlue: { backgroundColor: '#3b82f6' },
+  btnBlue: { backgroundColor: '#0ea5e9' },
   btnGreen: { backgroundColor: '#10b981' },
   btnDisabled: { backgroundColor: '#9ca3af' },
-  btnText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  btnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   timer: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
   timerExpired: { color: '#ef4444' },
   errText: { fontSize: 12, color: '#ef4444' },
   linkBtn: { alignItems: 'center', paddingVertical: 8 },
   linkText: { fontSize: 13, color: '#9ca3af', textDecorationLine: 'underline' },
-  linkTextBlue: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
+  linkTextBlue: { fontSize: 13, color: '#0ea5e9', fontWeight: '600' },
   successBox: {
     backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#86efac',
     borderRadius: 12, padding: 14,

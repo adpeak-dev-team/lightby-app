@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator,
+  View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 
 import { regions, industries, roles } from '@/lib/constants';
 import { useGetPreferences } from '@/services/user/queries';
@@ -138,7 +139,7 @@ const s = StyleSheet.create({
   scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
 
   section: { marginBottom: 36 },
-  sectionTitle: { fontSize: 15, fontWeight: '800', color: '#1f2937', marginBottom: 14 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937', marginBottom: 14 },
   hint: { fontSize: 11, color: '#9ca3af', marginTop: 8 },
 
   regionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -175,6 +176,6 @@ const s = StyleSheet.create({
     backgroundColor: '#38bdf8', borderRadius: 16, paddingVertical: 16,
     alignItems: 'center', justifyContent: 'center', marginTop: 8,
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   btnDisabled: { opacity: 0.6 },
 });

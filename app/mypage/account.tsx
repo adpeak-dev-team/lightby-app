@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, TextInput,
-  StyleSheet, Image, ActivityIndicator, Alert,
+  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, Image, ActivityIndicator, Alert,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useGetUserProfile } from '@/services/user/queries';
 import {
-  useUpdateNickname, useSendPhoneAuthCode, useVerifyPhoneAuthCode, useChangePassword,
+  useUpdateNickname, useSendPhoneAuthCode, useVerifyPhoneAuthCode, useChangePassword, useUploadProfileImage,
 } from '@/services/user/mutations';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
@@ -23,6 +25,34 @@ export default function AccountPage() {
   const sendCodeMutation = useSendPhoneAuthCode();
   const verifyCodeMutation = useVerifyPhoneAuthCode();
   const changePasswordMutation = useChangePassword();
+  const uploadImageMutation = useUploadProfileImage();
+
+  const handlePickProfileImage = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('권한 필요', '사진 라이브러리 접근 권한이 필요합니다.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'], quality: 1, allowsEditing: true, aspect: [1, 1],
+    });
+    if (result.canceled || !result.assets?.[0]) return;
+    try {
+      const compressed = await ImageManipulator.manipulateAsync(
+        result.assets[0].uri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
+      );
+      const formData = new FormData();
+      const filename = compressed.uri.split('/').pop() ?? 'profile.jpg';
+      formData.append('profile_image', { uri: compressed.uri, name: filename, type: 'image/jpeg' } as any);
+      await uploadImageMutation.mutateAsync(formData);
+      refetch();
+    } catch (err) {
+      console.error('[Account] 이미지 업로드 실패:', err);
+      Alert.alert('오류', '이미지 업로드에 실패했습니다.');
+    }
+  };
 
   const [editingField, setEditingField] = useState<EditField>(null);
 
@@ -130,8 +160,20 @@ export default function AccountPage() {
                 <Ionicons name="person" size={36} color="#9ca3af" />
               </View>
             )}
+            <TouchableOpacity
+              style={s.cameraBtn}
+              onPress={handlePickProfileImage}
+              disabled={uploadImageMutation.isPending}
+              activeOpacity={0.8}
+            >
+              {uploadImageMutation.isPending ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="camera" size={14} color="#fff" />
+              )}
+            </TouchableOpacity>
           </View>
-          <Text style={s.avatarHint}>프로필 이미지는 앱 설정에서 변경할 수 있습니다.</Text>
+          <Text style={s.avatarHint}>카메라 버튼 클릭 후 이미지를 선택하시면 프로필 이미지가 변경됩니다.</Text>
           <Text style={s.avatarName}>{profile?.nickname ?? '사용자'} 님</Text>
         </View>
 
@@ -141,6 +183,14 @@ export default function AccountPage() {
           <View style={s.row}>
             <Text style={s.label}>아이디</Text>
             <Text style={s.value}>{profile?.id ?? '-'}</Text>
+          </View>
+
+          {/* 로그인 ID / SNS */}
+          <View style={s.row}>
+            <Text style={s.label}>{profile?.sns_type === 'local' ? '로그인 ID' : 'SNS'}</Text>
+            <Text style={s.value}>
+              {profile?.sns_type === 'local' ? (profile?.login_id ?? '-') : (profile?.sns_type ?? '-')}
+            </Text>
           </View>
 
           {/* 닉네임 */}
@@ -241,7 +291,8 @@ export default function AccountPage() {
             )}
           </View>
 
-          {/* 비밀번호 */}
+          {/* 비밀번호 — 로컬(이메일/아이디) 계정만 노출 (front 동일) */}
+          {profile?.sns_type === 'local' && (
           <View style={[s.row, s.rowBig, { borderBottomWidth: 0 }]}>
             <View style={s.rowHeader}>
               <Text style={s.label}>비밀번호</Text>
@@ -294,11 +345,21 @@ export default function AccountPage() {
               <Text style={s.value}>• • • • • • • •</Text>
             )}
           </View>
+          )}
         </View>
 
         <Text style={s.footer}>
           회원정보는 개인정보 처리방침에 따라 안전하게 보호되며,{'\n'}정보 변경 시 즉시 서비스에 반영됩니다.
         </Text>
+
+        {/* 회원 탈퇴 (front처럼 계정 설정 하단에 위치) */}
+        <TouchableOpacity
+          style={s.withdrawWrap}
+          onPress={() => router.push('/mypage/withdraw' as never)}
+          activeOpacity={0.7}
+        >
+          <Text style={s.withdrawText}>회원 탈퇴</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -316,11 +377,17 @@ const s = StyleSheet.create({
   navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
   scroll: { padding: 16, paddingBottom: 40 },
   avatarSection: { alignItems: 'center', paddingVertical: 24 },
-  avatarWrap: { marginBottom: 10 },
+  avatarWrap: { marginBottom: 10, position: 'relative' },
   avatar: { width: 80, height: 80, borderRadius: 40 },
   avatarPlaceholder: { backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
+  cameraBtn: {
+    position: 'absolute', bottom: 0, right: 0,
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: '#1f2937', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: '#f3f4f6',
+  },
   avatarHint: { fontSize: 11, color: '#60a5fa', textAlign: 'center', marginBottom: 6 },
-  avatarName: { fontSize: 17, fontWeight: '800', color: '#111827' },
+  avatarName: { fontSize: 17, fontWeight: '700', color: '#111827' },
   card: {
     backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
@@ -330,7 +397,7 @@ const s = StyleSheet.create({
   rowHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   label: { fontSize: 12, color: '#9ca3af' },
   value: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginTop: 3 },
-  changeBtn: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
+  changeBtn: { fontSize: 13, color: '#0ea5e9', fontWeight: '600' },
   editWrap: { gap: 8, marginTop: 8 },
   inputRow: { flexDirection: 'row', gap: 8 },
   input: {
@@ -343,7 +410,7 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', backgroundColor: '#fff',
   },
-  actionBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 14, justifyContent: 'center' },
+  actionBtn: { backgroundColor: '#0ea5e9', borderRadius: 10, paddingHorizontal: 14, justifyContent: 'center' },
   actionBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   btnDisabled: { opacity: 0.5 },
   timerText: { textAlign: 'right', fontSize: 12, color: '#ef4444', fontWeight: '600' },
@@ -353,7 +420,9 @@ const s = StyleSheet.create({
   },
   cancelBtnText: { fontSize: 13, color: '#6b7280', fontWeight: '600' },
   btnRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 },
-  confirmBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
+  confirmBtn: { backgroundColor: '#0ea5e9', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
   confirmBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   footer: { fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 20, lineHeight: 18 },
+  withdrawWrap: { alignItems: 'center', marginTop: 24 },
+  withdrawText: { fontSize: 12, color: '#9ca3af', textDecorationLine: 'underline' },
 });

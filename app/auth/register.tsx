@@ -1,15 +1,7 @@
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Animated,
+  View, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, Animated,
 } from 'react-native';
+import { Text } from '@/components/common/AppText';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -265,7 +257,8 @@ export default function RegisterPage() {
         joinRoutes: 'app',
       },
       {
-        onSuccess: () => router.replace('/'),
+        // 신규 가입자는 관심설정이 비어있으므로 바로 관심 설정 온보딩으로 (front 동일)
+        onSuccess: () => router.replace('/set-user-info/interest'),
         onError: (err: any) => {
           setError('loginId', err.response?.data?.message ?? '회원가입 중 오류가 발생했습니다.');
         },
@@ -376,7 +369,7 @@ export default function RegisterPage() {
             }}
           >
             <View style={styles.fieldWrap}>
-              <Text style={[styles.label, { color: '#6366f1' }]}>인증번호</Text>
+              <Text style={[styles.label, { color: '#0ea5e9' }]}>인증번호</Text>
               <View style={styles.inputRow}>
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
@@ -501,7 +494,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   inlineBtn: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#0ea5e9',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 7,
@@ -523,7 +516,7 @@ const styles = StyleSheet.create({
   },
   successText: {
     fontSize: 12,
-    color: '#6366f1',
+    color: '#0ea5e9',
     marginTop: 4,
     paddingLeft: 4,
   },
@@ -540,12 +533,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   submitBtn: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#0ea5e9',
     paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
-    shadowColor: '#6366f1',
+    shadowColor: '#0ea5e9',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -553,7 +546,7 @@ const styles = StyleSheet.create({
   },
   submitBtnText: {
     color: '#fff',
-    fontWeight: '800',
+    fontWeight: '700',
     fontSize: 16,
   },
   footer: {
@@ -567,7 +560,7 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     fontSize: 13,
-    color: '#6366f1',
+    color: '#0ea5e9',
     fontWeight: '700',
     textDecorationLine: 'underline',
   },
