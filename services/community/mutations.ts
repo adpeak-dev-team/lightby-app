@@ -9,7 +9,7 @@ export function useToggleLike(boardId: number) {
     mutationFn: ({ postId, userId }: { postId: number; userId: number }) =>
       toggleLike(postId, userId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts });
+      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(boardId) });
     },
   });
@@ -22,7 +22,7 @@ export function useCreateReply(boardId: number) {
       createReply(boardId, content, userId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.replies(boardId) });
-      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts });
+      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(boardId) });
     },
   });
@@ -34,7 +34,7 @@ export function useDeleteReply(boardId: number) {
     mutationFn: (replyId: number) => deleteReply(replyId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.replies(boardId) });
-      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts });
+      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(boardId) });
     },
   });
@@ -45,7 +45,7 @@ export function useDeletePost() {
   return useMutation({
     mutationFn: ({ postId, userId }: { postId: number; userId: number }) =>
       deleteBoardPost(postId, userId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all }),
   });
 }
 
@@ -53,7 +53,7 @@ export function useCreateCommunityPost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateCommunityPostPayload) => createCommunityPost(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all }),
   });
 }
 
@@ -63,7 +63,7 @@ export function useUpdateCommunityPost() {
     mutationFn: ({ id, payload }: { id: number; payload: { title: string; content: string; images: string[] } }) =>
       updateCommunityPost(id, payload),
     onSuccess: (_, { id }) => {
-      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts });
+      qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(id) });
     },
   });

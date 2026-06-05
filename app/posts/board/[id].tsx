@@ -82,23 +82,23 @@ export default function BoardDetailPage() {
   const handleLike = useCallback(() => {
     if (!me?.id) { toast.info('로그인이 필요한 서비스입니다.'); return; }
     if (liked) { setShowUnlikeModal(true); return; }
+    // 옵티미스틱: 즉시 반영 후 실패 시 롤백
+    setLiked(true);
+    setLikeCount((p) => p + 1);
     toggleLikeMutation.mutate(
       { postId, userId: me.id },
-      { onSuccess: () => { setLiked(true); setLikeCount((p) => p + 1); } },
+      { onError: () => { setLiked(false); setLikeCount((p) => Math.max(0, p - 1)); toast.error('잠시 후 다시 시도해 주세요.'); } },
     );
   }, [liked, me?.id, postId]);
 
   const handleConfirmUnlike = useCallback(() => {
     if (!me?.id) return;
+    setShowUnlikeModal(false);
+    setLiked(false);
+    setLikeCount((p) => Math.max(0, p - 1));
     toggleLikeMutation.mutate(
       { postId, userId: me.id },
-      {
-        onSuccess: () => {
-          setLiked(false);
-          setLikeCount((p) => Math.max(0, p - 1));
-          setShowUnlikeModal(false);
-        },
-      },
+      { onError: () => { setLiked(true); setLikeCount((p) => p + 1); toast.error('잠시 후 다시 시도해 주세요.'); } },
     );
   }, [me?.id, postId]);
 

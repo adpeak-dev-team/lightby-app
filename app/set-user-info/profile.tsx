@@ -89,7 +89,12 @@ export default function SetUserInfoProfilePage() {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
       return;
     }
-    const birthYear = new Date().getFullYear() - parseInt(age);
+    const ageNum = parseInt(age, 10);
+    if (Number.isNaN(ageNum) || ageNum < 10 || ageNum > 120) {
+      Alert.alert('오류', '나이를 올바르게 입력해 주세요.');
+      return;
+    }
+    const birthYear = new Date().getFullYear() - ageNum;
     saveMutation.mutate(
       { gender, birthday: `${birthYear}-01-01`, introduction, careers },
       {

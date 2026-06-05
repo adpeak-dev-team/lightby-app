@@ -7,6 +7,7 @@ import { Text } from '@/components/common/AppText';
 import { regions, industries, roles } from '@/lib/constants';
 import { useGetPreferences } from '@/services/user/queries';
 import { useSavePreferences } from '@/services/user/mutations';
+import { toast } from '@/hooks/use-toast';
 
 interface PreferencesFormProps {
   onComplete?: () => void;
@@ -36,9 +37,19 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
   };
 
   const handleSave = () => {
+    if (selectedRegions.length === 0) {
+      toast.info('근무지역은 최소 1개 이상 선택해야 합니다.');
+      return;
+    }
     saveMutation.mutate(
       { industryCodes: selectedIndustries, roleCodes: selectedRoles, regionCodes: selectedRegions },
-      { onSuccess: () => onComplete?.() },
+      {
+        onSuccess: () => {
+          toast.success('관심 설정이 저장되었습니다.');
+          onComplete?.();
+        },
+        onError: () => toast.error('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
+      },
     );
   };
 

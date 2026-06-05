@@ -4,6 +4,8 @@ import { getCommunityPosts, getCommunityPostById, getCommunityReplies } from './
 const PAGE_SIZE = 10;
 
 export const COMMUNITY_KEYS = {
+  // 검색어와 무관하게 모든 목록을 무효화할 때 쓰는 prefix
+  all: ['community', 'posts'] as const,
   posts: (search?: string) => ['community', 'posts', search ?? ''] as const,
   post:  (id: number) => ['community', 'post', id] as const,
   replies: (id: number) => ['community', 'replies', id] as const,

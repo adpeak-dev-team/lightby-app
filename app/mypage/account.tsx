@@ -66,10 +66,17 @@ export default function AccountPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-    if (timer <= 0) return;
+    if (!authCodeSent) return;
+    // 유효시간 만료 → 재발송 가능하도록 상태 초기화 + 안내
+    if (timer <= 0) {
+      setAuthCodeSent(false);
+      setAuthCode('');
+      Alert.alert('인증 시간 만료', '인증번호 유효시간이 지났습니다. 다시 발송해 주세요.');
+      return;
+    }
     const id = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(id);
-  }, [timer]);
+  }, [timer, authCodeSent]);
 
   const handleCancel = useCallback(() => {
     setEditingField(null);

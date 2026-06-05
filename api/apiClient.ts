@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { Platform } from 'react-native';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.219.43:4000';
@@ -138,6 +139,8 @@ apiClient.interceptors.response.use(
     } catch (refreshErr) {
       processQueue(refreshErr);
       await tokenStorage.clearAll();
+      // 세션 만료: 로그인 화면으로 이동 (웹/네이티브 공통)
+      try { router.replace('/auth/login'); } catch { /* 라우터 미준비 시 무시 */ }
       return Promise.reject(error);
     } finally {
       isRefreshing = false;

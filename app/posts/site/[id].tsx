@@ -102,10 +102,24 @@ export default function SiteDetailPage() {
     if (id) incrementSiteView(id).catch(() => null);
   }, [id]);
 
-  // 찜하기 뮤테이션
+  // 찜하기 뮤테이션 (옵티미스틱: 탭 즉시 반응, 실패 시 롤백)
   const likeMutation = useMutation({
     mutationFn: () => toggleSiteLike(job!.id),
-    onSuccess: () => refetchLike(),
+    onMutate: async () => {
+      const key = ['site-like', job!.id];
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<{ liked: boolean }>(key);
+      qc.setQueryData(key, { liked: !(prev?.liked ?? false) });
+      return { prev, key };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev !== undefined) qc.setQueryData(ctx.key, ctx.prev);
+    },
+    onSuccess: () => {
+      refetchLike();
+      // 관심현장 "찜한 목록"이 즉시 반영되도록 무효화
+      qc.invalidateQueries({ queryKey: ['favorite-sites'] });
+    },
   });
 
   // 지원하기 뮤테이션
