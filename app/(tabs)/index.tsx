@@ -33,6 +33,8 @@ function toJobItem(job: JobSummaryResponse): JobItem {
       ...(Array.isArray(job.industries) ? job.industries : []),
       ...(Array.isArray(job.jobCategories) ? job.jobCategories : []),
     ].filter(Boolean),
+    industries: (Array.isArray(job.industries) ? job.industries : []).filter(Boolean),
+    jobCategories: (Array.isArray(job.jobCategories) ? job.jobCategories : []).filter(Boolean),
     icons,
   };
 }
@@ -44,7 +46,7 @@ const SECTION_CONFIG: Record<SectionType, {
   icon: keyof typeof Ionicons.glyphMap; iconBg: string; iconColor: string;
 }> = {
   premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fef3c7', iconColor: '#d97706' },
-  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#2563eb' },
+  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#e0f2fe', iconColor: '#0ea5e9' },
   free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f3f4f6', iconColor: '#4b5563' },
 };
 

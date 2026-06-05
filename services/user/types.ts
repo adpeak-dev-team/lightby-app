@@ -6,6 +6,8 @@ export interface FavoriteSiteItem {
   feeType: string;
   fee: string;
   tags: string[];
+  industries?: string[];
+  jobCategories?: string[];
   icons: number[];
 }
 
@@ -44,6 +46,8 @@ export interface UserJobPostItem {
   feeType: string;
   fee: string;
   tags: string[];
+  industries?: string[];
+  jobCategories?: string[];
   icons: number[];
   product: string;
 }
