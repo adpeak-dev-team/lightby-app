@@ -50,6 +50,7 @@ export default function RootLayout() {
                 <Stack.Screen name="auth/findpwd" options={{ headerShown: false }} />
                 <Stack.Screen name="auth/phoneauth" options={{ headerShown: false }} />
                 <Stack.Screen name="auth/kakao" options={{ headerShown: false }} />
+                <Stack.Screen name="auth/apple" options={{ headerShown: false }} />
                 <Stack.Screen name="posts/board/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="posts/site/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="set-user-info/interest" options={{ headerShown: false }} />

@@ -31,7 +31,17 @@ export interface SignUpResponse {
   refreshToken: string;
 }
 
-export interface OAuthKakaoSignInResponse {
+export interface OAuthProfile {
+  snsId: string;
+  snsType?: string;
+  name: string;
+  nickname: string;
+  phone: string | null;
+  profileImage: string | null;
+  thumbnailImage: string | null;
+}
+
+export interface OAuthSignInResponse {
   // 시나리오 1: 기존 사용자 로그인 완료
   accessToken?: string;
   refreshToken?: string;
@@ -43,14 +53,9 @@ export interface OAuthKakaoSignInResponse {
   userId?: number;
   // 시나리오 3: 신규 사용자
   isNewUser?: boolean;
-  kakaoProfile?: {
-    snsId: string;
-    name: string;
-    nickname: string;
-    phone: string | null;
-    profileImage: string | null;
-    thumbnailImage: string | null;
-  };
+  oauthProfile?: OAuthProfile;
+  // 하위 호환(카카오): kakaoProfile === oauthProfile
+  kakaoProfile?: OAuthProfile;
   conflicts?: {
     isNicknameDuplicate: boolean;
     isPhoneDuplicate: boolean;
@@ -58,6 +63,9 @@ export interface OAuthKakaoSignInResponse {
     isPhoneMissing: boolean;
   };
 }
+
+// 하위 호환을 위한 별칭 (기존 카카오 화면에서 사용)
+export type OAuthKakaoSignInResponse = OAuthSignInResponse;
 
 export interface OAuthSignUpRequest {
   snsId: string;
@@ -114,6 +122,18 @@ export async function oauthKakaoSignIn(
   const res = await apiClient.post<OAuthKakaoSignInResponse>(
     '/auth/sign-in/oauth/kakao/app',
     { kakaoAccessToken, deviceId },
+  );
+  return res.data;
+}
+
+export async function oauthAppleSignIn(
+  identityToken: string,
+  deviceId: string,
+  name?: string,
+): Promise<OAuthSignInResponse> {
+  const res = await apiClient.post<OAuthSignInResponse>(
+    '/auth/sign-in/oauth/apple/app',
+    { identityToken, deviceId, name },
   );
   return res.data;
 }

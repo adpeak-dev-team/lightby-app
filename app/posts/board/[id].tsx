@@ -236,7 +236,6 @@ export default function BoardDetailPage() {
           bottomInset={bottomInset}
         />
       </KeyboardAvoidingView>
-      <View style={{ height: keyboardVisible ? 0 : bottomInset }} />
 
       {/* 좋아요 취소 모달 */}
       <Modal visible={showUnlikeModal} transparent animationType="fade" onRequestClose={() => setShowUnlikeModal(false)}>

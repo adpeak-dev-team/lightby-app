@@ -6,6 +6,7 @@ import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
 import Header from '@/components/common/Header';
@@ -55,6 +56,7 @@ const MENU_ITEMS: MenuItem[] = [
 
 export default function MyPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [prefsVisible, setPrefsVisible] = useState(false);
@@ -225,7 +227,7 @@ export default function MyPage() {
         onRequestClose={() => setPrefsVisible(false)}
       >
         <View style={s.modalContainer}>
-          <View style={s.modalHeader}>
+          <View style={[s.modalHeader, { paddingTop: insets.top + 12 }]}>
             <Text style={s.modalTitle}>맞춤 정보 설정</Text>
             <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7}>
               <Ionicons name="close" size={24} color="#374151" />

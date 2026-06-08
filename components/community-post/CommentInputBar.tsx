@@ -27,7 +27,7 @@ export default function CommentInputBar({
   // }, [keyboardVisible]);
 
   return (
-    <View style={[s.bar]}>
+    <View style={[s.bar, { paddingBottom: keyboardVisible ? 15 : bottomInset + 15 }]}>
       <TextInput
         style={s.input}
         value={value}

@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
-    "@jiggag/react-native-kakao-maps": "^0.0.12",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-seoul/kakao-login": "^5.4.2",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -22,6 +21,7 @@
     "@tanstack/react-query": "^5.99.2",
     "axios": "^1.15.1",
     "expo": "~54.0.33",
+    "expo-apple-authentication": "~8.0.8",
     "expo-build-properties": "~1.0.10",
     "expo-constants": "~18.0.13",
     "expo-font": "~14.0.11",

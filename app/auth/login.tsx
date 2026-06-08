@@ -5,6 +5,8 @@ import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useSignIn } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import { getPreferences } from '@/services/user/api';
@@ -60,8 +62,22 @@ export default function LoginPage() {
     );
   };
 
+  // 로그인 화면은 replace(로그아웃/세션만료/소셜취소)로도 진입하므로 스택에 이전 화면이
+  // 없을 수 있다 → 스와이프 뒤로가기가 불가능. 항상 동작하는 뒤로 버튼을 제공한다.
+  const handleClose = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableOpacity
+        style={[s.closeBtn, { top: insets.top + 8 }]}
+        onPress={handleClose}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="arrow-back" size={26} color="#374151" />
+      </TouchableOpacity>
       <ScrollView
         contentContainerStyle={[s.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
@@ -126,6 +142,16 @@ export default function LoginPage() {
           <Text style={s.kakaoText}>카카오로 시작하기</Text>
         </TouchableOpacity>
 
+        {Platform.OS === 'ios' && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={12}
+            style={s.appleBtn}
+            onPress={() => router.push('/auth/apple')}
+          />
+        )}
+
         <View style={s.footer}>
           <Text style={s.footerText}>아직 계정이 없으신가요? </Text>
           <TouchableOpacity onPress={() => router.push('/auth/register')}>
@@ -139,6 +165,7 @@ export default function LoginPage() {
 
 const s = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  closeBtn: { position: 'absolute', left: 16, zIndex: 10, padding: 4 },
   logoWrap: { alignItems: 'center', marginBottom: 32, marginTop: 8 },
   logo: { width: 160, height: 56, marginBottom: 16 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#111827' },
@@ -163,6 +190,7 @@ const s = StyleSheet.create({
   dividerText: { fontSize: 11, color: '#9ca3af', fontWeight: '500', flexShrink: 1, textAlign: 'center' },
   kakaoBtn: { backgroundColor: '#FEE500', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   kakaoText: { color: '#191919', fontWeight: '700', fontSize: 15 },
+  appleBtn: { height: 48, marginTop: 10 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   footerText: { fontSize: 13, color: '#6b7280' },
   footerLink: { fontSize: 13, color: '#0ea5e9', fontWeight: '700', textDecorationLine: 'underline' },

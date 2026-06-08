@@ -7,6 +7,7 @@ import {
   sendOtp, verifyOtp,
   logout,
   oauthKakaoSignIn, OAuthKakaoSignInResponse,
+  oauthAppleSignIn, OAuthSignInResponse,
   oauthSignUp, OAuthSignUpRequest,
   verifyPhoneAuth,
   findPasswordSendOtp,
@@ -83,6 +84,20 @@ export function useOAuthKakaoSignIn() {
     mutationFn: ({ kakaoAccessToken, deviceId }: { kakaoAccessToken: string; deviceId: string }) =>
       oauthKakaoSignIn(kakaoAccessToken, deviceId),
     onSuccess: async (data: OAuthKakaoSignInResponse) => {
+      // 로그인 완료된 경우만 토큰 저장
+      if (data.accessToken && data.refreshToken) {
+        await tokenStorage.set(data.accessToken);
+        await tokenStorage.setRefresh(data.refreshToken);
+      }
+    },
+  });
+}
+
+export function useOAuthAppleSignIn() {
+  return useMutation({
+    mutationFn: ({ identityToken, deviceId, name }: { identityToken: string; deviceId: string; name?: string }) =>
+      oauthAppleSignIn(identityToken, deviceId, name),
+    onSuccess: async (data: OAuthSignInResponse) => {
       // 로그인 완료된 경우만 토큰 저장
       if (data.accessToken && data.refreshToken) {
         await tokenStorage.set(data.accessToken);

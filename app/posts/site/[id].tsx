@@ -12,7 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 import { useGetJobDetail, useGetLikeStatus } from '@/services/site/queries';
-import { incrementSiteView, applyToJob, toggleSiteLike } from '@/services/site/api';
+import { incrementSiteView, applyToJob, toggleSiteLike, deleteJobPost } from '@/services/site/api';
 import { useGetMe } from '@/services/auth/queries';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
@@ -129,6 +129,28 @@ export default function SiteDetailPage() {
     onError: (err) => {
       const status = (err as AxiosError)?.response?.status;
       setApplyState(status === 409 ? 'duplicate' : 'error');
+    },
+  });
+
+  // 삭제 뮤테이션
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteJobPost(job!.id),
+    onSuccess: () => {
+      setShowDeleteModal(false);
+      toast.success('삭제되었습니다.');
+      // 삭제된 공고가 모든 목록에서 즉시 사라지도록 무효화
+      qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['jobs-free'] });
+      qc.invalidateQueries({ queryKey: ['favorite-sites'] });
+      qc.invalidateQueries({ queryKey: ['my-recent-posts'] });
+      qc.invalidateQueries({ queryKey: ['my-job-postings'] }); // 지원자 관리
+      qc.invalidateQueries({ queryKey: ['user-post-list'] });  // 내 글 관리
+      qc.invalidateQueries({ queryKey: ['user-post-count'] });
+      router.back();
+    },
+    onError: () => {
+      setShowDeleteModal(false);
+      toast.error('삭제에 실패했습니다.');
     },
   });
 
@@ -503,8 +525,12 @@ export default function SiteDetailPage() {
             <TouchableOpacity style={s.modalBtnSecondary} onPress={() => setShowDeleteModal(false)}>
               <Text style={s.modalBtnSecondaryText}>취소</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={s.modalBtnDanger} onPress={() => { /* TODO: delete API */ setShowDeleteModal(false); }}>
-              <Text style={s.modalBtnDangerText}>삭제</Text>
+            <TouchableOpacity
+              style={s.modalBtnDanger}
+              onPress={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              <Text style={s.modalBtnDangerText}>{deleteMutation.isPending ? '삭제 중...' : '삭제'}</Text>
             </TouchableOpacity>
           </View>
         </View>
