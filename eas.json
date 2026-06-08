@@ -17,7 +17,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://lightbyssx.store",
+        "EXPO_PUBLIC_API_URL": "https://lightby.co.kr",
         "EXPO_PUBLIC_KAKAO_REST_API_KEY": "81dfce2f760c6ddbdc55db21c341419f",
         "EXPO_PUBLIC_KAKAO_REDIRECT_URI": "http://localhost:3000/auth/kakao",
         "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "89b2edd8a00e96465bb62815518d2c62",
@@ -28,7 +28,7 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://lightbyssx.store",
+        "EXPO_PUBLIC_API_URL": "https://lightby.co.kr",
         "EXPO_PUBLIC_KAKAO_REST_API_KEY": "81dfce2f760c6ddbdc55db21c341419f",
         "EXPO_PUBLIC_KAKAO_REDIRECT_URI": "http://localhost:3000/auth/kakao",
         "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "89b2edd8a00e96465bb62815518d2c62",
