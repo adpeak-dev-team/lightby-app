@@ -295,7 +295,7 @@ export default function SiteDetailPage() {
         <View style={s.section}>
           {/* 급여정보 */}
           <View style={s.card}>
-            <SectionTitle label="급여정보" color="#ef4444" />
+            <SectionTitle label="급여정보" color="#10b981" />
             {!!job.base_pay && (
               <View style={s.salaryRow}>
                 <Text style={s.salaryLabel}>기본급</Text>
@@ -319,7 +319,7 @@ export default function SiteDetailPage() {
 
           {/* 현장정보 */}
           <View style={s.card}>
-            <SectionTitle label="현장정보" color="#a855f7" />
+            <SectionTitle label="현장정보" color="#9ca3af" />
             <View style={s.infoGrid}>
               {[
                 { label: '시행사', value: job.enforcement },
@@ -338,7 +338,7 @@ export default function SiteDetailPage() {
 
           {/* 지원정보 */}
           <View style={s.card}>
-            <SectionTitle label="지원정보" color="#0ea5e9" />
+            <SectionTitle label="지원정보" color="#9ca3af" />
             <View style={s.infoGrid}>
               {[
                 { label: '업종', value: industry },
@@ -360,7 +360,7 @@ export default function SiteDetailPage() {
           {[job.meal_expense, job.transport_expense, job.housing, job.accommodation_expenses,
             job.daily_expense, job.business_expense, job.promotion].some(Boolean) && (
             <View style={s.card}>
-              <SectionTitle label="영업지원 및 복지" color="#f97316" />
+              <SectionTitle label="영업지원 및 복지" color="#9ca3af" />
               <View style={s.welfareGrid}>
                 {[
                   { label: '식사', value: job.meal_expense },
@@ -389,7 +389,7 @@ export default function SiteDetailPage() {
         {/* ── 근무지역 (front 순서: 상세 모집내용 앞) ── */}
         <View style={[s.section, { paddingTop: 0 }]}>
           <View style={s.card}>
-            <SectionTitle label="근무지역" color="#ec4899" />
+            <SectionTitle label="근무지역" color="#9ca3af" />
             {Array.isArray(job.regions) && job.regions.length > 0 && (
               <View style={s.regionChips}>
                 {job.regions.map((r, i) => (
@@ -433,7 +433,7 @@ export default function SiteDetailPage() {
         {/* ── 상세 모집내용 (front 순서: 근무지역 뒤) ── */}
         <View style={[s.section, { paddingTop: 0, paddingBottom: 16 }]}>
           <View style={s.card}>
-            <SectionTitle label="상세 모집내용" color="#0ea5e9" />
+            <SectionTitle label="상세 모집내용" color="#9ca3af" />
             <View style={s.detailContentBox}>
               <Text style={s.detailContentText}>{job.detail_content || '상세 내용이 없습니다.'}</Text>
             </View>

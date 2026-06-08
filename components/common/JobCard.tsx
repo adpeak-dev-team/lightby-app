@@ -15,6 +15,8 @@ export interface JobItem {
   feeType: string;
   fee: string;
   tags: string[];
+  industries?: string[];
+  jobCategories?: string[];
   icons?: number[];
 }
 
@@ -23,11 +25,27 @@ interface JobCardProps {
   onPress?: (job: JobItem) => void;
 }
 
+// 업종/직종 구분 색 (업종=앰버, 직종=그린) — 금액(sky)과 겹치지 않도록
+const INDUSTRY_COLOR = { bg: '#fffbeb', text: '#d97706', border: '#fde68a' };
+const JOB_COLOR = { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' };
+
+// 업종/직종이 분리돼 있으면 타입별 색, 없으면 기존 다색 순환으로 폴백
 const TAG_COLORS = [
   { bg: '#fff1f2', text: '#e11d48', border: '#fecdd3' },
   { bg: '#eef2ff', text: '#4f46e5', border: '#c7d2fe' },
   { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
 ];
+
+function buildTags(job: JobItem): { label: string; c: { bg: string; text: string; border: string } }[] {
+  const hasTyped = (job.industries?.length ?? 0) > 0 || (job.jobCategories?.length ?? 0) > 0;
+  if (hasTyped) {
+    return [
+      ...(job.industries ?? []).map((label) => ({ label, c: INDUSTRY_COLOR })),
+      ...(job.jobCategories ?? []).map((label) => ({ label, c: JOB_COLOR })),
+    ];
+  }
+  return job.tags.map((label, i) => ({ label, c: TAG_COLORS[i % TAG_COLORS.length] }));
+}
 
 export function JobCard({ job, onPress }: JobCardProps) {
   const imageUri = job.thumbnail ? getImageUrl(job.thumbnail) : null;
@@ -72,19 +90,20 @@ export function JobCard({ job, onPress }: JobCardProps) {
             <Text style={styles.fee}>{job.fee}</Text>
           </View>
 
-          {/* 태그 — 무조건 한 줄, 넘치면 잘림 */}
-          {job.tags.length > 0 && (
-            <View style={styles.tags}>
-              {job.tags.map((tag, i) => {
-                const c = TAG_COLORS[i % TAG_COLORS.length];
-                return (
-                  <View key={tag} style={[styles.tag, { backgroundColor: c.bg, borderColor: c.border }]}>
-                    <Text style={[styles.tagText, { color: c.text }]} numberOfLines={1}>{tag}</Text>
+          {/* 태그 — 업종(블루)/직종(그린)별 색, 무조건 한 줄 */}
+          {(() => {
+            const tagItems = buildTags(job);
+            if (tagItems.length === 0) return null;
+            return (
+              <View style={styles.tags}>
+                {tagItems.map((t, i) => (
+                  <View key={`${t.label}-${i}`} style={[styles.tag, { backgroundColor: t.c.bg, borderColor: t.c.border }]}>
+                    <Text style={[styles.tagText, { color: t.c.text }]} numberOfLines={1}>{t.label}</Text>
                   </View>
-                );
-              })}
-            </View>
-          )}
+                ))}
+              </View>
+            );
+          })()}
         </View>
       </View>
 
