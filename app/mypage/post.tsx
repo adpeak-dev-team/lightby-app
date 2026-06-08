@@ -59,6 +59,12 @@ function JobPostList() {
       await deleteJobPost(deleteTargetId);
       qc.invalidateQueries({ queryKey: USER_POST_KEYS.jobs });
       qc.invalidateQueries({ queryKey: USER_POST_KEYS.count });
+      // 삭제된 공고가 다른 목록에서도 즉시 사라지도록 무효화
+      qc.invalidateQueries({ queryKey: ['my-job-postings'] }); // 지원자 관리
+      qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['jobs-free'] });
+      qc.invalidateQueries({ queryKey: ['favorite-sites'] });
+      qc.invalidateQueries({ queryKey: ['my-recent-posts'] });
     } finally {
       setIsDeleting(false);
       setDeleteTargetId(null);
