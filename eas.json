@@ -41,8 +41,7 @@
     "production": {
       "ios": {
         "appleId": "adpeaka@gmail.com",
-        "ascAppId": "여기에_App_Store_Connect_앱_ID_입력",
-        "appleTeamId": "여기에_Apple_Team_ID_입력"
+        "ascAppId": "6777881042"
       }
     }
   }
