@@ -1,0 +1,49 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://lightbyssx.store",
+        "EXPO_PUBLIC_KAKAO_REST_API_KEY": "81dfce2f760c6ddbdc55db21c341419f",
+        "EXPO_PUBLIC_KAKAO_REDIRECT_URI": "http://localhost:3000/auth/kakao",
+        "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "89b2edd8a00e96465bb62815518d2c62",
+        "EXPO_PUBLIC_KAKAO_JS_KEY": "27e15e4c6bade9a7140b016cbeae1300",
+        "EXPO_PUBLIC_IMAGE_PREFIX": "https://storage.googleapis.com/lightby/"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://lightbyssx.store",
+        "EXPO_PUBLIC_KAKAO_REST_API_KEY": "81dfce2f760c6ddbdc55db21c341419f",
+        "EXPO_PUBLIC_KAKAO_REDIRECT_URI": "http://localhost:3000/auth/kakao",
+        "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "89b2edd8a00e96465bb62815518d2c62",
+        "EXPO_PUBLIC_KAKAO_JS_KEY": "27e15e4c6bade9a7140b016cbeae1300",
+        "EXPO_PUBLIC_IMAGE_PREFIX": "https://storage.googleapis.com/lightby/"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "adpeaka@gmail.com",
+        "ascAppId": "여기에_App_Store_Connect_앱_ID_입력",
+        "appleTeamId": "여기에_Apple_Team_ID_입력"
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useSignIn } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import { getPreferences } from '@/services/user/api';
@@ -126,6 +127,16 @@ export default function LoginPage() {
           <Text style={s.kakaoText}>카카오로 시작하기</Text>
         </TouchableOpacity>
 
+        {Platform.OS === 'ios' && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={12}
+            style={s.appleBtn}
+            onPress={() => router.push('/auth/apple')}
+          />
+        )}
+
         <View style={s.footer}>
           <Text style={s.footerText}>아직 계정이 없으신가요? </Text>
           <TouchableOpacity onPress={() => router.push('/auth/register')}>
@@ -163,6 +174,7 @@ const s = StyleSheet.create({
   dividerText: { fontSize: 11, color: '#9ca3af', fontWeight: '500', flexShrink: 1, textAlign: 'center' },
   kakaoBtn: { backgroundColor: '#FEE500', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   kakaoText: { color: '#191919', fontWeight: '700', fontSize: 15 },
+  appleBtn: { height: 48, marginTop: 10 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   footerText: { fontSize: 13, color: '#6b7280' },
   footerLink: { fontSize: 13, color: '#0ea5e9', fontWeight: '700', textDecorationLine: 'underline' },
