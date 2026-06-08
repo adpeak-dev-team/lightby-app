@@ -5,6 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useSignIn } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
@@ -61,8 +62,22 @@ export default function LoginPage() {
     );
   };
 
+  // 로그인 화면은 replace(로그아웃/세션만료/소셜취소)로도 진입하므로 스택에 이전 화면이
+  // 없을 수 있다 → 스와이프 뒤로가기가 불가능. 항상 동작하는 닫기 버튼을 제공한다.
+  const handleClose = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableOpacity
+        style={[s.closeBtn, { top: insets.top + 8 }]}
+        onPress={handleClose}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="close" size={28} color="#374151" />
+      </TouchableOpacity>
       <ScrollView
         contentContainerStyle={[s.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
@@ -150,6 +165,7 @@ export default function LoginPage() {
 
 const s = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  closeBtn: { position: 'absolute', left: 16, zIndex: 10, padding: 4 },
   logoWrap: { alignItems: 'center', marginBottom: 32, marginTop: 8 },
   logo: { width: 160, height: 56, marginBottom: 16 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#111827' },
