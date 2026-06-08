@@ -63,7 +63,7 @@ export default function LoginPage() {
   };
 
   // 로그인 화면은 replace(로그아웃/세션만료/소셜취소)로도 진입하므로 스택에 이전 화면이
-  // 없을 수 있다 → 스와이프 뒤로가기가 불가능. 항상 동작하는 닫기 버튼을 제공한다.
+  // 없을 수 있다 → 스와이프 뒤로가기가 불가능. 항상 동작하는 뒤로 버튼을 제공한다.
   const handleClose = () => {
     if (router.canGoBack()) router.back();
     else router.replace('/');
@@ -76,7 +76,7 @@ export default function LoginPage() {
         onPress={handleClose}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons name="close" size={28} color="#374151" />
+        <Ionicons name="arrow-back" size={26} color="#374151" />
       </TouchableOpacity>
       <ScrollView
         contentContainerStyle={[s.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
