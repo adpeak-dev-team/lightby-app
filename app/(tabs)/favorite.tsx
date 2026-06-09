@@ -5,6 +5,7 @@ import {
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -26,6 +27,7 @@ const TABS: { key: Tab; label: string }[] = [
 export default function FavoritePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<Tab>('regions');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [prefsVisible, setPrefsVisible] = useState(false);
@@ -175,7 +177,7 @@ export default function FavoritePage() {
 
       {/* 관심 설정 모달 */}
       <Modal visible={prefsVisible} animationType="slide" onRequestClose={() => setPrefsVisible(false)}>
-        <View style={s.modalContainer}>
+        <View style={[s.modalContainer, { paddingTop: insets.top }]}>
           <View style={s.modalHeader}>
             <Text style={s.modalTitle}>관심 설정</Text>
             <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7}>
