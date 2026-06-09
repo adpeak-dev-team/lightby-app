@@ -6,7 +6,7 @@ import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
 import Header from '@/components/common/Header';
@@ -56,7 +56,6 @@ const MENU_ITEMS: MenuItem[] = [
 
 export default function MyPage() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [prefsVisible, setPrefsVisible] = useState(false);
@@ -226,18 +225,22 @@ export default function MyPage() {
         animationType="slide"
         onRequestClose={() => setPrefsVisible(false)}
       >
-        <View style={s.modalContainer}>
-          <View style={[s.modalHeader, { paddingTop: insets.top + 12 }]}>
-            <Text style={s.modalTitle}>맞춤 정보 설정</Text>
-            <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7}>
-              <Ionicons name="close" size={24} color="#374151" />
-            </TouchableOpacity>
-          </View>
-          <PreferencesForm
-            buttonText="관심 설정 저장"
-            onComplete={() => setPrefsVisible(false)}
-          />
-        </View>
+        {/* RN Modal은 루트 SafeAreaProvider 밖에 떠서 insets가 0이 되므로
+            모달 내부에 자체 SafeAreaProvider를 둬서 노치/상태바 영역을 확보한다 */}
+        <SafeAreaProvider>
+          <SafeAreaView style={s.modalContainer} edges={['top']}>
+            <View style={s.modalHeader}>
+              <Text style={s.modalTitle}>맞춤 정보 설정</Text>
+              <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7} hitSlop={10}>
+                <Ionicons name="close" size={24} color="#374151" />
+              </TouchableOpacity>
+            </View>
+            <PreferencesForm
+              buttonText="관심 설정 저장"
+              onComplete={() => setPrefsVisible(false)}
+            />
+          </SafeAreaView>
+        </SafeAreaProvider>
       </Modal>
     </View>
   );
@@ -324,7 +327,7 @@ const s = StyleSheet.create({
   modalContainer: { flex: 1, backgroundColor: '#fff' },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16,
+    paddingHorizontal: 20, paddingTop: 14, paddingBottom: 14,
     borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
   },
   modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827' },

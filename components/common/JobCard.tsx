@@ -4,7 +4,7 @@ import {
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
+import { ICON_LIST, ICON_COLORS, industries as INDUSTRY_LIST } from '@/lib/constants';
 import { getImageUrl } from '@/lib/lib';
 
 export interface JobItem {
@@ -29,13 +29,6 @@ interface JobCardProps {
 const INDUSTRY_COLOR = { bg: '#fffbeb', text: '#d97706', border: '#fde68a' };
 const JOB_COLOR = { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' };
 
-// 업종/직종이 분리돼 있으면 타입별 색, 없으면 기존 다색 순환으로 폴백
-const TAG_COLORS = [
-  { bg: '#fff1f2', text: '#e11d48', border: '#fecdd3' },
-  { bg: '#eef2ff', text: '#4f46e5', border: '#c7d2fe' },
-  { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
-];
-
 function buildTags(job: JobItem): { label: string; c: { bg: string; text: string; border: string } }[] {
   const hasTyped = (job.industries?.length ?? 0) > 0 || (job.jobCategories?.length ?? 0) > 0;
   if (hasTyped) {
@@ -44,7 +37,12 @@ function buildTags(job: JobItem): { label: string; c: { bg: string; text: string
       ...(job.jobCategories ?? []).map((label) => ({ label, c: JOB_COLOR })),
     ];
   }
-  return job.tags.map((label, i) => ({ label, c: TAG_COLORS[i % TAG_COLORS.length] }));
+  // industries/jobCategories가 분리돼 오지 않는 화면(관심/맞춤/찜 목록)에서는
+  // tags 문자열을 업종 목록과 대조해 업종(앰버)/직종(그린) 2색으로 분류한다.
+  return job.tags.map((label) => ({
+    label,
+    c: INDUSTRY_LIST.includes(label) ? INDUSTRY_COLOR : JOB_COLOR,
+  }));
 }
 
 export function JobCard({ job, onPress }: JobCardProps) {
