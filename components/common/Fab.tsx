@@ -27,7 +27,7 @@ export function Fab({ label, onPress, icon = 'add-circle', bottom = 24 }: FabPro
           end={{ x: 1, y: 0 }}
           style={s.fab}
         >
-          <Ionicons name={icon} size={18} color="#fff" />
+          <Ionicons name={icon} size={20} color="#fff" />
           <Text style={s.label}>{label}</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -38,21 +38,21 @@ export function Fab({ label, onPress, icon = 'add-circle', bottom = 24 }: FabPro
 const s = StyleSheet.create({
   wrap: {
     position: 'absolute',
-    right: 16,
+    right: 12, // right-3
   },
   fab: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingLeft: 14,
-    paddingRight: 18,
-    paddingVertical: 10,
-    borderRadius: Radius.pill,
+    gap: 3, // gap-0.5
+    paddingLeft: 12, // pl-3
+    paddingRight: 18, // pr-4.5
+    paddingVertical: 8, // py-2
+    borderRadius: Radius.pill, // rounded-full
     ...Shadow.fab,
   },
   label: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 12, // text-xs
+    fontWeight: '600', // font-semibold
   },
 });

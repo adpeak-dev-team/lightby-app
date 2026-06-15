@@ -6,6 +6,11 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { CommunityItem } from '@/services/community/types';
 import { Colors, Radius, flatCard } from '@/lib/theme';
+import { COMMUNITY_CATEGORY_LABELS, CommunityCategory } from '@/lib/communityCategory';
+
+function isCommunityCategory(v: unknown): v is CommunityCategory {
+  return v === 'notice' || v === 'news';
+}
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -33,7 +38,16 @@ export function CommunityCard({ item, onPress }: Props) {
     <TouchableOpacity style={s.card} onPress={onPress} activeOpacity={0.85}>
       <View style={s.body}>
         <View style={s.textBlock}>
-          <Text style={s.title} numberOfLines={2}>{item.title}</Text>
+          <View style={s.titleRow}>
+            {isCommunityCategory(item.category) && (
+              <View style={[s.catBadge, item.category === 'notice' ? s.catNotice : s.catNews]}>
+                <Text style={[s.catText, item.category === 'notice' ? s.catTextNotice : s.catTextNews]}>
+                  {COMMUNITY_CATEGORY_LABELS[item.category]}
+                </Text>
+              </View>
+            )}
+            <Text style={s.title} numberOfLines={2}>{item.title}</Text>
+          </View>
           <Text style={s.content} numberOfLines={2}>{item.content}</Text>
         </View>
 
@@ -91,7 +105,24 @@ const s = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+  },
+  // 카테고리 배지 (공지=rose-100/500, 뉴스=primary-100/500)
+  catBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  catNotice: { backgroundColor: '#ffe4e6' }, // rose-100
+  catNews: { backgroundColor: '#dbeafe' }, // primary-100
+  catText: { fontSize: 11, fontWeight: '700' },
+  catTextNotice: { color: '#f43f5e' }, // rose-500
+  catTextNews: { color: '#3b82f6' }, // primary-500
   title: {
+    flex: 1,
     fontSize: 16,
     fontWeight: '700',
     color: '#0f172a',

@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, BannerItem } from './api';
-import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary } from './types';
+import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, getMainStats, BannerItem } from './api';
+import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary, MainStats } from './types';
 import { useGetMe } from '@/services/auth/queries';
 
 export function useGetJobDetail(id: string) {
@@ -64,6 +64,15 @@ export function useGetBanners() {
     queryKey: ['banners'],
     queryFn: getBanners,
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useGetMainStats() {
+  return useQuery<MainStats>({
+    queryKey: ['mainStats'],
+    queryFn: getMainStats,
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 60, // 실시간 방문자: 1분마다 갱신
   });
 }
 

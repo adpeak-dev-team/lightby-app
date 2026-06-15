@@ -3,6 +3,7 @@ import {
   View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,16 +12,19 @@ import { CommunityCard } from '@/components/common/CommunityCard';
 import { Fab } from '@/components/common/Fab';
 import { useGetCommunityPosts } from '@/services/community/queries';
 import { useRequireLogin } from '@/hooks/use-require-login';
+import { COMMUNITY_TABS, CommunityCategory } from '@/lib/communityCategory';
 
 export default function CommunityPage() {
   const router = useRouter();
   const { requireLogin, loginPrompt } = useRequireLogin('로그인 후 현장소통을 이용할 수 있습니다.');
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
+  const [focused, setFocused] = useState(false);
+  const [tab, setTab] = useState<'all' | CommunityCategory>('all');
 
   const {
     data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage,
-  } = useGetCommunityPosts(search);
+  } = useGetCommunityPosts(search, tab === 'all' ? undefined : tab);
 
   // 여러 페이지를 하나의 배열로 평탄화
   const posts = data?.pages.flatMap((p) => p.data) ?? [];
@@ -60,9 +64,42 @@ export default function CommunityPage() {
     <View style={s.container}>
       <Header />
 
-      {/* 검색창 */}
+      {/* 카테고리 탭 (전체/공지/뉴스) + 검색창 */}
       <View style={s.searchWrap}>
-        <View style={s.searchBar}>
+        {/* 오늘의 영업운 진입 버튼 */}
+        <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/fortune')}>
+          <LinearGradient
+            colors={['#fdf2f8', '#fefce8']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={s.fortuneBtn}
+          >
+            <Text style={s.fortuneEmoji}>🔮</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={s.fortuneTitle}>오늘의 영업운</Text>
+              <Text style={s.fortuneSub}>띠를 선택하고 오늘의 운세를 확인하세요</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#64748b" />
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <View style={s.tabs}>
+          {COMMUNITY_TABS.map((t) => {
+            const active = tab === t.key;
+            return (
+              <TouchableOpacity
+                key={t.key}
+                style={[s.tab, active && s.tabActive]}
+                onPress={() => setTab(t.key)}
+                activeOpacity={0.85}
+              >
+                <Text style={[s.tabText, active && s.tabTextActive]}>{t.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <View style={[s.searchBar, focused && s.searchBarFocused]}>
           <Ionicons name="search-outline" size={16} color="#94a3b8" />
           <TextInput
             style={s.searchInput}
@@ -72,6 +109,8 @@ export default function CommunityPage() {
             placeholderTextColor="#94a3b8"
             returnKeyType="search"
             onSubmitEditing={handleSubmit}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             autoCorrect={false}
             autoCapitalize="none"
           />
@@ -80,9 +119,6 @@ export default function CommunityPage() {
               <Ionicons name="close-circle" size={16} color="#94a3b8" />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={handleSubmit} hitSlop={8}>
-            <Ionicons name="arrow-forward-circle" size={20} color="#3b82f6" />
-          </TouchableOpacity>
         </View>
         {!!search && (
           <Text style={s.searchResult}>
@@ -135,25 +171,70 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   searchWrap: {
     backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-    gap: 6,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 10,
+    gap: 8,
+  },
+  // 오늘의 영업운 버튼 (핑크→옐로 그라데)
+  fortuneBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 12, // rounded-xl
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  fortuneEmoji: { fontSize: 24 },
+  fortuneTitle: { fontSize: 14, fontWeight: '700', color: '#334155' },
+  fortuneSub: { fontSize: 12, color: '#64748b' },
+  // 카테고리 탭
+  tabs: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  tab: {
+    paddingHorizontal: 16, // px-4
+    paddingVertical: 6, // py-1.5
+    borderRadius: 999, // rounded-full
+    backgroundColor: '#f8fafc', // bg-slate-50
+  },
+  tabActive: {
+    backgroundColor: '#3b82f6', // bg-primary-500
+  },
+  tabText: {
+    fontSize: 14, // text-sm
+    fontWeight: '600', // font-semibold
+    color: '#64748b', // slate-500
+  },
+  tabTextActive: {
+    color: '#fff',
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    backgroundColor: '#f8fafc', // bg-slate-50
+    borderRadius: 16, // rounded-2xl
+    paddingHorizontal: 16, // px-4
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderColor: 'transparent', // 기본: border-transparent
+  },
+  searchBarFocused: {
+    borderColor: '#3b82f6', // border-primary-500
+    backgroundColor: '#fff',
+    // shadow-xl
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 8,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#0f172a',
+    color: '#1e293b', // text-slate-800
     padding: 0,
   },
   searchResult: { fontSize: 12, color: '#94a3b8', paddingHorizontal: 2 },

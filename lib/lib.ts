@@ -184,3 +184,31 @@ export const getImageUrl = (imagePath: string) => {
     return `${process.env.EXPO_PUBLIC_IMAGE_PREFIX}${imagePath}`;
 }
 
+// 백엔드 썸네일은 원본 파일명 앞에 'T' 접두사가 붙은 리사이즈본이다.
+// (예: .../T1779522639754.png → 원본 .../1779522639754.png)
+// 큰 영역(세로형/대형 썸네일)에 표시할 때는 'T'를 떼어 고해상도 원본을 사용한다.
+export const getOriginalImageUrl = (url: string | null | undefined) => {
+    if (!url) return null;
+    return url.replace(/\/T(\d+\.[^/?#]+)(?=$|[?#])/, '/$1');
+}
+
+// 마감일 기준 D-day. 날짜 없거나 파싱 실패 시 null. (웹 lib/dday와 동일)
+function getDday(endDate?: string | null): number | null {
+    if (!endDate) return null;
+    const end = new Date(endDate);
+    if (Number.isNaN(end.getTime())) return null;
+    end.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.round((end.getTime() - today.getTime()) / 86_400_000);
+}
+
+// 공고 마감일 = 생성일 + N일(기본 10일)로 간주하고 D-day 계산.
+export function ddayFromCreatedAt(createdAt?: string | null, durationDays = 10): number | null {
+    if (!createdAt) return null;
+    const end = new Date(createdAt);
+    if (Number.isNaN(end.getTime())) return null;
+    end.setDate(end.getDate() + durationDays);
+    return getDday(end.toISOString());
+}
+

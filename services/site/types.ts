@@ -11,15 +11,20 @@ export interface JobPostDetail {
   thumbnail: string | null;
   point_content: string | null;
   address: string;
+  address_detail: string | null;
   result_address: string;
   latitude: number | null;
   longitude: number | null;
   regions: string[];
   industries: string[];
   job_categories: string[];
+  enforcement: string;
+  construction: string;
   agency: string;
   name: string;
   phone: string;
+  require_age: string | null;
+  require_gender: string | null;
   career_period: string | null;
   number_people: string | null;
   fee_type: string | null;
@@ -34,8 +39,15 @@ export interface JobPostDetail {
   promotion: string | null;
   base_pay: string | null;
   detail_content: string | null;
+  site_url: string | null;
   product: string;
   icons: string;
+  total_sum?: number;
+  created_at?: string;
+  updated_at?: string;
+  is_display?: number;
+  ad_start_date?: string | null;
+  ad_end_date?: string | null;
   view_count?: number;
 }
 
@@ -51,6 +63,13 @@ export interface JobSummaryResponse {
   jobCategories: string[];
   product: string;
   icons: string | null;
+  is_display?: number; // 1: 진행중, 0: 마감
+  created_at?: string | null; // 공고 생성일 (D-day 계산용)
+}
+
+export interface MainStats {
+  newSiteCount: number;
+  todayVisitors: number;
 }
 
 export interface ApplicationItem {

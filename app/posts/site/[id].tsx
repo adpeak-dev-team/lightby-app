@@ -31,7 +31,7 @@ function toImageUri(path: string): string {
 function SectionTitle({ label, color }: { label: string; color: string }) {
   return (
     <View style={s.sectionTitleRow}>
-      <View style={[s.sectionAccent, { backgroundColor: color }]} />
+      <View style={[s.sectionDot, { backgroundColor: color }]} />
       <Text style={s.sectionTitleText}>{label}</Text>
     </View>
   );
@@ -271,7 +271,7 @@ export default function SiteDetailPage() {
                 style={s.editBtn}
                 onPress={() => router.push({ pathname: '/registration/sitepost-edit/[id]', params: { id } } as never)}
               >
-                <Ionicons name="pencil-outline" size={14} color="#3b82f6" />
+                <Ionicons name="pencil-outline" size={14} color="#fff" />
                 <Text style={s.editBtnText}>수정</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.deleteBtn} onPress={() => setShowDeleteModal(true)}>
@@ -298,26 +298,21 @@ export default function SiteDetailPage() {
             </View>
           )}
 
-          {/* 제목 */}
-          <Text style={s.jobTitle}>{job.subject}</Text>
-
-          {/* FIELD POINT */}
-          {!!job.point_content && (
-            <View style={s.fieldPointCard}>
-              <View style={s.fieldPointHeader}>
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Text style={s.fieldPointLabel}>FIELD POINT</Text>
-              </View>
-              <Text style={s.fieldPointText}>{job.point_content}</Text>
-            </View>
-          )}
+          {/* 제목 + 포인트 */}
+          <View style={s.titleBlock}>
+            <Text style={s.jobTitle}>{job.subject}</Text>
+            {!!job.point_content && (
+              <Text style={s.pointText}>{job.point_content}</Text>
+            )}
+            <View style={s.titleAccentBar} />
+          </View>
         </View>
 
         {/* ── 기본 정보 ── */}
         <View style={s.section}>
           {/* 급여정보 */}
           <View style={s.card}>
-            <SectionTitle label="급여정보" color="#10b981" />
+            <SectionTitle label="급여정보" color="#2563eb" />
             {!!job.base_pay && (
               <View style={s.salaryRow}>
                 <Text style={s.salaryLabel}>기본급</Text>
@@ -329,7 +324,7 @@ export default function SiteDetailPage() {
               feeItems.map((item: any, i: number) => (
                 <View key={i} style={s.salaryRow}>
                   <Text style={s.salaryLabel}>{item.category || `항목 ${i + 1}`}</Text>
-                  <Text style={s.salaryValue}>{item.amount} 만원</Text>
+                  <Text style={s.salaryValue}>{item.amount}{String(item.amount).includes('%') ? '' : ' 만원'}</Text>
                 </View>
               ))
             ) : (
@@ -462,14 +457,14 @@ export default function SiteDetailPage() {
             {!!job.site_url && (
               <TouchableOpacity
                 style={s.siteUrlBox}
-                onPress={() => Linking.openURL(job.site_url)}
+                onPress={() => job.site_url && Linking.openURL(job.site_url)}
                 activeOpacity={0.75}
               >
                 <View style={{ flex: 1 }}>
                   <Text style={s.siteUrlLabel}>공식 사이트</Text>
                   <Text style={s.siteUrlText} numberOfLines={1}>{job.site_url}</Text>
                 </View>
-                <Ionicons name="open-outline" size={16} color="#3b82f6" />
+                <Ionicons name="open-outline" size={16} color="#60a5fa" />
               </TouchableOpacity>
             )}
           </View>
@@ -567,61 +562,60 @@ const s = StyleSheet.create({
   // 요약
   summarySection: { backgroundColor: '#fff', padding: 16, gap: 10 },
   ownerBtns: { flexDirection: 'row', alignSelf: 'flex-end', gap: 8 },
-  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#bfdbfe' },
-  editBtnText: { color: '#3b82f6', fontSize: 14, fontWeight: '400' },
-  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#60a5fa', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8 },
+  editBtnText: { color: '#fff', fontSize: 14, fontWeight: '400' },
+  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#f87171', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8 },
   deleteBtnText: { color: '#fff', fontSize: 14, fontWeight: '400' },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, borderWidth: 1 },
   badgeText: { fontSize: 12, fontWeight: '600' },
   agencyText: { fontSize: 14, color: '#64748b' },
+  titleBlock: { gap: 8 },
   jobTitle: { fontSize: 30, fontWeight: '700', color: '#0f172a', lineHeight: 38 },
-  fieldPointCard: { gap: 8, backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#bfdbfe' },
-  fieldPointHeader: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  fieldPointLabel: { fontSize: 10, fontWeight: '700', color: '#3b82f6', letterSpacing: 1.5 },
-  fieldPointText: { fontSize: 16, fontWeight: '400', color: '#1e3a5f' },
+  pointText: { fontSize: 16, fontWeight: '400', color: '#64748b', lineHeight: 26 },
+  titleAccentBar: { marginTop: 16, height: 4, width: 96, borderRadius: 999, backgroundColor: '#2563eb' },
 
   // 섹션 / 카드
   section: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
-  card: { paddingVertical: 14 }, // 평면형: front처럼 카드 배경/테두리/그림자 없이 흰 배경에 여백으로 구분 (가로 여백은 section에서 통일 관리)
+  card: { paddingVertical: 16 }, // 평면형: front(rounded-2xl p-4)처럼 카드 배경/테두리/그림자 없이 흰 배경에 여백으로 구분 (가로 여백은 section에서 통일 관리)
   cardRow: { flexDirection: 'row', gap: 10 },
   cardHalf: { flex: 1 },
   cardLabel: { fontSize: 13, color: '#64748b', marginBottom: 6 },
   cardValue: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
 
-  // 섹션 제목
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  sectionAccent: { width: 3, height: 16, borderRadius: 2 },
-  sectionTitleText: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  // 섹션 제목 (front: 작은 원형 점 + 제목)
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
+  sectionDot: { width: 6, height: 6, borderRadius: 3 },
+  sectionTitleText: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
 
-  // 급여정보
-  salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f0fdf4', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 8, borderWidth: 1, borderColor: '#bbf7d0' },
+  // 급여정보 (front: primary-50 배경 + primary-600 텍스트)
+  salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8 },
   salaryLabel: { fontSize: 14, color: '#64748b', fontWeight: '500' },
-  salaryValue: { fontSize: 16, fontWeight: '700', color: '#16a34a' },
-  feeTypeText: { fontSize: 14, fontWeight: '500', color: '#0f172a', marginBottom: 10 },
-  emptyFeeBox: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 14, alignItems: 'center' },
+  salaryValue: { fontSize: 16, fontWeight: '700', color: '#2563eb' },
+  feeTypeText: { fontSize: 14, fontWeight: '500', color: '#475569', marginBottom: 12 },
+  emptyFeeBox: { backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' },
   emptyFeeText: { fontSize: 14, color: '#94a3b8' },
 
-  // 현장정보 / 지원정보 그리드
+  // 현장정보 / 지원정보 그리드 (front: bg-slate-50 rounded-xl, 보더 없음)
   infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  infoGridItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f8fafc', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f1f5f9' },
+  infoGridItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f8fafc', borderRadius: 12, padding: 12 },
   infoGridLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
-  infoGridValue: { fontSize: 14, fontWeight: '500', color: '#0f172a' },
+  infoGridValue: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
 
-  // 복지 그리드
-  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  welfareItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f8fafc', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f1f5f9' },
+  // 복지 그리드 (front: bg-slate-50 rounded-xl, 보더 없음)
+  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+  welfareItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f8fafc', borderRadius: 12, padding: 12 },
   welfareLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
-  welfareValue: { fontSize: 14, fontWeight: '500', color: '#0f172a' },
-  promotionBox: { backgroundColor: '#fffbeb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#fde68a' },
+  welfareValue: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
+  promotionBox: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#fef3c7' },
   promotionLabel: { fontSize: 12, fontWeight: '600', color: '#d97706', marginBottom: 4 },
-  promotionValue: { fontSize: 14, fontWeight: '500', color: '#0f172a' },
+  promotionValue: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
 
-  // 상세 내용
-  detailContentBox: { backgroundColor: '#f8fafc', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#f1f5f9', marginBottom: 10 },
-  detailContentText: { fontSize: 16, color: '#334155', lineHeight: 24 },
-  siteUrlBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: '#bfdbfe' },
-  siteUrlLabel: { fontSize: 12, fontWeight: '500', color: '#93c5fd', marginBottom: 2 },
+  // 상세 내용 (front: bg-slate-50 rounded-xl, 보더 없음)
+  detailContentBox: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 16, marginBottom: 16 },
+  detailContentText: { fontSize: 16, color: '#334155', lineHeight: 26 },
+  siteUrlBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#bfdbfe' },
+  siteUrlLabel: { fontSize: 12, fontWeight: '500', color: '#60a5fa', marginBottom: 2 },
   siteUrlText: { fontSize: 14, color: '#1d4ed8', flex: 1 },
 
   // 기본정보 테이블 (하위 호환)
@@ -633,9 +627,9 @@ const s = StyleSheet.create({
   // 근무지역
   regionChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
   regionChip: { backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
-  regionChipText: { fontSize: 14, color: '#3b82f6', fontWeight: '500' },
-  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 12 },
-  addressText: { fontSize: 16, color: '#64748b', flex: 1 },
+  regionChipText: { fontSize: 14, color: '#2563eb', fontWeight: '500' },
+  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  addressText: { fontSize: 16, color: '#475569', flex: 1 },
 
   // 하단 액션 바
   actionBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingTop: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 8 },

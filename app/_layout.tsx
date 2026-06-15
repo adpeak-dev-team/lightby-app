@@ -92,6 +92,7 @@ export default function RootLayout() {
                 <Stack.Screen name="registration/communitypost" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/communitypost-edit/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="map-view" options={{ headerShown: false }} />
+                <Stack.Screen name="fortune" options={{ headerShown: false }} />
             <Stack.Screen name="posts/applicants/[id]" options={{ headerShown: false }} />
               </Stack>
               <StatusBar style="auto" />

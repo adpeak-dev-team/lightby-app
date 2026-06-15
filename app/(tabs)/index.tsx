@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Carousel from 'react-native-reanimated-carousel';
 
 import Header from '@/components/common/Header';
+import MainStats from '@/components/main/MainStats';
 import SearchBar from '@/components/main/SearchBar';
 import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
@@ -16,7 +17,7 @@ import { Fab } from '@/components/common/Fab';
 import { useRequireLogin } from '@/hooks/use-require-login';
 import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
-import { getImageUrl } from '@/lib/lib';
+import { getImageUrl, ddayFromCreatedAt } from '@/lib/lib';
 
 // ─── 타입 변환 ─────────────────────────────────────────────────────────────────
 function toJobItem(job: JobSummaryResponse): JobItem {
@@ -36,6 +37,8 @@ function toJobItem(job: JobSummaryResponse): JobItem {
     industries: (Array.isArray(job.industries) ? job.industries : []).filter(Boolean),
     jobCategories: (Array.isArray(job.jobCategories) ? job.jobCategories : []).filter(Boolean),
     icons,
+    isDisplay: job.is_display === undefined ? true : job.is_display === 1,
+    dday: ddayFromCreatedAt(job.created_at),
   };
 }
 
@@ -45,9 +48,9 @@ const SECTION_CONFIG: Record<SectionType, {
   title: string; subtitle: string;
   icon: keyof typeof Ionicons.glyphMap; iconBg: string; iconColor: string;
 }> = {
-  premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fef3c7', iconColor: '#d97706' },
-  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#3b82f6' },
-  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f1f5f9', iconColor: '#475569' },
+  premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fee2e2', iconColor: '#dc2626' }, // bg-red-100 text-red-600
+  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#2563eb' }, // bg-primary-100 text-primary-600
+  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f1f5f9', iconColor: '#475569' }, // bg-slate-100 text-slate-600
 };
 
 // ─── 스켈레톤 ────────────────────────────────────────────────────────────────
@@ -123,7 +126,7 @@ function Section({
   return (
     <View style={s.sectionWrap}>
       <SectionHeader type={type} />
-      {jobs.map((job) => <JobCard key={job.id} job={job} onPress={onPressJob} />)}
+      {jobs.map((job) => <JobCard key={job.id} job={job} variant={type} onPress={onPressJob} />)}
     </View>
   );
 }
@@ -230,6 +233,7 @@ export default function HomePage() {
   const listHeader = useMemo(() => (
     <View>
       <BannerCarousel />
+      <MainStats />
       <SearchBar
         search={search}
         onSearchChange={setSearch}
@@ -247,7 +251,7 @@ export default function HomePage() {
 
   const renderItem = useCallback(({ item }: { item: ListRow }) => {
     if (item._type === 'skeleton') return <View style={s.freeRow}><SkeletonCard /></View>;
-    return <View style={s.freeRow}><JobCard job={toJobItem(item)} onPress={handlePressJob} /></View>;
+    return <View style={s.freeRow}><JobCard job={toJobItem(item)} variant="free" onPress={handlePressJob} /></View>;
   }, [handlePressJob]);
 
   const listFooter = isFetchingNextPage ? (
@@ -306,7 +310,7 @@ const s = StyleSheet.create({
   sectionIcon: {
     width: 34,
     height: 34,
-    borderRadius: 10,
+    borderRadius: 16, // rounded-2xl
     alignItems: 'center',
     justifyContent: 'center',
   },

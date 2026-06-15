@@ -12,6 +12,7 @@ export interface CommunityItem {
   date: string;
   likes: number;
   comments: number;
+  category?: string | null; // 'notice' | 'news' | null(일반)
 }
 
 export interface Comment {

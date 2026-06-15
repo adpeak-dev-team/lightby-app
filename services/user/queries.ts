@@ -75,10 +75,17 @@ export function useGetUserBoardPostList() {
   });
 }
 
-export function useGetFavoriteSitesInfinite(tab: 'regions' | 'likes', options?: { enabled?: boolean }) {
+export function useGetFavoriteSitesInfinite(
+  tab: 'regions' | 'likes',
+  activeFilters: string[] = ['regions'],
+  options?: { enabled?: boolean },
+) {
   return useInfiniteQuery<FavoriteSiteItem[]>({
-    queryKey: tab === 'regions' ? FAVORITE_KEYS.regions : FAVORITE_KEYS.likes,
-    queryFn: ({ pageParam }) => getFavoriteSites(tab, pageParam as number, LIMIT),
+    queryKey: tab === 'regions'
+      ? [...FAVORITE_KEYS.regions, ...[...activeFilters].sort()]
+      : FAVORITE_KEYS.likes,
+    queryFn: ({ pageParam }) =>
+      getFavoriteSites(tab, pageParam as number, LIMIT, tab === 'regions' ? activeFilters : undefined),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       lastPage.length === LIMIT ? (lastPageParam as number) + LIMIT : undefined,

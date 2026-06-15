@@ -119,7 +119,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
               <Text style={[styles.sheetItemText, sort === opt.value && styles.sheetItemTextActive]}>
                 {opt.label}
               </Text>
-              {sort === opt.value && <Ionicons name="checkmark" size={16} color="#06b6d4" />}
+              {sort === opt.value && <Ionicons name="checkmark" size={16} color="#3b82f6" />}
             </TouchableOpacity>
           ))}
         </Animated.View>
@@ -130,29 +130,35 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16, // px-4
+    paddingVertical: 4, // mb-1 톤
     backgroundColor: '#fff',
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    backgroundColor: '#fff', // 웹 기본: 흰 배경
+    borderRadius: 16, // rounded-2xl
+    paddingHorizontal: 16, // px-4
+    paddingVertical: 8,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: '#f1f5f9', // border-slate-100
   },
   barFocused: {
-    borderColor: '#06b6d4',
+    borderColor: '#3b82f6', // border-primary-500
     backgroundColor: '#fff',
+    // shadow-xl
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 8,
   },
   input: {
     flex: 1,
     fontSize: 14,
-    color: '#0f172a',
+    color: '#1e293b', // text-slate-800
     padding: 0,
   },
   divider: {
@@ -209,14 +215,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   sheetItemActive: {
-    backgroundColor: '#ecfeff',
+    backgroundColor: '#eff6ff', // primary-50
   },
   sheetItemText: {
     fontSize: 14,
     color: '#334155',
   },
   sheetItemTextActive: {
-    color: '#06b6d4',
+    color: '#2563eb', // primary-600
     fontWeight: '600',
   },
 });

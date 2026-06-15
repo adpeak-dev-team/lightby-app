@@ -44,12 +44,12 @@ export default function Header() {
 
       {isLoggedIn ? (
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={15} color="#64748b" />
+          <Ionicons name="log-out-outline" size={15} color={Colors.textMuted} />
           <Text style={styles.logoutText}>로그아웃</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.loginBtn} onPress={() => router.push('/auth/login')}>
-          <Ionicons name="log-in-outline" size={15} color="#fff" />
+          <Ionicons name="person-outline" size={15} color="#fff" />
           <Text style={styles.loginText}>로그인</Text>
         </TouchableOpacity>
       )}
@@ -62,48 +62,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingHorizontal: 16, // px-4
+    paddingTop: 12, // py-3
+    paddingBottom: 12,
     marginBottom: 14,
-    backgroundColor: 'rgba(255,255,255,0.97)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 4,
+    backgroundColor: 'rgba(255,255,255,0.95)', // bg-white/95
+    borderBottomWidth: 1, // border-b border-slate-100 (그림자 대신 보더)
+    borderBottomColor: Colors.border, // #f1f5f9
     width: '100%',
   },
   logo: {
-    width: 100,
+    width: 100, // max-w-25
     height: 32,
   },
   loginBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 7,
-    borderRadius: 999,
+    gap: 6, // gap-1.5
+    backgroundColor: Colors.primary, // bg-primary-500
+    paddingHorizontal: 12, // px-3
+    paddingVertical: 6, // py-1.5
+    borderRadius: 999, // rounded-full
+    // shadow-md shadow-primary-100
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
   },
   loginText: {
     color: '#fff',
-    fontWeight: '800',
-    fontSize: 12,
+    fontWeight: '800', // font-extrabold
+    fontSize: 12, // text-xs
   },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#dbeafe',
-    paddingHorizontal: 16,
-    paddingVertical: 7,
+    gap: 6, // gap-1.5
+    backgroundColor: Colors.bgGray, // bg-slate-100 (#f1f5f9)
+    paddingHorizontal: 12, // px-3
+    paddingVertical: 6, // py-1.5
     borderRadius: 999,
   },
   logoutText: {
-    color: '#64748b',
-    fontWeight: '700',
-    fontSize: 12,
+    color: Colors.textMuted, // text-slate-400 (#94a3b8)
+    fontWeight: '700', // font-bold
+    fontSize: 12, // text-xs
   },
 });
