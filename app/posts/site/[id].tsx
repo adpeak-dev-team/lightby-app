@@ -329,7 +329,7 @@ export default function SiteDetailPage() {
               ))
             ) : (
               <View style={s.emptyFeeBox}>
-                <Text style={s.emptyFeeText}>수수료 정보를 확인해 주세요.</Text>
+                <Text style={s.emptyFeeText}>수수료 정보를 문의해 주세요.</Text>
               </View>
             )}
           </View>
