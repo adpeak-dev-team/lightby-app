@@ -9,7 +9,8 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
@@ -23,7 +24,8 @@
         "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "89b2edd8a00e96465bb62815518d2c62",
         "EXPO_PUBLIC_KAKAO_JS_KEY": "27e15e4c6bade9a7140b016cbeae1300",
         "EXPO_PUBLIC_IMAGE_PREFIX": "https://storage.googleapis.com/lightby/"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
@@ -34,7 +36,8 @@
         "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "89b2edd8a00e96465bb62815518d2c62",
         "EXPO_PUBLIC_KAKAO_JS_KEY": "27e15e4c6bade9a7140b016cbeae1300",
         "EXPO_PUBLIC_IMAGE_PREFIX": "https://storage.googleapis.com/lightby/"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {

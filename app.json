@@ -2,7 +2,7 @@
   "expo": {
     "name": "번개분양",
     "slug": "lightby-app",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "lightbyapp",
@@ -29,7 +29,7 @@
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan",
       "predictiveBackGestureEnabled": false,
-      "versionCode": 1,
+      "versionCode": 6,
       "package": "com.lightby.app"
     },
     "web": {
@@ -54,14 +54,15 @@
       [
         "@react-native-seoul/kakao-login",
         {
-          "kakaoAppKey": "89b2edd8a00e96465bb62815518d2c62"
+          "kakaoAppKey": "89b2edd8a00e96465bb62815518d2c62",
+          "kotlinVersion": "2.1.21"
         }
       ],
       [
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "2.0.21",
+            "kotlinVersion": "2.1.21",
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
             "extraMavenRepos": [
@@ -69,7 +70,8 @@
             ]
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -80,6 +82,12 @@
       "eas": {
         "projectId": "29eeacd2-e120-463a-a2e1-7e10f36d0d80"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/29eeacd2-e120-463a-a2e1-7e10f36d0d80"
     }
   }
 }
