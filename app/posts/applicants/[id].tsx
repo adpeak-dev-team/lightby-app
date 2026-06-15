@@ -91,7 +91,7 @@ function ApplicantListItem({
         {profileUri ? (
           <Image source={{ uri: profileUri }} style={s.avatar} contentFit="cover" />
         ) : (
-          <Ionicons name="person-outline" size={26} color="#9ca3af" />
+          <Ionicons name="person-outline" size={26} color="#94a3b8" />
         )}
       </View>
 
@@ -135,7 +135,7 @@ function ResumeModal({
       <View style={s.sheet}>
         {/* 닫기 버튼 */}
         <TouchableOpacity style={s.closeBtn} onPress={onClose} hitSlop={8}>
-          <Ionicons name="close" size={20} color="#9ca3af" />
+          <Ionicons name="close" size={20} color="#94a3b8" />
         </TouchableOpacity>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -145,7 +145,7 @@ function ResumeModal({
               {profileUri ? (
                 <Image source={{ uri: profileUri }} style={s.profileAvatar} contentFit="cover" />
               ) : (
-                <Ionicons name="person-outline" size={44} color="#9ca3af" />
+                <Ionicons name="person-outline" size={44} color="#94a3b8" />
               )}
             </View>
             <View style={s.profileNameRow}>
@@ -170,7 +170,7 @@ function ResumeModal({
                 </View>
                 <View style={s.contactBtns}>
                   <TouchableOpacity
-                    style={[s.contactBtn, { backgroundColor: '#0ea5e9' }]}
+                    style={[s.contactBtn, { backgroundColor: '#3b82f6' }]}
                     onPress={() => Linking.openURL(`tel:${applicant.phone}`)}
                   >
                     <Ionicons name="call" size={15} color="#fff" />
@@ -194,7 +194,7 @@ function ResumeModal({
           {careers.length > 0 && (
             <View style={s.section}>
               <View style={s.sectionHeader}>
-                <Ionicons name="briefcase-outline" size={15} color="#38bdf8" />
+                <Ionicons name="briefcase-outline" size={15} color="#60a5fa" />
                 <Text style={s.sectionLabel}>경력</Text>
               </View>
               {careers.map((career, i) => (
@@ -220,7 +220,7 @@ function ResumeModal({
           ) : (
             careers.length === 0 && (
               <View style={s.emptyInfo}>
-                <Ionicons name="person-outline" size={16} color="#d1d5db" />
+                <Ionicons name="person-outline" size={16} color="#cbd5e1" />
                 <Text style={s.emptyInfoText}>추가 정보가 없습니다.</Text>
               </View>
             )
@@ -228,7 +228,7 @@ function ResumeModal({
 
           {/* 지원일 */}
           <View style={s.applyDateRow}>
-            <Ionicons name="mail-outline" size={14} color="#d1d5db" />
+            <Ionicons name="mail-outline" size={14} color="#cbd5e1" />
             <Text style={s.applyDateText}>{formatApplyDateFull(applicant.created_at)}</Text>
           </View>
         </ScrollView>
@@ -268,7 +268,7 @@ export default function ApplicantsPage() {
       {/* 네비게이션 */}
       <View style={s.navbar}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={s.navBtn}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>지원자 목록</Text>
         <View style={{ width: 36 }} />
@@ -304,7 +304,7 @@ export default function ApplicantsPage() {
       {/* 비어있을 때 */}
       {!isLoading && applicants.length === 0 && (
         <View style={s.emptyState}>
-          <Ionicons name="person-outline" size={48} color="#e5e7eb" />
+          <Ionicons name="person-outline" size={48} color="#e2e8f0" />
           <Text style={s.emptyText}>아직 지원자가 없습니다.</Text>
         </View>
       )}
@@ -318,50 +318,50 @@ export default function ApplicantsPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
+  container: { flex: 1, backgroundColor: '#f8fafc' },
 
   // 네비게이션
   navbar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 8, paddingVertical: 10,
-    backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBtn: { padding: 6 },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
 
-  countText: { fontSize: 12, fontWeight: '600', color: '#9ca3af', marginHorizontal: 16, marginTop: 14, marginBottom: 4 },
-  countNum: { color: '#374151' },
+  countText: { fontSize: 12, fontWeight: '600', color: '#94a3b8', marginHorizontal: 16, marginTop: 14, marginBottom: 4 },
+  countNum: { color: '#334155' },
 
   // 리스트
   listContent: { padding: 16, gap: 10 },
   listItem: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     backgroundColor: '#fff', borderRadius: 16, padding: 16,
-    borderWidth: 1, borderColor: '#f3f4f6',
+    borderWidth: 1, borderColor: '#f1f5f9',
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1,
   },
   avatarWrap: {
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center',
-    overflow: 'hidden', borderWidth: 2, borderColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden', borderWidth: 2, borderColor: '#f1f5f9',
   },
   avatar: { width: '100%', height: '100%' },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
-  nameText: { fontSize: 15, fontWeight: '700', color: '#111827' },
+  nameText: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  ageText: { fontSize: 13, color: '#9ca3af', fontWeight: '500' },
-  dateText: { fontSize: 11, color: '#d1d5db' },
+  ageText: { fontSize: 13, color: '#94a3b8', fontWeight: '500' },
+  dateText: { fontSize: 10, color: '#cbd5e1' },
 
   // NEW 뱃지
   newBadge: { backgroundColor: '#fef3c7', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999 },
-  newBadgeText: { fontSize: 10, fontWeight: '700', color: '#d97706' },
+  newBadgeText: { fontSize: 10, fontWeight: '800', color: '#d97706' },
 
   // 성별 뱃지
   genderBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
   genderMale: { backgroundColor: '#eff6ff' },
   genderFemale: { backgroundColor: '#fff1f2' },
   genderText: { fontSize: 11, fontWeight: '600' },
-  genderMaleText: { color: '#0ea5e9' },
+  genderMaleText: { color: '#3b82f6' },
   genderFemaleText: { color: '#f43f5e' },
 
   // 스켈레톤
@@ -369,14 +369,14 @@ const s = StyleSheet.create({
   skeletonItem: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     backgroundColor: '#fff', borderRadius: 16, padding: 16,
-    borderWidth: 1, borderColor: '#f3f4f6',
+    borderWidth: 1, borderColor: '#f1f5f9',
   },
-  skeletonAvatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#e5e7eb' },
-  skeletonLine: { height: 14, backgroundColor: '#e5e7eb', borderRadius: 7, width: 80 },
+  skeletonAvatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#e2e8f0' },
+  skeletonLine: { height: 14, backgroundColor: '#e2e8f0', borderRadius: 7, width: 80 },
 
   // 빈 상태
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  emptyText: { fontSize: 14, fontWeight: '600', color: '#d1d5db' },
+  emptyText: { fontSize: 14, fontWeight: '600', color: '#cbd5e1' },
 
   // 모달 시트
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center' },
@@ -391,22 +391,22 @@ const s = StyleSheet.create({
   closeBtn: {
     position: 'absolute', top: 14, right: 14,
     width: 30, height: 30, borderRadius: 15,
-    backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center', zIndex: 1,
+    backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center', zIndex: 1,
   },
-  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: '#e5e7eb', alignSelf: 'center', marginBottom: 16 },
+  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: '#e2e8f0', alignSelf: 'center', marginBottom: 16 },
 
   // 프로필 헤더
   profileHeader: { alignItems: 'center', paddingBottom: 20 },
   profileAvatarWrap: {
     width: 96, height: 96, borderRadius: 48,
-    backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center',
-    overflow: 'hidden', borderWidth: 2, borderColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden', borderWidth: 2, borderColor: '#f1f5f9',
     marginBottom: 14,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6,
   },
   profileAvatar: { width: '100%', height: '100%' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
-  profileName: { fontSize: 20, fontWeight: '700', color: '#111827' },
+  profileName: { fontSize: 20, fontWeight: '700', color: '#0f172a' },
   profileMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
 
   // 전화번호
@@ -416,7 +416,7 @@ const s = StyleSheet.create({
     backgroundColor: '#eff6ff', borderWidth: 1, borderColor: '#bfdbfe',
     borderRadius: 12, paddingHorizontal: 18, paddingVertical: 10,
   },
-  phoneText: { fontSize: 15, fontWeight: '700', color: '#0ea5e9', letterSpacing: 1 },
+  phoneText: { fontSize: 15, fontWeight: '700', color: '#3b82f6', letterSpacing: 1 },
   contactBtns: { flexDirection: 'row', gap: 8, width: '100%' },
   contactBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -424,27 +424,27 @@ const s = StyleSheet.create({
   },
   contactBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
-  divider: { height: 1, backgroundColor: '#f3f4f6', marginBottom: 20 },
+  divider: { height: 1, backgroundColor: '#f1f5f9', marginBottom: 20 },
 
   // 섹션
   section: { marginBottom: 22 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
-  sectionLabel: { fontSize: 12, fontWeight: '700', color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase' },
+  sectionLabel: { fontSize: 12, fontWeight: '700', color: '#60a5fa', letterSpacing: 1, textTransform: 'uppercase' },
 
   // 경력
   careerItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 8 },
   careerDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#93c5fd', marginTop: 8 },
-  careerText: { flex: 1, fontSize: 14, color: '#374151', lineHeight: 22 },
+  careerText: { flex: 1, fontSize: 14, color: '#334155', lineHeight: 22 },
 
   // 자기소개
-  introBox: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' },
-  introText: { fontSize: 14, color: '#4b5563', lineHeight: 22 },
+  introBox: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#f1f5f9' },
+  introText: { fontSize: 14, color: '#475569', lineHeight: 22 },
 
   // 추가정보 없음
   emptyInfo: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 20 },
-  emptyInfoText: { fontSize: 14, color: '#d1d5db' },
+  emptyInfoText: { fontSize: 14, color: '#cbd5e1' },
 
   // 지원일
   applyDateRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 8 },
-  applyDateText: { fontSize: 13, color: '#9ca3af' },
+  applyDateText: { fontSize: 13, color: '#94a3b8' },
 });

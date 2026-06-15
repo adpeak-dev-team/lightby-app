@@ -21,7 +21,7 @@ export default function PostTopNav({ title, onBack, rightActions }: Props) {
   return (
     <View style={s.navbar}>
       <TouchableOpacity onPress={onBack} hitSlop={8} style={s.navBtn}>
-        <Ionicons name="chevron-back" size={24} color="#111827" />
+        <Ionicons name="chevron-back" size={24} color="#0f172a" />
       </TouchableOpacity>
       <Text style={s.navTitle}>{title}</Text>
       <View style={s.navRight}>
@@ -36,7 +36,7 @@ export default function PostTopNav({ title, onBack, rightActions }: Props) {
             <Ionicons
               name={action.icon as any}
               size={22}
-              color={action.color ?? '#111827'}
+              color={action.color ?? '#0f172a'}
             />
           </TouchableOpacity>
         ))}
@@ -49,10 +49,10 @@ const s = StyleSheet.create({
   navbar: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 8, paddingVertical: 10,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
     backgroundColor: '#fff',
   },
   navBtn: { padding: 6 },
-  navTitle: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: '#0f172a' },
   navRight: { flexDirection: 'row', alignItems: 'center' },
 });

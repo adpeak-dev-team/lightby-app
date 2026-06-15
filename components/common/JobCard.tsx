@@ -5,7 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS, industries as INDUSTRY_LIST } from '@/lib/constants';
-import { getImageUrl } from '@/lib/lib';
+import { getImageUrl, getOriginalImageUrl } from '@/lib/lib';
 
 export interface JobItem {
   id: number;
@@ -18,11 +18,28 @@ export interface JobItem {
   industries?: string[];
   jobCategories?: string[];
   icons?: number[];
+  isDisplay?: boolean; // true: 진행중, false: 마감
+  dday?: number | null; // 마감까지 남은 일수 (생성일+10일 기준). null이면 미정
+}
+
+// 마감 D-day 배지 색 (웹과 동일: 연한 배경 + 글자색)
+const BADGE_BLUE = { bg: '#eff6ff', text: '#1d4ed8' }; // 여유 (primary-50 / primary-700)
+const BADGE_RED = { bg: '#fff1f2', text: '#e11d48' }; // 임박 D-3 미만 (rose-50 / rose-600)
+const BADGE_GRAY = { bg: '#f1f5f9', text: '#64748b' }; // 마감 (slate-100 / slate-500)
+
+function getDeadlineBadge(job: JobItem): { label: string; c: { bg: string; text: string } } | null {
+  if (job.isDisplay === false) return { label: '마감', c: BADGE_GRAY };
+  const dday = job.dday;
+  if (dday == null) return null;
+  const label = dday <= 0 ? 'D-DAY' : `D-${dday}`;
+  return { label, c: dday < 3 ? BADGE_RED : BADGE_BLUE };
 }
 
 interface JobCardProps {
   job: JobItem;
   onPress?: (job: JobItem) => void;
+  /** home 전용: 프리미엄=세로형(풀폭 썸네일), top=가로형 대형 썸네일, free=기본 가로형 */
+  variant?: 'premium' | 'top' | 'free';
 }
 
 // 업종/직종 구분 색 (업종=앰버, 직종=그린) — 금액(sky)과 겹치지 않도록
@@ -45,8 +62,15 @@ function buildTags(job: JobItem): { label: string; c: { bg: string; text: string
   }));
 }
 
-export function JobCard({ job, onPress }: JobCardProps) {
-  const imageUri = job.thumbnail ? getImageUrl(job.thumbnail) : null;
+export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
+  const vertical = variant === 'premium';
+  const useOriginal = variant === 'premium' || variant === 'top';
+  const raw = job.thumbnail ? getImageUrl(job.thumbnail) : null;
+  const imageUri = useOriginal ? getOriginalImageUrl(raw) : raw;
+
+  // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
+  const thumbWrapStyle =
+    vertical ? styles.thumbWrapVertical : variant === 'top' ? styles.thumbWrapTop : styles.thumbWrap;
 
   return (
     <TouchableOpacity
@@ -54,9 +78,20 @@ export function JobCard({ job, onPress }: JobCardProps) {
       onPress={() => onPress?.(job)}
       activeOpacity={0.85}
     >
-      <View style={styles.row}>
+      {/* 마감 D-day 배지 */}
+      {(() => {
+        const badge = getDeadlineBadge(job);
+        if (!badge) return null;
+        return (
+          <View style={[styles.ddayBadge, { backgroundColor: badge.c.bg }]}>
+            <Text style={[styles.ddayText, { color: badge.c.text }]}>{badge.label}</Text>
+          </View>
+        );
+      })()}
+
+      <View style={vertical ? styles.col : styles.row}>
         {/* 썸네일 */}
-        <View style={styles.thumbWrap}>
+        <View style={thumbWrapStyle}>
           {imageUri ? (
             <Image
               source={{ uri: imageUri }}
@@ -66,13 +101,13 @@ export function JobCard({ job, onPress }: JobCardProps) {
             />
           ) : (
             <View style={[styles.thumb, styles.thumbPlaceholder]}>
-              <Ionicons name="image-outline" size={24} color="#d1d5db" />
+              <Ionicons name="image-outline" size={24} color="#cbd5e1" />
             </View>
           )}
         </View>
 
         {/* 내용 */}
-        <View style={styles.content}>
+        <View style={vertical ? styles.contentVertical : styles.content}>
           {/* 위치 */}
           <View style={styles.locationRow}>
             <Ionicons name="location-sharp" size={11} color="#b45309" />
@@ -131,11 +166,27 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: '#f1f5f9',
+  },
+  ddayBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  ddayText: {
+    fontSize: 9,
+    fontWeight: '700',
   },
   row: {
     flexDirection: 'row',
     gap: 12,
+  },
+  col: {
+    gap: 10,
   },
   thumbWrap: {
     width: 80,
@@ -144,8 +195,25 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     flexShrink: 0,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
-    backgroundColor: '#f9fafb',
+    borderColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
+  },
+  // 프리미엄: 풀폭 4:3 (보더 없음)
+  thumbWrapVertical: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#f8fafc',
+  },
+  // 지역 TOP: 대형 정사각 썸네일 (보더 없음)
+  thumbWrapTop: {
+    width: 128,
+    height: 128,
+    borderRadius: 10,
+    overflow: 'hidden',
+    flexShrink: 0,
+    backgroundColor: '#f8fafc',
   },
   thumb: {
     width: '100%',
@@ -159,6 +227,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 3,
   },
+  contentVertical: {
+    width: '100%',
+    gap: 3,
+  },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -170,9 +242,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f172a',
     lineHeight: 21,
   },
   feeRow: {
@@ -182,12 +254,12 @@ const styles = StyleSheet.create({
   },
   feeType: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: '#94a3b8',
   },
   fee: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0284c7',
+    color: '#64748b', // text-slate-500 (웹과 동일)
   },
   tags: {
     flexDirection: 'row',
@@ -205,7 +277,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '400',
   },
   badges: {
     flexDirection: 'row',

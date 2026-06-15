@@ -6,6 +6,11 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { CommunityItem } from '@/services/community/types';
 import { Colors, Radius, flatCard } from '@/lib/theme';
+import { COMMUNITY_CATEGORY_LABELS, CommunityCategory } from '@/lib/communityCategory';
+
+function isCommunityCategory(v: unknown): v is CommunityCategory {
+  return v === 'notice' || v === 'news';
+}
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -33,7 +38,16 @@ export function CommunityCard({ item, onPress }: Props) {
     <TouchableOpacity style={s.card} onPress={onPress} activeOpacity={0.85}>
       <View style={s.body}>
         <View style={s.textBlock}>
-          <Text style={s.title} numberOfLines={2}>{item.title}</Text>
+          <View style={s.titleRow}>
+            {isCommunityCategory(item.category) && (
+              <View style={[s.catBadge, item.category === 'notice' ? s.catNotice : s.catNews]}>
+                <Text style={[s.catText, item.category === 'notice' ? s.catTextNotice : s.catTextNews]}>
+                  {COMMUNITY_CATEGORY_LABELS[item.category]}
+                </Text>
+              </View>
+            )}
+            <Text style={s.title} numberOfLines={2}>{item.title}</Text>
+          </View>
           <Text style={s.content} numberOfLines={2}>{item.content}</Text>
         </View>
 
@@ -50,7 +64,7 @@ export function CommunityCard({ item, onPress }: Props) {
             {profileUri ? (
               <Image source={{ uri: profileUri }} style={s.avatarImg} contentFit="cover" />
             ) : (
-              <Ionicons name="person-outline" size={13} color="#9ca3af" />
+              <Ionicons name="person-outline" size={13} color="#94a3b8" />
             )}
           </View>
           <Text style={s.authorText}>{isAnon ? '익명' : item.is_withdrawn ? '탈퇴한 회원' : item.nickname}</Text>
@@ -91,15 +105,32 @@ const s = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+  },
+  // 카테고리 배지 (공지=rose-100/500, 뉴스=primary-100/500)
+  catBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  catNotice: { backgroundColor: '#ffe4e6' }, // rose-100
+  catNews: { backgroundColor: '#dbeafe' }, // primary-100
+  catText: { fontSize: 11, fontWeight: '700' },
+  catTextNotice: { color: '#f43f5e' }, // rose-500
+  catTextNews: { color: '#3b82f6' }, // primary-500
   title: {
-    fontSize: 15,
+    flex: 1,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f172a',
     lineHeight: 22,
   },
   content: {
-    fontSize: 13,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#64748b',
     lineHeight: 19,
   },
   thumb: {
@@ -110,7 +141,7 @@ const s = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
     marginBottom: 10,
   },
   footer: {
@@ -127,7 +158,7 @@ const s = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -137,16 +168,16 @@ const s = StyleSheet.create({
     height: '100%',
   },
   authorText: {
-    fontSize: 12,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#64748b',
   },
   dot: {
-    fontSize: 11,
-    color: '#d1d5db',
+    fontSize: 12,
+    color: '#cbd5e1',
   },
   dateText: {
-    fontSize: 11,
-    color: '#9ca3af',
+    fontSize: 12,
+    color: '#94a3b8',
   },
   statsRow: {
     flexDirection: 'row',
@@ -158,7 +189,7 @@ const s = StyleSheet.create({
     gap: 3,
   },
   statNum: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '400',
   },
 });

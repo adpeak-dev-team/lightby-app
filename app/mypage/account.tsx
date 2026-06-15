@@ -137,7 +137,7 @@ export default function AccountPage() {
   if (isLoading) {
     return (
       <View style={s.loadingWrap}>
-        <ActivityIndicator size="large" color="#38bdf8" />
+        <ActivityIndicator size="large" color="#60a5fa" />
       </View>
     );
   }
@@ -150,7 +150,7 @@ export default function AccountPage() {
       {/* 네비 */}
       <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>계정 설정</Text>
         <View style={{ width: 40 }} />
@@ -164,7 +164,7 @@ export default function AccountPage() {
               <Image source={{ uri: avatarUri }} style={s.avatar} />
             ) : (
               <View style={[s.avatar, s.avatarPlaceholder]}>
-                <Ionicons name="person" size={36} color="#9ca3af" />
+                <Ionicons name="person" size={36} color="#94a3b8" />
               </View>
             )}
             <TouchableOpacity
@@ -218,7 +218,7 @@ export default function AccountPage() {
                     value={newNickname}
                     onChangeText={setNewNickname}
                     placeholder="새 닉네임 입력"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                   />
                   <TouchableOpacity
                     style={[s.actionBtn, updateNicknameMutation.isPending && s.btnDisabled]}
@@ -255,7 +255,7 @@ export default function AccountPage() {
                     value={newPhone}
                     onChangeText={setNewPhone}
                     placeholder="휴대폰 번호 입력"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                     keyboardType="phone-pad"
                     editable={!authCodeSent}
                   />
@@ -275,7 +275,7 @@ export default function AccountPage() {
                         value={authCode}
                         onChangeText={setAuthCode}
                         placeholder="인증번호 입력"
-                        placeholderTextColor="#9ca3af"
+                        placeholderTextColor="#94a3b8"
                         keyboardType="number-pad"
                       />
                       <TouchableOpacity
@@ -316,7 +316,7 @@ export default function AccountPage() {
                   value={currentPassword}
                   onChangeText={setCurrentPassword}
                   placeholder="현재 비밀번호"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   secureTextEntry
                 />
                 <TextInput
@@ -324,7 +324,7 @@ export default function AccountPage() {
                   value={newPassword}
                   onChangeText={setNewPassword}
                   placeholder="새 비밀번호 (8자 이상)"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   secureTextEntry
                 />
                 <TextInput
@@ -332,7 +332,7 @@ export default function AccountPage() {
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   placeholder="새 비밀번호 확인"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   secureTextEntry
                 />
                 <View style={s.btnRow}>
@@ -373,63 +373,63 @@ export default function AccountPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   scroll: { padding: 16, paddingBottom: 40 },
   avatarSection: { alignItems: 'center', paddingVertical: 24 },
   avatarWrap: { marginBottom: 10, position: 'relative' },
   avatar: { width: 80, height: 80, borderRadius: 40 },
-  avatarPlaceholder: { backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
+  avatarPlaceholder: { backgroundColor: '#e2e8f0', alignItems: 'center', justifyContent: 'center' },
   cameraBtn: {
     position: 'absolute', bottom: 0, right: 0,
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: '#1f2937', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: '#f3f4f6',
+    backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: '#f1f5f9',
   },
-  avatarHint: { fontSize: 11, color: '#60a5fa', textAlign: 'center', marginBottom: 6 },
-  avatarName: { fontSize: 17, fontWeight: '700', color: '#111827' },
+  avatarHint: { fontSize: 12, color: '#60a5fa', textAlign: 'center', marginBottom: 6 },
+  avatarName: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
   card: {
     backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
   },
-  row: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  row: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   rowBig: { paddingVertical: 14 },
   rowHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
-  label: { fontSize: 12, color: '#9ca3af' },
-  value: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginTop: 3 },
-  changeBtn: { fontSize: 13, color: '#0ea5e9', fontWeight: '600' },
+  label: { fontSize: 14, color: '#94a3b8' },
+  value: { fontSize: 14, fontWeight: '500', color: '#1e293b', marginTop: 3 },
+  changeBtn: { fontSize: 14, color: '#3b82f6', fontWeight: '500' },
   editWrap: { gap: 8, marginTop: 8 },
   inputRow: { flexDirection: 'row', gap: 8 },
   input: {
-    flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10,
-    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827',
+    flex: 1, borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#0f172a',
     backgroundColor: '#fff',
   },
-  inputDisabled: { backgroundColor: '#f9fafb' },
+  inputDisabled: { backgroundColor: '#f8fafc' },
   inputFull: {
-    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10,
-    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', backgroundColor: '#fff',
+    borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#0f172a', backgroundColor: '#fff',
   },
-  actionBtn: { backgroundColor: '#0ea5e9', borderRadius: 10, paddingHorizontal: 14, justifyContent: 'center' },
-  actionBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  actionBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 14, justifyContent: 'center' },
+  actionBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   btnDisabled: { opacity: 0.5 },
   timerText: { textAlign: 'right', fontSize: 12, color: '#ef4444', fontWeight: '600' },
   cancelBtn: {
-    alignSelf: 'flex-end', backgroundColor: '#f3f4f6',
+    alignSelf: 'flex-end', backgroundColor: '#f1f5f9',
     borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8,
   },
-  cancelBtnText: { fontSize: 13, color: '#6b7280', fontWeight: '600' },
+  cancelBtnText: { fontSize: 14, color: '#64748b', fontWeight: '500' },
   btnRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 },
-  confirmBtn: { backgroundColor: '#0ea5e9', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
-  confirmBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  footer: { fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 20, lineHeight: 18 },
+  confirmBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
+  confirmBtnText: { color: '#fff', fontSize: 14, fontWeight: '500' },
+  footer: { fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 20, lineHeight: 18 },
   withdrawWrap: { alignItems: 'center', marginTop: 24 },
-  withdrawText: { fontSize: 12, color: '#9ca3af', textDecorationLine: 'underline' },
+  withdrawText: { fontSize: 12, color: '#94a3b8', textDecorationLine: 'underline' },
 });

@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Carousel from 'react-native-reanimated-carousel';
 
 import Header from '@/components/common/Header';
+import MainStats from '@/components/main/MainStats';
 import SearchBar from '@/components/main/SearchBar';
 import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
@@ -16,7 +17,7 @@ import { Fab } from '@/components/common/Fab';
 import { useRequireLogin } from '@/hooks/use-require-login';
 import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
-import { getImageUrl } from '@/lib/lib';
+import { getImageUrl, ddayFromCreatedAt } from '@/lib/lib';
 
 // ─── 타입 변환 ─────────────────────────────────────────────────────────────────
 function toJobItem(job: JobSummaryResponse): JobItem {
@@ -36,6 +37,8 @@ function toJobItem(job: JobSummaryResponse): JobItem {
     industries: (Array.isArray(job.industries) ? job.industries : []).filter(Boolean),
     jobCategories: (Array.isArray(job.jobCategories) ? job.jobCategories : []).filter(Boolean),
     icons,
+    isDisplay: job.is_display === undefined ? true : job.is_display === 1,
+    dday: ddayFromCreatedAt(job.created_at),
   };
 }
 
@@ -45,9 +48,9 @@ const SECTION_CONFIG: Record<SectionType, {
   title: string; subtitle: string;
   icon: keyof typeof Ionicons.glyphMap; iconBg: string; iconColor: string;
 }> = {
-  premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fef3c7', iconColor: '#d97706' },
-  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#e0f2fe', iconColor: '#0ea5e9' },
-  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f3f4f6', iconColor: '#4b5563' },
+  premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fee2e2', iconColor: '#dc2626' }, // bg-red-100 text-red-600
+  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#2563eb' }, // bg-primary-100 text-primary-600
+  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f1f5f9', iconColor: '#475569' }, // bg-slate-100 text-slate-600
 };
 
 // ─── 스켈레톤 ────────────────────────────────────────────────────────────────
@@ -75,13 +78,13 @@ function SkeletonCard() {
   );
 }
 const sk = StyleSheet.create({
-  card: { flexDirection: 'row', gap: 12, backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6' },
-  thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#e5e7eb' },
+  card: { flexDirection: 'row', gap: 12, backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#f1f5f9' },
+  thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#e2e8f0' },
   content: { flex: 1, gap: 8, justifyContent: 'center' },
-  line1: { width: 80, height: 10, backgroundColor: '#e5e7eb', borderRadius: 5 },
-  line2: { width: '90%', height: 14, backgroundColor: '#e5e7eb', borderRadius: 5 },
-  line3: { width: 70, height: 12, backgroundColor: '#e5e7eb', borderRadius: 5 },
-  line4: { width: 100, height: 10, backgroundColor: '#e5e7eb', borderRadius: 5 },
+  line1: { width: 80, height: 10, backgroundColor: '#e2e8f0', borderRadius: 5 },
+  line2: { width: '90%', height: 14, backgroundColor: '#e2e8f0', borderRadius: 5 },
+  line3: { width: 70, height: 12, backgroundColor: '#e2e8f0', borderRadius: 5 },
+  line4: { width: 100, height: 10, backgroundColor: '#e2e8f0', borderRadius: 5 },
 });
 
 // ─── 섹션 헤더 ──────────────────────────────────────────────────────────────
@@ -123,7 +126,7 @@ function Section({
   return (
     <View style={s.sectionWrap}>
       <SectionHeader type={type} />
-      {jobs.map((job) => <JobCard key={job.id} job={job} onPress={onPressJob} />)}
+      {jobs.map((job) => <JobCard key={job.id} job={job} variant={type} onPress={onPressJob} />)}
     </View>
   );
 }
@@ -174,7 +177,7 @@ function BannerCarousel() {
 }
 
 const bn = StyleSheet.create({
-  wrap: { position: 'relative', marginHorizontal: 16, marginBottom: 4, borderRadius: 12, overflow: 'hidden', backgroundColor: '#f3f4f6' },
+  wrap: { position: 'relative', marginHorizontal: 16, marginBottom: 4, borderRadius: 12, overflow: 'hidden', backgroundColor: '#f1f5f9' },
   dots: { position: 'absolute', bottom: 5, right: 8, flexDirection: 'row', gap: 4 },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.5)' },
   dotActive: { width: 12, backgroundColor: '#fff' },
@@ -230,6 +233,7 @@ export default function HomePage() {
   const listHeader = useMemo(() => (
     <View>
       <BannerCarousel />
+      <MainStats />
       <SearchBar
         search={search}
         onSearchChange={setSearch}
@@ -247,11 +251,11 @@ export default function HomePage() {
 
   const renderItem = useCallback(({ item }: { item: ListRow }) => {
     if (item._type === 'skeleton') return <View style={s.freeRow}><SkeletonCard /></View>;
-    return <View style={s.freeRow}><JobCard job={toJobItem(item)} onPress={handlePressJob} /></View>;
+    return <View style={s.freeRow}><JobCard job={toJobItem(item)} variant="free" onPress={handlePressJob} /></View>;
   }, [handlePressJob]);
 
   const listFooter = isFetchingNextPage ? (
-    <ActivityIndicator size="large" color="#38bdf8" style={{ paddingVertical: 20 }} />
+    <ActivityIndicator size="large" color="#60a5fa" style={{ paddingVertical: 20 }} />
   ) : null;
 
   return (
@@ -268,7 +272,7 @@ export default function HomePage() {
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" colors={['#3b82f6']} />
         }
       />
 
@@ -306,19 +310,19 @@ const s = StyleSheet.create({
   sectionIcon: {
     width: 34,
     height: 34,
-    borderRadius: 10,
+    borderRadius: 16, // rounded-2xl
     alignItems: 'center',
     justifyContent: 'center',
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f172a',
   },
   sectionSubtitle: {
     fontSize: 9,
-    fontWeight: '600',
-    color: '#9ca3af',
+    fontWeight: '500',
+    color: '#94a3b8',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },

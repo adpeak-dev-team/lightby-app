@@ -42,7 +42,7 @@ function ApplicationCard({
             <Image source={{ uri: imageUri }} style={c.thumb} />
           ) : (
             <View style={[c.thumb, c.thumbPlaceholder]}>
-              <Ionicons name="image-outline" size={24} color="#d1d5db" />
+              <Ionicons name="image-outline" size={24} color="#cbd5e1" />
             </View>
           )}
           {!isRead && <View style={c.newBadge}><Text style={c.newBadgeText}>NEW</Text></View>}
@@ -85,7 +85,7 @@ export default function ApplicationStatusPage() {
     <View style={s.container}>
       <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>내 지원 현황</Text>
         <View style={{ width: 40 }} />
@@ -116,26 +116,26 @@ export default function ApplicationStatusPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   skeletons: { padding: 12, gap: 10 },
   list: { padding: 12, paddingBottom: 32, gap: 10 },
-  empty: { textAlign: 'center', color: '#9ca3af', marginTop: 80, fontSize: 14 },
+  empty: { textAlign: 'center', color: '#94a3b8', marginTop: 80, fontSize: 14 },
 });
 
 const sk = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 14, padding: 12, flexDirection: 'row', gap: 12, marginBottom: 10 },
-  thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#e5e7eb', flexShrink: 0 },
+  thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#e2e8f0', flexShrink: 0 },
   content: { flex: 1, gap: 8, justifyContent: 'center' },
-  line1: { height: 14, backgroundColor: '#e5e7eb', borderRadius: 5, width: '80%' },
-  line2: { height: 10, backgroundColor: '#e5e7eb', borderRadius: 5, width: '50%' },
-  line3: { height: 10, backgroundColor: '#e5e7eb', borderRadius: 5, width: '60%' },
+  line1: { height: 14, backgroundColor: '#e2e8f0', borderRadius: 5, width: '80%' },
+  line2: { height: 10, backgroundColor: '#e2e8f0', borderRadius: 5, width: '50%' },
+  line3: { height: 10, backgroundColor: '#e2e8f0', borderRadius: 5, width: '60%' },
 });
 
 const c = StyleSheet.create({
@@ -144,23 +144,23 @@ const c = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
   },
   row: { flexDirection: 'row', gap: 12 },
-  thumbWrap: { width: 84, height: 84, borderRadius: 10, overflow: 'hidden', flexShrink: 0, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#f3f4f6' },
+  thumbWrap: { width: 84, height: 84, borderRadius: 10, overflow: 'hidden', flexShrink: 0, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#f1f5f9' },
   thumb: { width: '100%', height: '100%' },
   thumbPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   newBadge: { position: 'absolute', top: 4, left: 4, backgroundColor: '#ef4444', borderRadius: 4, paddingHorizontal: 4, paddingVertical: 2 },
-  newBadgeText: { color: '#fff', fontSize: 8, fontWeight: '700' },
+  newBadgeText: { color: '#fff', fontSize: 9, fontWeight: '800' },
   content: { flex: 1, gap: 4 },
-  title: { fontSize: 14, fontWeight: '700', color: '#111827' },
+  title: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
   metaRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  metaLabel: { fontSize: 11, color: '#9ca3af', width: 32 },
-  metaVal: { fontSize: 11, fontWeight: '600', color: '#374151' },
-  read: { color: '#0284c7' },
-  unread: { color: '#9ca3af' },
-  applying: { color: '#059669' },
-  footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, borderTopWidth: 1, borderTopColor: '#f3f4f6', marginTop: 10, paddingTop: 10 },
-  cancelBtn: { backgroundColor: '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
-  cancelBtnText: { fontSize: 11, fontWeight: '700', color: '#6b7280' },
+  metaLabel: { fontSize: 10, color: '#94a3b8', width: 32 },
+  metaVal: { fontSize: 10, fontWeight: '600', color: '#334155' },
+  read: { color: '#2563eb', fontWeight: '700' },
+  unread: { color: '#94a3b8', fontWeight: '700' },
+  applying: { color: '#059669', fontWeight: '700' },
+  footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, borderTopWidth: 1, borderTopColor: '#f1f5f9', marginTop: 10, paddingTop: 10 },
+  cancelBtn: { backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
+  cancelBtnText: { fontSize: 11, fontWeight: '700', color: '#64748b' },
   btnDisabled: { opacity: 0.5 },
-  viewBtn: { backgroundColor: '#1f2937', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
+  viewBtn: { backgroundColor: '#1e293b', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
   viewBtnText: { fontSize: 11, fontWeight: '700', color: '#fff' },
 });

@@ -28,6 +28,6 @@ export default function InterestPage() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: { paddingTop: 64, paddingHorizontal: 24, paddingBottom: 28, alignItems: 'center' },
-  headerTitle: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 10, textAlign: 'center' },
-  headerSub: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22 },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 10, textAlign: 'center' },
+  headerSub: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 22 },
 });

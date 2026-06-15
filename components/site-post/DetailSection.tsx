@@ -20,7 +20,7 @@ export function DetailSection({ detailContent, onDetailContentChange, siteUrl, o
                 value={detailContent}
                 onChangeText={onDetailContentChange}
                 placeholder="현장 및 근무 조건에 대해 자세히 작성해주세요."
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 multiline
                 numberOfLines={8}
                 textAlignVertical="top"
@@ -31,7 +31,7 @@ export function DetailSection({ detailContent, onDetailContentChange, siteUrl, o
                 value={siteUrl}
                 onChangeText={onSiteUrlChange}
                 placeholder="ex) https://www.example.com"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 keyboardType="url"
                 autoCapitalize="none"
             />
@@ -42,24 +42,24 @@ export function DetailSection({ detailContent, onDetailContentChange, siteUrl, o
 const s = StyleSheet.create({
     bioInput: {
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         borderRadius: 12,
         padding: 12,
         fontSize: 14,
-        color: '#111827',
+        color: '#0f172a',
         minHeight: 160,
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#f8fafc',
         marginBottom: 12,
     },
     label: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#374151',
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#334155',
         marginBottom: 6,
     },
     optional: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: '400',
-        color: '#9ca3af',
+        color: '#94a3b8',
     },
 });

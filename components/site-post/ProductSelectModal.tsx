@@ -66,7 +66,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                             )}
                         </View>
                         <TouchableOpacity onPress={onClose} hitSlop={8} disabled={isPending}>
-                            <Ionicons name="close" size={20} color="#9ca3af" />
+                            <Ionicons name="close" size={20} color="#94a3b8" />
                         </TouchableOpacity>
                     </View>
 
@@ -85,7 +85,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                     </View>
                                     <View style={s.productPriceWrap}>
                                         <Text style={s.productOriginalPrice}>132,000원</Text>
-                                        <Text style={[s.productPrice, freebies && { color: '#0ea5e9' }]}>
+                                        <Text style={[s.productPrice, freebies && { color: '#3b82f6' }]}>
                                             {freebies ? '0원 (무료)' : '66,000원'}
                                         </Text>
                                     </View>
@@ -101,7 +101,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                 activeOpacity={0.8}
                             >
                                 <View style={s.productRow}>
-                                    <View style={[s.productBadge, { backgroundColor: '#0ea5e9' }]}>
+                                    <View style={[s.productBadge, { backgroundColor: '#3b82f6' }]}>
                                         <Text style={s.productBadgeText}>지역 탑</Text>
                                     </View>
                                     <View style={s.productPriceWrap}>
@@ -120,7 +120,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                 activeOpacity={0.8}
                             >
                                 <View style={s.productRow}>
-                                    <View style={[s.productBadge, { backgroundColor: '#6b7280' }]}>
+                                    <View style={[s.productBadge, { backgroundColor: '#64748b' }]}>
                                         <Text style={s.productBadgeText}>무료 공고</Text>
                                     </View>
                                     <Text style={s.productPrice}>무료 등록</Text>
@@ -139,7 +139,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                 </View>
                                 <View style={s.iconGrid}>
                                     {ICON_LIST.map((icon) => {
-                                        const c = ICON_COLORS[icon.color] ?? { bg: '#f3f4f6', border: '#e5e7eb', text: '#6b7280' };
+                                        const c = ICON_COLORS[icon.color] ?? { bg: '#f1f5f9', border: '#e2e8f0', text: '#64748b' };
                                         const isSelected = selectedIcons.includes(icon.id);
                                         return (
                                             <TouchableOpacity
@@ -259,7 +259,7 @@ const s = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
+        borderBottomColor: '#f1f5f9',
     },
     headerIconWrap: {
         width: 40,
@@ -270,13 +270,13 @@ const s = StyleSheet.create({
         justifyContent: 'center',
     },
     headerTextWrap: { flex: 1 },
-    headerTitle: { fontSize: 15, fontWeight: '700', color: '#111827' },
-    headerSub: { fontSize: 11, color: '#6b7280', marginTop: 2 },
+    headerTitle: { fontSize: 20, fontWeight: '800', color: '#0f172a' },
+    headerSub: { fontSize: 14, color: '#64748b', marginTop: 2 },
     body: { padding: 16, gap: 12 },
     productList: { gap: 10 },
     productCard: {
         borderWidth: 1.5,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         borderRadius: 14,
         padding: 14,
     },
@@ -286,24 +286,24 @@ const s = StyleSheet.create({
     },
     productRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
     productBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-    productBadgeText: { fontSize: 10, fontWeight: '700', color: '#fff' },
+    productBadgeText: { fontSize: 10, fontWeight: '400', color: '#fff' },
     productPriceWrap: { alignItems: 'flex-end' },
-    productOriginalPrice: { fontSize: 10, color: '#9ca3af', textDecorationLine: 'line-through' },
-    productPrice: { fontSize: 15, fontWeight: '700', color: '#111827' },
-    productDesc: { fontSize: 11, color: '#6b7280', lineHeight: 18 },
+    productOriginalPrice: { fontSize: 12, color: '#94a3b8', textDecorationLine: 'line-through' },
+    productPrice: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+    productDesc: { fontSize: 11, color: '#64748b', lineHeight: 18 },
     productCheck: { position: 'absolute', top: 12, right: 12 },
     iconSection: {
         backgroundColor: '#f8fafc',
         borderRadius: 14,
         padding: 14,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         gap: 12,
     },
     iconHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    iconTitle: { fontSize: 13, fontWeight: '700', color: '#374151' },
-    iconSub: { fontSize: 11, fontWeight: '400', color: '#9ca3af' },
-    iconLimit: { fontSize: 10, color: '#6b7280', backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e7eb', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+    iconTitle: { fontSize: 14, fontWeight: '700', color: '#334155' },
+    iconSub: { fontSize: 12, fontWeight: '400', color: '#94a3b8' },
+    iconLimit: { fontSize: 10, color: '#64748b', backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
     iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     iconItem: {
         paddingHorizontal: 12,
@@ -312,16 +312,16 @@ const s = StyleSheet.create({
         borderWidth: 1.5,
     },
     iconItemSelected: { borderWidth: 2 },
-    iconItemText: { fontSize: 12, fontWeight: '700' },
+    iconItemText: { fontSize: 14, fontWeight: '400' },
     freeNote: {
         backgroundColor: '#f8fafc',
         borderRadius: 12,
         padding: 14,
         borderWidth: 1,
         borderStyle: 'dashed',
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
     },
-    freeNoteText: { fontSize: 11, color: '#9ca3af', textAlign: 'center', lineHeight: 18 },
+    freeNoteText: { fontSize: 12, color: '#94a3b8', textAlign: 'center', lineHeight: 18 },
     summary: {
         backgroundColor: '#1e293b',
         borderRadius: 16,
@@ -332,16 +332,16 @@ const s = StyleSheet.create({
     summaryLabel: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
     summaryValue: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
     summaryDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 4 },
-    summaryTotalLabel: { fontSize: 14, fontWeight: '700', color: '#fff' },
-    summaryTotal: { fontSize: 18, fontWeight: '700', color: '#34d399' },
-    footer: { paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+    summaryTotalLabel: { fontSize: 16, fontWeight: '700', color: '#fff' },
+    summaryTotal: { fontSize: 20, fontWeight: '800', color: '#34d399' },
+    footer: { paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
     confirmBtn: {
         backgroundColor: '#10b981',
         borderRadius: 14,
         paddingVertical: 14,
         alignItems: 'center',
     },
-    confirmBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+    confirmBtnText: { fontSize: 18, fontWeight: '800', color: '#fff' },
     payOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)',
@@ -370,8 +370,8 @@ const s = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 16,
     },
-    payTitle: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 10, textAlign: 'center' },
-    paySub: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 20, marginBottom: 24 },
+    payTitle: { fontSize: 17, fontWeight: '700', color: '#0f172a', marginBottom: 10, textAlign: 'center' },
+    paySub: { fontSize: 13, color: '#64748b', textAlign: 'center', lineHeight: 20, marginBottom: 24 },
     payBtn: {
         width: '100%',
         backgroundColor: '#f59e0b',

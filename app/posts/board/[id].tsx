@@ -134,7 +134,7 @@ export default function BoardDetailPage() {
   if (isPostLoading) {
     return (
       <View style={s.centered}>
-        <ActivityIndicator size="large" color="#38bdf8" />
+        <ActivityIndicator size="large" color="#60a5fa" />
       </View>
     );
   }
@@ -158,7 +158,7 @@ export default function BoardDetailPage() {
         onBack={() => router.back()}
         rightActions={[
           ...(isOwner ? [
-            { icon: 'pencil-outline', color: '#0ea5e9', onPress: () => router.push({ pathname: '/registration/communitypost-edit/[id]', params: { id } } as never) },
+            { icon: 'pencil-outline', color: '#3b82f6', onPress: () => router.push({ pathname: '/registration/communitypost-edit/[id]', params: { id } } as never) },
             { icon: 'trash-outline', color: '#ef4444', onPress: () => setShowDeleteModal(true) },
           ] : []),
           { icon: 'share-outline', onPress: handleShare },
@@ -173,7 +173,7 @@ export default function BoardDetailPage() {
               {profileUri ? (
                 <Image source={{ uri: profileUri }} style={s.avatar} contentFit="cover" />
               ) : (
-                <Ionicons name="person-outline" size={18} color="#9ca3af" />
+                <Ionicons name="person-outline" size={18} color="#94a3b8" />
               )}
             </View>
             <View>
@@ -212,7 +212,7 @@ export default function BoardDetailPage() {
               <Ionicons
                 name={liked ? 'heart' : 'heart-outline'}
                 size={18}
-                color={liked ? '#ef4444' : '#9ca3af'}
+                color={liked ? '#ef4444' : '#94a3b8'}
               />
               <Text style={[s.likeCount, liked && { color: '#ef4444' }]}>{likeCount}</Text>
             </TouchableOpacity>
@@ -283,38 +283,38 @@ export default function BoardDetailPage() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText: { color: '#9ca3af', fontSize: 15 },
+  emptyText: { color: '#94a3b8', fontSize: 16 },
 
   scroll: { flex: 1 },
 
   authorSection: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 14 },
-  avatarWrap: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  avatarWrap: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   avatar: { width: '100%', height: '100%' },
-  authorName: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  authorDate: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
+  authorName: { fontSize: 14, fontWeight: '400', color: '#0f172a' },
+  authorDate: { fontSize: 14, color: '#94a3b8', marginTop: 2 },
 
   titleSection: { paddingHorizontal: 16, paddingBottom: 12 },
-  postTitle: { fontSize: 19, fontWeight: '700', color: '#111827', lineHeight: 28 },
+  postTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a', lineHeight: 28 },
 
   imagesSection: { paddingHorizontal: 16, gap: 10, marginBottom: 4 },
-  postImage: { width: '100%', borderRadius: 12, backgroundColor: '#f3f4f6' },
+  postImage: { width: '100%', borderRadius: 12, backgroundColor: '#f1f5f9' },
 
-  contentSection: { paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f9fafb' },
-  postContent: { fontSize: 15, color: '#374151', lineHeight: 25 },
+  contentSection: { paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f8fafc' },
+  postContent: { fontSize: 16, color: '#334155', lineHeight: 26 },
 
   likeSection: { alignItems: 'center', paddingVertical: 20 },
-  likeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: '#e5e7eb' },
-  likeCount: { fontSize: 14, fontWeight: '600', color: '#6b7280' },
+  likeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: '#e2e8f0' },
+  likeCount: { fontSize: 14, fontWeight: '500', color: '#64748b' },
 
-  separator: { height: 8, backgroundColor: '#f3f4f6' },
+  separator: { height: 8, backgroundColor: '#f1f5f9' },
 
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
   modal: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40 },
-  modalTitle: { fontSize: 16, fontWeight: '700', color: '#111827', textAlign: 'center', marginBottom: 6 },
-  modalSub: { fontSize: 13, color: '#6b7280', textAlign: 'center', marginBottom: 22 },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', textAlign: 'center', marginBottom: 6 },
+  modalSub: { fontSize: 13, color: '#64748b', textAlign: 'center', marginBottom: 22 },
   modalBtns: { flexDirection: 'row', gap: 10 },
-  modalBtnSecondary: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
-  modalBtnSecondaryText: { fontSize: 14, fontWeight: '600', color: '#374151' },
+  modalBtnSecondary: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f1f5f9', alignItems: 'center' },
+  modalBtnSecondaryText: { fontSize: 14, fontWeight: '600', color: '#334155' },
   modalBtnDanger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#ef4444', alignItems: 'center' },
   modalBtnDangerText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

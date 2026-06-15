@@ -76,7 +76,7 @@ export default function LoginPage() {
         onPress={handleClose}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons name="arrow-back" size={26} color="#374151" />
+        <Ionicons name="arrow-back" size={26} color="#334155" />
       </TouchableOpacity>
       <ScrollView
         contentContainerStyle={[s.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
@@ -97,7 +97,7 @@ export default function LoginPage() {
               value={loginId}
               onChangeText={setLoginId}
               placeholder="아이디를 입력해주세요."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               autoCapitalize="none"
               autoCorrect={false}
             />
@@ -110,7 +110,7 @@ export default function LoginPage() {
               value={password}
               onChangeText={setPassword}
               placeholder="비밀번호를 입력해주세요."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               secureTextEntry
             />
           </View>
@@ -164,38 +164,38 @@ export default function LoginPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  container: { flexGrow: 1, backgroundColor: '#f8fafc', paddingHorizontal: 24 },
   closeBtn: { position: 'absolute', left: 16, zIndex: 10, padding: 4 },
   logoWrap: { alignItems: 'center', marginBottom: 32, marginTop: 8 },
   logo: { width: 160, height: 56, marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#111827' },
+  title: { fontSize: 24, fontWeight: '700', color: '#0f172a' },
   form: { gap: 16 },
   inputWrap: { gap: 6 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  label: { fontSize: 14, fontWeight: '600', color: '#334155' },
   input: {
-    borderWidth: 1, borderColor: '#d1d5db', borderRadius: 12,
+    borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12,
     paddingHorizontal: 14, paddingVertical: 12,
-    fontSize: 15, backgroundColor: '#fff', color: '#111827',
+    fontSize: 14, backgroundColor: '#fff', color: '#0f172a',
   },
   loginBtn: {
-    backgroundColor: '#0ea5e9', paddingVertical: 14,
+    backgroundColor: '#3b82f6', paddingVertical: 14,
     borderRadius: 12, alignItems: 'center', marginTop: 4,
   },
-  loginBtnDisabled: { backgroundColor: '#7dd3fc' },
-  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  loginBtnDisabled: { backgroundColor: '#93c5fd' },
+  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 18 },
   findPwdBtn: { alignItems: 'center', marginTop: -4 },
-  findPwdText: { fontSize: 13, color: '#6b7280', textDecorationLine: 'underline' },
+  findPwdText: { fontSize: 12, color: '#64748b', textDecorationLine: 'underline' },
   dividerWrap: { flexDirection: 'row', alignItems: 'center', marginVertical: 28, gap: 8 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#e5e7eb' },
-  dividerText: { fontSize: 11, color: '#9ca3af', fontWeight: '500', flexShrink: 1, textAlign: 'center' },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#e2e8f0' },
+  dividerText: { fontSize: 12, color: '#94a3b8', fontWeight: '500', flexShrink: 1, textAlign: 'center' },
   kakaoBtn: { backgroundColor: '#FEE500', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-  kakaoText: { color: '#191919', fontWeight: '700', fontSize: 15 },
+  kakaoText: { color: '#191919', fontWeight: '700', fontSize: 16 },
   appleBtn: { height: 48, marginTop: 10 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  footerText: { fontSize: 13, color: '#6b7280' },
-  footerLink: { fontSize: 13, color: '#0ea5e9', fontWeight: '700', textDecorationLine: 'underline' },
+  footerText: { fontSize: 14, color: '#64748b', fontWeight: '600' },
+  footerLink: { fontSize: 14, color: '#3b82f6', fontWeight: '600', textDecorationLine: 'underline' },
   errorText: {
-    fontSize: 13, color: '#ef4444', backgroundColor: '#fef2f2',
+    fontSize: 14, color: '#ef4444', fontWeight: '500', backgroundColor: '#fef2f2',
     padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#fee2e2',
   },
 });

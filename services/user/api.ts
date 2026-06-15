@@ -5,9 +5,11 @@ export async function getFavoriteSites(
   tab: 'regions' | 'likes',
   start = 0,
   limit = 20,
+  activeFilters?: string[],
 ): Promise<FavoriteSiteItem[]> {
+  const filtersParam = activeFilters?.length ? `&filters=${activeFilters.join(',')}` : '';
   const { data } = await apiClient.get<{ success: boolean; data: FavoriteSiteItem[] }>(
-    `/user/favorite-sites?tab=${tab}&start=${start}&limit=${limit}`,
+    `/user/favorite-sites?tab=${tab}&start=${start}&limit=${limit}${filtersParam}`,
   );
   return data.data;
 }

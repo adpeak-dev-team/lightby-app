@@ -16,7 +16,7 @@ export function AddressSection({ address, onAddressChange }: Props) {
                 value={address}
                 onChangeText={onAddressChange}
                 placeholder="ex) 경기도 성남시 분당구 OO동"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
             />
         </View>
     );

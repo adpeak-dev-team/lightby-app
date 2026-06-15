@@ -9,6 +9,8 @@ export interface FavoriteSiteItem {
   industries?: string[];
   jobCategories?: string[];
   icons: number[];
+  is_display?: number; // 1: 진행중, 0: 마감
+  created_at?: string | null; // D-day 계산용
 }
 
 export interface UserProfile {

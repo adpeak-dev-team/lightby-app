@@ -31,7 +31,7 @@ function toImageUri(path: string): string {
 function SectionTitle({ label, color }: { label: string; color: string }) {
   return (
     <View style={s.sectionTitleRow}>
-      <View style={[s.sectionAccent, { backgroundColor: color }]} />
+      <View style={[s.sectionDot, { backgroundColor: color }]} />
       <Text style={s.sectionTitleText}>{label}</Text>
     </View>
   );
@@ -180,7 +180,7 @@ export default function SiteDetailPage() {
   if (isLoading) {
     return (
       <View style={[s.centered, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color="#38bdf8" />
+        <ActivityIndicator size="large" color="#60a5fa" />
       </View>
     );
   }
@@ -212,7 +212,7 @@ export default function SiteDetailPage() {
       {/* 네비게이션 */}
       <View style={s.navbar}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={s.navBtn}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>구인 공고 상세</Text>
         <View style={s.navRight}>
@@ -220,11 +220,11 @@ export default function SiteDetailPage() {
             <Ionicons
               name={liked ? 'heart' : 'heart-outline'}
               size={22}
-              color={liked ? '#ef4444' : '#111827'}
+              color={liked ? '#ef4444' : '#0f172a'}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare} hitSlop={8} style={s.navBtn}>
-            <Ionicons name="share-outline" size={22} color="#111827" />
+            <Ionicons name="share-outline" size={22} color="#0f172a" />
           </TouchableOpacity>
         </View>
       </View>
@@ -243,7 +243,7 @@ export default function SiteDetailPage() {
               renderItem={({ item }) => (
                 <Image
                   source={{ uri: item }}
-                  style={{ width, height: sliderHeight, backgroundColor: '#f3f4f6' }}
+                  style={{ width, height: sliderHeight, backgroundColor: '#f1f5f9' }}
                   contentFit="contain"
                 />
               )}
@@ -258,7 +258,7 @@ export default function SiteDetailPage() {
           </View>
         ) : (
           <View style={[s.noImage, { width }]}>
-            <Ionicons name="image-outline" size={48} color="#d1d5db" />
+            <Ionicons name="image-outline" size={48} color="#cbd5e1" />
           </View>
         )}
 
@@ -271,7 +271,7 @@ export default function SiteDetailPage() {
                 style={s.editBtn}
                 onPress={() => router.push({ pathname: '/registration/sitepost-edit/[id]', params: { id } } as never)}
               >
-                <Ionicons name="pencil-outline" size={14} color="#0ea5e9" />
+                <Ionicons name="pencil-outline" size={14} color="#fff" />
                 <Text style={s.editBtnText}>수정</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.deleteBtn} onPress={() => setShowDeleteModal(true)}>
@@ -298,26 +298,21 @@ export default function SiteDetailPage() {
             </View>
           )}
 
-          {/* 제목 */}
-          <Text style={s.jobTitle}>{job.subject}</Text>
-
-          {/* FIELD POINT */}
-          {!!job.point_content && (
-            <View style={s.fieldPointCard}>
-              <View style={s.fieldPointHeader}>
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Text style={s.fieldPointLabel}>FIELD POINT</Text>
-              </View>
-              <Text style={s.fieldPointText}>{job.point_content}</Text>
-            </View>
-          )}
+          {/* 제목 + 포인트 */}
+          <View style={s.titleBlock}>
+            <Text style={s.jobTitle}>{job.subject}</Text>
+            {!!job.point_content && (
+              <Text style={s.pointText}>{job.point_content}</Text>
+            )}
+            <View style={s.titleAccentBar} />
+          </View>
         </View>
 
         {/* ── 기본 정보 ── */}
         <View style={s.section}>
           {/* 급여정보 */}
           <View style={s.card}>
-            <SectionTitle label="급여정보" color="#10b981" />
+            <SectionTitle label="급여정보" color="#2563eb" />
             {!!job.base_pay && (
               <View style={s.salaryRow}>
                 <Text style={s.salaryLabel}>기본급</Text>
@@ -329,7 +324,7 @@ export default function SiteDetailPage() {
               feeItems.map((item: any, i: number) => (
                 <View key={i} style={s.salaryRow}>
                   <Text style={s.salaryLabel}>{item.category || `항목 ${i + 1}`}</Text>
-                  <Text style={s.salaryValue}>{item.amount} 만원</Text>
+                  <Text style={s.salaryValue}>{item.amount}{String(item.amount).includes('%') ? '' : ' 만원'}</Text>
                 </View>
               ))
             ) : (
@@ -341,7 +336,7 @@ export default function SiteDetailPage() {
 
           {/* 현장정보 */}
           <View style={s.card}>
-            <SectionTitle label="현장정보" color="#9ca3af" />
+            <SectionTitle label="현장정보" color="#94a3b8" />
             <View style={s.infoGrid}>
               {[
                 { label: '시행사', value: job.enforcement },
@@ -360,7 +355,7 @@ export default function SiteDetailPage() {
 
           {/* 지원정보 */}
           <View style={s.card}>
-            <SectionTitle label="지원정보" color="#9ca3af" />
+            <SectionTitle label="지원정보" color="#94a3b8" />
             <View style={s.infoGrid}>
               {[
                 { label: '업종', value: industry },
@@ -382,7 +377,7 @@ export default function SiteDetailPage() {
           {[job.meal_expense, job.transport_expense, job.housing, job.accommodation_expenses,
             job.daily_expense, job.business_expense, job.promotion].some(Boolean) && (
             <View style={s.card}>
-              <SectionTitle label="영업지원 및 복지" color="#9ca3af" />
+              <SectionTitle label="영업지원 및 복지" color="#94a3b8" />
               <View style={s.welfareGrid}>
                 {[
                   { label: '식사', value: job.meal_expense },
@@ -411,7 +406,7 @@ export default function SiteDetailPage() {
         {/* ── 근무지역 (front 순서: 상세 모집내용 앞) ── */}
         <View style={[s.section, { paddingTop: 0 }]}>
           <View style={s.card}>
-            <SectionTitle label="근무지역" color="#9ca3af" />
+            <SectionTitle label="근무지역" color="#94a3b8" />
             {Array.isArray(job.regions) && job.regions.length > 0 && (
               <View style={s.regionChips}>
                 {job.regions.map((r, i) => (
@@ -422,7 +417,7 @@ export default function SiteDetailPage() {
               </View>
             )}
             <View style={s.addressRow}>
-              <Ionicons name="location-outline" size={15} color="#9ca3af" />
+              <Ionicons name="location-outline" size={15} color="#94a3b8" />
               <Text style={s.addressText}>{job.result_address || job.address || '-'}</Text>
             </View>
             {job.latitude != null && job.longitude != null && (
@@ -455,21 +450,21 @@ export default function SiteDetailPage() {
         {/* ── 상세 모집내용 (front 순서: 근무지역 뒤) ── */}
         <View style={[s.section, { paddingTop: 0, paddingBottom: 16 }]}>
           <View style={s.card}>
-            <SectionTitle label="상세 모집내용" color="#9ca3af" />
+            <SectionTitle label="상세 모집내용" color="#94a3b8" />
             <View style={s.detailContentBox}>
               <Text style={s.detailContentText}>{job.detail_content || '상세 내용이 없습니다.'}</Text>
             </View>
             {!!job.site_url && (
               <TouchableOpacity
                 style={s.siteUrlBox}
-                onPress={() => Linking.openURL(job.site_url)}
+                onPress={() => job.site_url && Linking.openURL(job.site_url)}
                 activeOpacity={0.75}
               >
                 <View style={{ flex: 1 }}>
                   <Text style={s.siteUrlLabel}>공식 사이트</Text>
                   <Text style={s.siteUrlText} numberOfLines={1}>{job.site_url}</Text>
                 </View>
-                <Ionicons name="open-outline" size={16} color="#0ea5e9" />
+                <Ionicons name="open-outline" size={16} color="#60a5fa" />
               </TouchableOpacity>
             )}
           </View>
@@ -542,7 +537,7 @@ export default function SiteDetailPage() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText: { color: '#9ca3af', fontSize: 15 },
+  emptyText: { color: '#94a3b8', fontSize: 15 },
   scroll: { flex: 1 },
   mapHintBadge: {
     position: 'absolute', top: 10, right: 10,
@@ -553,107 +548,106 @@ const s = StyleSheet.create({
   mapHintText: { color: '#fff', fontSize: 11, fontWeight: '700' },
 
   // 네비게이션
-  navbar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  navbar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   navBtn: { padding: 6 },
-  navTitle: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: '#0f172a' },
   navRight: { flexDirection: 'row', alignItems: 'center' },
 
   // 이미지
-  noImage: { height: 200, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center' },
+  noImage: { height: 200, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 5, paddingVertical: 8, backgroundColor: '#fff' },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#e5e7eb' },
-  dotActive: { width: 16, backgroundColor: '#0ea5e9' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#e2e8f0' },
+  dotActive: { width: 16, backgroundColor: '#3b82f6' },
 
   // 요약
   summarySection: { backgroundColor: '#fff', padding: 16, gap: 10 },
   ownerBtns: { flexDirection: 'row', alignSelf: 'flex-end', gap: 8 },
-  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#bfdbfe' },
-  editBtnText: { color: '#0ea5e9', fontSize: 13, fontWeight: '700' },
-  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  deleteBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#60a5fa', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8 },
+  editBtnText: { color: '#fff', fontSize: 14, fontWeight: '400' },
+  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#f87171', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8 },
+  deleteBtnText: { color: '#fff', fontSize: 14, fontWeight: '400' },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
-  badgeText: { fontSize: 11, fontWeight: '700' },
-  agencyText: { fontSize: 14, color: '#6b7280' },
-  jobTitle: { fontSize: 22, fontWeight: '700', color: '#111827', lineHeight: 30 },
-  fieldPointCard: { gap: 8, backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#bfdbfe' },
-  fieldPointHeader: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  fieldPointLabel: { fontSize: 10, fontWeight: '700', color: '#0ea5e9', letterSpacing: 1.5 },
-  fieldPointText: { fontSize: 14, fontWeight: '700', color: '#1e3a5f' },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, borderWidth: 1 },
+  badgeText: { fontSize: 12, fontWeight: '600' },
+  agencyText: { fontSize: 14, color: '#64748b' },
+  titleBlock: { gap: 8 },
+  jobTitle: { fontSize: 30, fontWeight: '700', color: '#0f172a', lineHeight: 38 },
+  pointText: { fontSize: 16, fontWeight: '400', color: '#64748b', lineHeight: 26 },
+  titleAccentBar: { marginTop: 16, height: 4, width: 96, borderRadius: 999, backgroundColor: '#2563eb' },
 
   // 섹션 / 카드
   section: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
-  card: { paddingVertical: 14 }, // 평면형: front처럼 카드 배경/테두리/그림자 없이 흰 배경에 여백으로 구분 (가로 여백은 section에서 통일 관리)
+  card: { paddingVertical: 16 }, // 평면형: front(rounded-2xl p-4)처럼 카드 배경/테두리/그림자 없이 흰 배경에 여백으로 구분 (가로 여백은 section에서 통일 관리)
   cardRow: { flexDirection: 'row', gap: 10 },
   cardHalf: { flex: 1 },
-  cardLabel: { fontSize: 13, color: '#6b7280', marginBottom: 6 },
-  cardValue: { fontSize: 17, fontWeight: '700', color: '#111827' },
+  cardLabel: { fontSize: 13, color: '#64748b', marginBottom: 6 },
+  cardValue: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
 
-  // 섹션 제목
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  sectionAccent: { width: 3, height: 16, borderRadius: 2 },
-  sectionTitleText: { fontSize: 15, fontWeight: '700', color: '#111827' },
+  // 섹션 제목 (front: 작은 원형 점 + 제목)
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
+  sectionDot: { width: 6, height: 6, borderRadius: 3 },
+  sectionTitleText: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
 
-  // 급여정보
-  salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f0fdf4', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 8, borderWidth: 1, borderColor: '#bbf7d0' },
-  salaryLabel: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
-  salaryValue: { fontSize: 16, fontWeight: '700', color: '#16a34a' },
-  feeTypeText: { fontSize: 15, fontWeight: '700', color: '#111827', marginBottom: 10 },
-  emptyFeeBox: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, alignItems: 'center' },
-  emptyFeeText: { fontSize: 13, color: '#9ca3af' },
+  // 급여정보 (front: primary-50 배경 + primary-600 텍스트)
+  salaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8 },
+  salaryLabel: { fontSize: 14, color: '#64748b', fontWeight: '500' },
+  salaryValue: { fontSize: 16, fontWeight: '700', color: '#2563eb' },
+  feeTypeText: { fontSize: 14, fontWeight: '500', color: '#475569', marginBottom: 12 },
+  emptyFeeBox: { backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' },
+  emptyFeeText: { fontSize: 14, color: '#94a3b8' },
 
-  // 현장정보 / 지원정보 그리드
+  // 현장정보 / 지원정보 그리드 (front: bg-slate-50 rounded-xl, 보더 없음)
   infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  infoGridItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
-  infoGridLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
-  infoGridValue: { fontSize: 13, fontWeight: '600', color: '#111827' },
+  infoGridItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f8fafc', borderRadius: 12, padding: 12 },
+  infoGridLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
+  infoGridValue: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
 
-  // 복지 그리드
-  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  welfareItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f9fafb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#f3f4f6' },
-  welfareLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
-  welfareValue: { fontSize: 14, fontWeight: '600', color: '#111827' },
-  promotionBox: { backgroundColor: '#fffbeb', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#fde68a' },
-  promotionLabel: { fontSize: 12, fontWeight: '700', color: '#d97706', marginBottom: 4 },
-  promotionValue: { fontSize: 13, fontWeight: '600', color: '#111827' },
+  // 복지 그리드 (front: bg-slate-50 rounded-xl, 보더 없음)
+  welfareGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+  welfareItem: { flexGrow: 1, flexBasis: '47%', backgroundColor: '#f8fafc', borderRadius: 12, padding: 12 },
+  welfareLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
+  welfareValue: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
+  promotionBox: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#fef3c7' },
+  promotionLabel: { fontSize: 12, fontWeight: '600', color: '#d97706', marginBottom: 4 },
+  promotionValue: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
 
-  // 상세 내용
-  detailContentBox: { backgroundColor: '#f9fafb', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', marginBottom: 10 },
-  detailContentText: { fontSize: 14, color: '#374151', lineHeight: 22 },
-  siteUrlBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: '#bfdbfe' },
-  siteUrlLabel: { fontSize: 11, fontWeight: '600', color: '#93c5fd', marginBottom: 2 },
-  siteUrlText: { fontSize: 13, color: '#1d4ed8', flex: 1 },
+  // 상세 내용 (front: bg-slate-50 rounded-xl, 보더 없음)
+  detailContentBox: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 16, marginBottom: 16 },
+  detailContentText: { fontSize: 16, color: '#334155', lineHeight: 26 },
+  siteUrlBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#bfdbfe' },
+  siteUrlLabel: { fontSize: 12, fontWeight: '500', color: '#60a5fa', marginBottom: 2 },
+  siteUrlText: { fontSize: 14, color: '#1d4ed8', flex: 1 },
 
   // 기본정보 테이블 (하위 호환)
   tableBody: { gap: 0 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
-  infoLabel: { fontSize: 14, color: '#6b7280' },
-  infoValue: { fontSize: 14, fontWeight: '600', color: '#111827', textAlign: 'right', flex: 1, marginLeft: 12 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#f8fafc' },
+  infoLabel: { fontSize: 14, color: '#64748b' },
+  infoValue: { fontSize: 14, fontWeight: '600', color: '#0f172a', textAlign: 'right', flex: 1, marginLeft: 12 },
 
   // 근무지역
   regionChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
   regionChip: { backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
-  regionChipText: { fontSize: 13, color: '#0ea5e9', fontWeight: '600' },
-  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 12 },
-  addressText: { fontSize: 13, color: '#6b7280', flex: 1 },
+  regionChipText: { fontSize: 14, color: '#2563eb', fontWeight: '500' },
+  addressRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  addressText: { fontSize: 16, color: '#475569', flex: 1 },
 
   // 하단 액션 바
-  actionBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingTop: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 8 },
+  actionBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingTop: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 8 },
   actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 12, borderRadius: 12 },
   actionBtnDisabled: { opacity: 0.6 },
-  actionBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  actionBtnText: { color: '#fff', fontWeight: '500', fontSize: 16 },
 
   // 모달
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
   modal: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40, alignItems: 'center' },
   modalIcon: { fontSize: 48, marginBottom: 12 },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 6 },
-  modalSub: { fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 24, lineHeight: 21 },
-  modalCloseBtn: { width: '100%', paddingVertical: 14, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
-  modalCloseBtnText: { fontSize: 15, fontWeight: '700', color: '#374151' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
+  modalSub: { fontSize: 14, color: '#64748b', textAlign: 'center', marginBottom: 24, lineHeight: 21 },
+  modalCloseBtn: { width: '100%', paddingVertical: 14, borderRadius: 12, backgroundColor: '#f1f5f9', alignItems: 'center' },
+  modalCloseBtnText: { fontSize: 16, fontWeight: '500', color: '#334155' },
   modalBtns: { flexDirection: 'row', gap: 10, width: '100%' },
-  modalBtnSecondary: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f3f4f6', alignItems: 'center' },
-  modalBtnSecondaryText: { fontSize: 14, fontWeight: '600', color: '#374151' },
+  modalBtnSecondary: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#f1f5f9', alignItems: 'center' },
+  modalBtnSecondaryText: { fontSize: 14, fontWeight: '600', color: '#334155' },
   modalBtnDanger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: '#ef4444', alignItems: 'center' },
   modalBtnDangerText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

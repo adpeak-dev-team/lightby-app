@@ -5,8 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
 
-const ACTIVE_COLOR = '#61a2ff';
-const INACTIVE_COLOR = '#868686';
+const ACTIVE_COLOR = '#3b82f6'; // text-primary
+const INACTIVE_COLOR = '#94a3b8'; // text-slate-400 (웹과 동일)
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -20,7 +20,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: INACTIVE_COLOR,
         tabBarStyle: {
           backgroundColor: '#fff',
-          borderTopColor: '#f3f4f6',
+          borderTopColor: '#f1f5f9',
           borderTopWidth: 1,
           height: 52 + insets.bottom,
           paddingBottom: insets.bottom,
@@ -36,7 +36,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: '홈',
-          tabBarIcon: ({ color }) => <MaterialIcons name="home" size={26} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons name="home" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -50,14 +50,14 @@ export default function TabLayout() {
         name="favorite"
         options={{
           title: '관심현장',
-          tabBarIcon: ({ color }) => <MaterialIcons name="search" size={26} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons name="search" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="my"
         options={{
           title: '마이페이지',
-          tabBarIcon: ({ color }) => <MaterialIcons name="person" size={26} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons name="account-circle" size={24} color={color} />,
         }}
       />
     </Tabs>

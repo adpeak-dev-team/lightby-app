@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   View, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Modal, RefreshControl,
 } from 'react-native';
@@ -14,15 +14,34 @@ import PreferencesForm from '@/components/common/PreferencesForm';
 import { JobCard, JobItem } from '@/components/common/JobCard';
 import { Fab } from '@/components/common/Fab';
 import { useGetFavoriteSitesInfinite, useGetPreferences } from '@/services/user/queries';
+import type { FavoriteSiteItem } from '@/services/user/types';
 import { tokenStorage } from '@/api/apiClient';
+import { ddayFromCreatedAt } from '@/lib/lib';
 import { Colors } from '@/lib/theme';
 
 type Tab = 'regions' | 'likes';
+type FavoriteFilter = 'regions' | 'industries' | 'jobCategories';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'regions', label: '맞춤 현장' },
   { key: 'likes', label: '찜한 목록' },
 ];
+
+// 맞춤 현장 필터 칩 (preferences에 데이터가 있는 칩만 노출)
+const CHIP_LIST: { key: FavoriteFilter; label: string }[] = [
+  { key: 'regions', label: '관심지역' },
+  { key: 'industries', label: '관심업종' },
+  { key: 'jobCategories', label: '관심직종' },
+];
+
+// 관심현장 응답을 홈과 동일한 JobCard 데이터로 변환 (D-day 배지 노출)
+function toJobItem(site: FavoriteSiteItem): JobItem {
+  return {
+    ...site,
+    isDisplay: site.is_display === undefined ? undefined : site.is_display === 1,
+    dday: ddayFromCreatedAt(site.created_at),
+  };
+}
 
 export default function FavoritePage() {
   const router = useRouter();
@@ -44,14 +63,45 @@ export default function FavoritePage() {
 
   // 관심(맞춤) 설정 여부 — 관심 지역·업종·직종 중 하나라도 있으면 맞춤 현장이 노출됨
   const { data: preferences, isLoading: prefLoading } = useGetPreferences({ enabled: isLoggedIn === true });
-  const hasPreferences =
-    (preferences?.userWorkRegions?.length ?? 0) > 0 ||
-    (preferences?.industries?.length ?? 0) > 0 ||
-    (preferences?.jobCategories?.length ?? 0) > 0;
+
+  // preferences에 데이터가 있는 칩만 노출
+  const availableChips = CHIP_LIST.filter(({ key }) => {
+    const arr = key === 'regions' ? preferences?.userWorkRegions
+      : key === 'industries' ? preferences?.industries
+      : preferences?.jobCategories;
+    return (arr?.length ?? 0) > 0;
+  });
+  const hasPreferences = availableChips.length > 0;
+
+  // 체크된 필터 (기본: 관심지역)
+  const [checked, setChecked] = useState<Record<FavoriteFilter, boolean>>({
+    regions: true, industries: false, jobCategories: false,
+  });
+
+  // 노출 중인 칩 중 체크된 게 없으면 첫 번째 자동 체크
+  const availableKey = availableChips.map((c) => c.key).join(',');
+  useEffect(() => {
+    if (availableChips.length === 0) return;
+    if (!availableChips.some(({ key }) => checked[key])) {
+      setChecked((prev) => ({ ...prev, [availableChips[0].key]: true }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableKey]);
+
+  // 최소 1개 체크 보장
+  const handleToggleFilter = (key: FavoriteFilter) => {
+    if (checked[key]) {
+      const remaining = availableChips.filter(({ key: k }) => k !== key && checked[k]);
+      if (remaining.length === 0) return; // 마지막 1개는 해제 불가
+    }
+    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const currentFilters = availableChips.filter(({ key }) => checked[key]).map(({ key }) => key);
 
   const {
     data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch,
-  } = useGetFavoriteSitesInfinite(activeTab, { enabled: isLoggedIn === true });
+  } = useGetFavoriteSitesInfinite(activeTab, currentFilters.length ? currentFilters : ['regions'], { enabled: isLoggedIn === true });
 
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -97,10 +147,23 @@ export default function FavoritePage() {
     );
   }
 
-  // ── 리스트 헤더: 맞춤 현장 + 관심설정 완료 시 "관심 설정" 버튼 ──
+  // ── 리스트 헤더: 맞춤 현장 — 필터 칩 + "관심 설정" 버튼 ──
   const ListHeader =
-    activeTab === 'regions' && hasPreferences ? (
+    activeTab === 'regions' && hasPreferences && !prefLoading ? (
       <View style={s.prefBtnRow}>
+        {availableChips.map(({ key, label }) => {
+          const active = checked[key];
+          return (
+            <TouchableOpacity
+              key={key}
+              style={[s.chip, active && s.chipActive]}
+              onPress={() => handleToggleFilter(key)}
+              activeOpacity={0.8}
+            >
+              <Text style={[s.chipText, active && s.chipTextActive]}>{label}</Text>
+            </TouchableOpacity>
+          );
+        })}
         <TouchableOpacity style={s.prefBtn} onPress={() => setPrefsVisible(true)} activeOpacity={0.85}>
           <Ionicons name="settings" size={13} color="#fff" />
           <Text style={s.prefBtnText}>관심 설정</Text>
@@ -155,13 +218,13 @@ export default function FavoritePage() {
       <FlatList
         data={sites}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <JobCard job={item} onPress={handlePressJob} />}
+        renderItem={({ item }) => <JobCard job={toJobItem(item)} onPress={handlePressJob} />}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" colors={['#3b82f6']} />
         }
         ListHeaderComponent={ListHeader}
         ListEmptyComponent={EmptyView}
@@ -181,7 +244,7 @@ export default function FavoritePage() {
           <View style={s.modalHeader}>
             <Text style={s.modalTitle}>관심 설정</Text>
             <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7}>
-              <Ionicons name="close" size={24} color="#374151" />
+              <Ionicons name="close" size={24} color="#334155" />
             </TouchableOpacity>
           </View>
           <PreferencesForm
@@ -207,33 +270,43 @@ const s = StyleSheet.create({
     width: 80, height: 80, borderRadius: 40, backgroundColor: '#fefce8',
     alignItems: 'center', justifyContent: 'center', marginBottom: 20,
   },
-  loginTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10 },
-  loginDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22 },
-  accent: { color: '#0ea5e9', fontWeight: '700' },
+  loginTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a', marginBottom: 10 },
+  loginDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 22 },
+  accent: { color: '#3b82f6', fontWeight: '700' },
   loginBtn: {
-    marginTop: 28, backgroundColor: Colors.primary, paddingHorizontal: 32, paddingVertical: 12,
+    marginTop: 28, backgroundColor: '#60a5fa', paddingHorizontal: 32, paddingVertical: 12, // bg-primary-400
     borderRadius: 12,
   },
-  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  loginBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
   /* 탭 */
   tabBar: {
     flexDirection: 'row', backgroundColor: '#fff',
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   tabItem: { flex: 1, alignItems: 'center', paddingTop: 12, paddingBottom: 0 },
-  tabLabel: { fontSize: 14, fontWeight: '600', color: '#9ca3af', paddingBottom: 10 },
-  tabLabelActive: { color: '#111827' },
+  tabLabel: { fontSize: 14, fontWeight: '600', color: '#94a3b8', paddingBottom: 10 },
+  tabLabelActive: { color: '#0f172a' },
   tabUnderline: { height: 2, width: '100%', backgroundColor: 'transparent' },
-  tabUnderlineActive: { backgroundColor: '#111827' },
+  tabUnderlineActive: { backgroundColor: '#0f172a' },
 
   /* 리스트 */
   list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 96, flexGrow: 1 },
-  emptyText: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 14 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 60, fontSize: 14 },
   errorText: { textAlign: 'center', color: '#f87171', marginTop: 60, fontSize: 14 },
 
-  /* 관심 설정 버튼 (맞춤 현장 우상단) */
-  prefBtnRow: { alignItems: 'flex-end', marginBottom: 12 },
+  /* 맞춤 현장 필터 칩 + 관심 설정 버튼 (우상단 정렬) */
+  prefBtnRow: {
+    flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end',
+    alignItems: 'center', gap: 6, marginBottom: 12,
+  },
+  chip: {
+    paddingHorizontal: 14, paddingVertical: 6, borderRadius: 999,
+    borderWidth: 1, borderColor: '#e2e8f0', backgroundColor: '#f1f5f9', // slate-100/200
+  },
+  chipActive: { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }, // primary-50/200
+  chipText: { fontSize: 12, fontWeight: '700', color: '#64748b' }, // slate-500
+  chipTextActive: { color: '#2563eb' }, // primary-600
   prefBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     backgroundColor: Colors.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999,
@@ -243,19 +316,19 @@ const s = StyleSheet.create({
   /* 관심 설정 필요 안내 */
   setupBox: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 16 },
   setupIcon: {
-    width: 64, height: 64, borderRadius: 32, backgroundColor: '#e0f2fe',
+    width: 64, height: 64, borderRadius: 32, backgroundColor: '#dbeafe',
     alignItems: 'center', justifyContent: 'center', marginBottom: 16,
   },
-  setupTitle: { fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 8 },
-  setupDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 24 },
-  setupBtn: { backgroundColor: Colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
-  setupBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  setupTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
+  setupDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 21, marginBottom: 24 },
+  setupBtn: { backgroundColor: '#60a5fa', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }, // bg-primary-400
+  setupBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
   /* 모달 */
   modalContainer: { flex: 1, backgroundColor: '#fff' },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827' },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
 });

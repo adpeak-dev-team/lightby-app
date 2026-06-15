@@ -117,7 +117,7 @@ export default function SetUserInfoProfilePage() {
   };
 
   if (isLoading) {
-    return <View style={s.center}><ActivityIndicator size="large" color="#38bdf8" /></View>;
+    return <View style={s.center}><ActivityIndicator size="large" color="#60a5fa" /></View>;
   }
   if (error) {
     return <View style={s.center}><Text style={s.errorText}>프로필 정보를 불러오는 데 실패했습니다.</Text></View>;
@@ -145,7 +145,7 @@ export default function SetUserInfoProfilePage() {
                 <Image source={{ uri: avatarUri }} style={s.avatar} />
               ) : (
                 <View style={[s.avatar, s.avatarPlaceholder]}>
-                  <Ionicons name="person" size={40} color="#9ca3af" />
+                  <Ionicons name="person" size={40} color="#94a3b8" />
                 </View>
               )}
               <TouchableOpacity
@@ -203,7 +203,7 @@ export default function SetUserInfoProfilePage() {
                   value={age}
                   onChangeText={(v) => setAge(v.replace(/[^0-9]/g, ''))}
                   placeholder="예: 32"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   keyboardType="number-pad"
                   maxLength={3}
                 />
@@ -225,7 +225,7 @@ export default function SetUserInfoProfilePage() {
                 onChangeText={setCareerInput}
                 onSubmitEditing={handleAddCareer}
                 placeholder="예: OO신도시 아파트 분양 팀장 (3년)"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 returnKeyType="done"
               />
               <TouchableOpacity style={s.addBtn} onPress={handleAddCareer} activeOpacity={0.8}>
@@ -240,10 +240,10 @@ export default function SetUserInfoProfilePage() {
                   <View key={i} style={s.careerItem}>
                     <View style={s.orderBtns}>
                       <TouchableOpacity onPress={() => handleMoveCareer(i, -1)} disabled={i === 0} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                        <Ionicons name="chevron-up" size={16} color={i === 0 ? '#e5e7eb' : '#9ca3af'} />
+                        <Ionicons name="chevron-up" size={16} color={i === 0 ? '#e2e8f0' : '#94a3b8'} />
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleMoveCareer(i, 1)} disabled={i === careers.length - 1} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                        <Ionicons name="chevron-down" size={16} color={i === careers.length - 1 ? '#e5e7eb' : '#9ca3af'} />
+                        <Ionicons name="chevron-down" size={16} color={i === careers.length - 1 ? '#e2e8f0' : '#94a3b8'} />
                       </TouchableOpacity>
                     </View>
                     <Text style={s.careerText} numberOfLines={1}>{c}</Text>
@@ -267,7 +267,7 @@ export default function SetUserInfoProfilePage() {
               value={introduction}
               onChangeText={setIntroduction}
               placeholder="자신의 강점이나 전문 분야를 자유롭게 적어주세요."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               multiline
               numberOfLines={6}
               textAlignVertical="top"
@@ -297,25 +297,25 @@ export default function SetUserInfoProfilePage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   errorText: { color: '#f87171', fontSize: 14 },
   scroll: { padding: 16, paddingTop: 32, gap: 12 },
 
   heroSection: { paddingVertical: 12, alignItems: 'center' },
-  heroTitle: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 8 },
-  heroSub: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 20 },
-  heroAccent: { color: '#0ea5e9', fontWeight: '600' },
+  heroTitle: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
+  heroSub: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 20 },
+  heroAccent: { color: '#3b82f6', fontWeight: '600' },
 
   avatarSection: { alignItems: 'center', gap: 6 },
   avatarWrap: {
     width: 96, height: 96, borderRadius: 48,
-    backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center', position: 'relative',
+    backgroundColor: '#e2e8f0', alignItems: 'center', justifyContent: 'center', position: 'relative',
   },
   avatar: { width: 96, height: 96, borderRadius: 48 },
   avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  avatarHint: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
-  avatarSubHint: { fontSize: 11, color: '#0ea5e9' },
+  avatarHint: { fontSize: 14, color: '#94a3b8', marginTop: 4 },
+  avatarSubHint: { fontSize: 12, color: '#3b82f6' },
   cameraBtn: {
     position: 'absolute', bottom: 0, right: 0,
     width: 30, height: 30, borderRadius: 15,
@@ -329,57 +329,57 @@ const s = StyleSheet.create({
     gap: 16,
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#0ea5e9' },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937' },
+  sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#3b82f6' },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
 
   field: { gap: 6 },
   row: { flexDirection: 'row', gap: 12 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  label: { fontSize: 14, fontWeight: '400', color: '#334155' },
   required: { color: '#f87171' },
 
-  readOnlyInput: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#e5e7eb' },
-  readOnlyText: { fontSize: 14, color: '#6b7280' },
+  readOnlyInput: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#e2e8f0' },
+  readOnlyText: { fontSize: 14, color: '#64748b' },
 
   input: {
-    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
-    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', backgroundColor: '#fff',
+    borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#0f172a', backgroundColor: '#fff',
   },
 
   btnGroup: { flexDirection: 'row', gap: 8 },
   choiceBtn: {
     flex: 1, paddingVertical: 10, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e5e7eb', alignItems: 'center', backgroundColor: '#f9fafb',
+    borderWidth: 1.5, borderColor: '#e2e8f0', alignItems: 'center', backgroundColor: '#f8fafc',
   },
-  choiceBtnActive: { borderColor: '#0ea5e9', backgroundColor: '#fff' },
-  choiceText: { fontSize: 14, fontWeight: '600', color: '#9ca3af' },
-  choiceTextActive: { color: '#0ea5e9' },
+  choiceBtnActive: { borderColor: '#3b82f6', backgroundColor: '#fff' },
+  choiceText: { fontSize: 14, fontWeight: '500', color: '#94a3b8' },
+  choiceTextActive: { color: '#3b82f6' },
 
   careerInputRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   careerInput: {
-    flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
-    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', backgroundColor: '#fff',
+    flex: 1, borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#0f172a', backgroundColor: '#fff',
   },
   addBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#4ade80', alignItems: 'center', justifyContent: 'center' },
-  addBtnText: { color: '#fff', fontSize: 22, fontWeight: '700', lineHeight: 26 },
-  careerHint: { fontSize: 11, color: '#9ca3af', marginTop: -8 },
+  addBtnText: { color: '#fff', fontSize: 20, fontWeight: '700', lineHeight: 26 },
+  careerHint: { fontSize: 12, color: '#94a3b8', marginTop: -8 },
   careerList: { gap: 8 },
   careerItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#f9fafb', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
   },
-  careerText: { flex: 1, fontSize: 13, color: '#374151' },
-  removeBtn: { fontSize: 14, color: '#d1d5db', marginLeft: 8 },
+  careerText: { flex: 1, fontSize: 14, color: '#334155' },
+  removeBtn: { fontSize: 16, color: '#cbd5e1', marginLeft: 8 },
   orderBtns: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginRight: 4 },
 
   bioInput: {
-    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
-    padding: 12, fontSize: 14, color: '#111827', minHeight: 140,
+    borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,
+    padding: 12, fontSize: 14, color: '#0f172a', minHeight: 140,
   },
 
-  submitBtn: { backgroundColor: '#0ea5e9', borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
+  submitBtn: { backgroundColor: '#3b82f6', borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   btnDisabled: { opacity: 0.6 },
 
   skipBtn: { alignItems: 'center', paddingVertical: 14 },
-  skipText: { fontSize: 14, color: '#9ca3af' },
+  skipText: { fontSize: 14, color: '#94a3b8' },
 });

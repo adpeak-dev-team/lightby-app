@@ -30,7 +30,7 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   {
     icon: 'card',
-    iconBg: '#dbeafe', iconColor: '#0ea5e9',
+    iconBg: '#dbeafe', iconColor: '#3b82f6',
     label: '프로필 관리',
     route: '/mypage/talent',
   },
@@ -141,7 +141,7 @@ export default function MyPage() {
               <Image source={{ uri: avatarUri }} style={s.avatar} />
             ) : (
               <View style={[s.avatar, s.avatarPlaceholder]}>
-                <Ionicons name="person" size={32} color="#9ca3af" />
+                <Ionicons name="person" size={32} color="#94a3b8" />
               </View>
             )}
           </View>
@@ -157,7 +157,7 @@ export default function MyPage() {
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={handleLogout} style={s.logoutBtn} activeOpacity={0.7}>
-            <Ionicons name="log-out-outline" size={20} color="#9ca3af" />
+            <Ionicons name="log-out-outline" size={20} color="#94a3b8" />
           </TouchableOpacity>
         </View>
 
@@ -170,7 +170,7 @@ export default function MyPage() {
             activeOpacity={0.85}
           >
             <View style={[s.quickIcon, { backgroundColor: '#dbeafe' }]}>
-              <Ionicons name="settings" size={22} color="#0ea5e9" />
+              <Ionicons name="settings" size={22} color="#3b82f6" />
             </View>
             <Text style={s.quickTitle}>관심 설정</Text>
             <Text style={s.quickSub}>맞춤 정보 수신</Text>
@@ -213,7 +213,7 @@ export default function MyPage() {
                   <Text style={s.newBadgeText}>new</Text>
                 </View>
               )}
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
             </TouchableOpacity>
           ))}
         </View>
@@ -232,7 +232,7 @@ export default function MyPage() {
             <View style={s.modalHeader}>
               <Text style={s.modalTitle}>맞춤 정보 설정</Text>
               <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7} hitSlop={10}>
-                <Ionicons name="close" size={24} color="#374151" />
+                <Ionicons name="close" size={24} color="#334155" />
               </TouchableOpacity>
             </View>
             <PreferencesForm
@@ -256,14 +256,14 @@ const s = StyleSheet.create({
     width: 80, height: 80, borderRadius: 40, backgroundColor: '#fefce8',
     alignItems: 'center', justifyContent: 'center', marginBottom: 20,
   },
-  loginTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10 },
-  loginDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22 },
-  accent: { color: '#0ea5e9', fontWeight: '700' },
+  loginTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a', marginBottom: 10 },
+  loginDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 22 },
+  accent: { color: '#3b82f6', fontWeight: '700' },
   loginBtn: {
-    marginTop: 28, backgroundColor: '#38bdf8',
+    marginTop: 28, backgroundColor: '#60a5fa',
     paddingHorizontal: 32, paddingVertical: 12, borderRadius: 12,
   },
-  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  loginBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
   /* 프로필 카드 */
   profileCard: {
@@ -274,10 +274,10 @@ const s = StyleSheet.create({
   },
   avatarWrap: { flexShrink: 0 },
   avatar: { width: 60, height: 60, borderRadius: 30 },
-  avatarPlaceholder: { backgroundColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
+  avatarPlaceholder: { backgroundColor: '#e2e8f0', alignItems: 'center', justifyContent: 'center' },
   profileInfo: { flex: 1 },
-  profileName: { fontSize: 15, fontWeight: '700', color: '#111827' },
-  profileSub: { fontSize: 13, color: '#9ca3af', marginTop: 3 },
+  profileName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  profileSub: { fontSize: 14, color: '#94a3b8', marginTop: 3 },
   logoutBtn: { padding: 4 },
 
   /* 퀵 액션 */
@@ -291,14 +291,14 @@ const s = StyleSheet.create({
     width: 42, height: 42, borderRadius: 21,
     alignItems: 'center', justifyContent: 'center', marginBottom: 10,
   },
-  quickTitle: { fontSize: 14, fontWeight: '700', color: '#1f2937' },
-  quickSub: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  quickTitle: { fontSize: 16, fontWeight: '600', color: '#1e293b' },
+  quickSub: { fontSize: 14, color: '#94a3b8', marginTop: 2 },
   quickBadge: {
     position: 'absolute', top: 12, right: 12,
     backgroundColor: '#fb923c', minWidth: 20, height: 20,
     borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
   },
-  quickBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+  quickBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   /* 메뉴 */
   menuCard: {
@@ -311,24 +311,24 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: 16, paddingVertical: 14,
   },
-  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   menuIcon: {
     width: 36, height: 36, borderRadius: 10,
     alignItems: 'center', justifyContent: 'center',
   },
-  menuLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  menuLabel: { flex: 1, fontSize: 16, fontWeight: '500', color: '#1e293b' },
   newBadge: {
     backgroundColor: '#f87171', paddingHorizontal: 7, paddingVertical: 2,
     borderRadius: 10, marginRight: 4,
   },
-  newBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+  newBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   /* 관심 설정 모달 */
   modalContainer: { flex: 1, backgroundColor: '#fff' },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingTop: 14, paddingBottom: 14,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827' },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
 });
