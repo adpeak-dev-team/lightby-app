@@ -65,7 +65,7 @@ function Field({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor="#94a3b8"
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           editable={editable}
@@ -268,7 +268,7 @@ export default function RegisterPage() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f9fafb' }}
+      style={{ flex: 1, backgroundColor: '#f8fafc' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -369,14 +369,14 @@ export default function RegisterPage() {
             }}
           >
             <View style={styles.fieldWrap}>
-              <Text style={[styles.label, { color: '#0ea5e9' }]}>인증번호</Text>
+              <Text style={[styles.label, { color: '#3b82f6' }]}>인증번호</Text>
               <View style={styles.inputRow}>
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
                   value={form.otpCode}
                   onChangeText={setField('otpCode')}
                   placeholder="6자리 숫자"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   keyboardType="number-pad"
                   maxLength={6}
                 />
@@ -441,7 +441,7 @@ export default function RegisterPage() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f8fafc',
     paddingHorizontal: 24,
   },
   logoWrap: {
@@ -454,13 +454,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#0f172a',
   },
   subtitle: {
-    fontSize: 13,
-    color: '#6b7280',
+    fontSize: 16,
+    color: '#64748b',
     marginTop: 4,
   },
   form: {
@@ -470,42 +470,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: '#334155',
     marginBottom: 6,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
     borderRadius: 12,
     backgroundColor: '#fff',
     paddingHorizontal: 14,
     paddingVertical: 2,
   },
   inputDisabled: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
   },
   input: {
-    fontSize: 15,
-    color: '#111827',
+    fontSize: 14,
+    color: '#0f172a',
     paddingVertical: 12,
   },
   inlineBtn: {
-    backgroundColor: '#0ea5e9',
+    backgroundColor: '#3b82f6',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 7,
     marginLeft: 8,
   },
   inlineBtnDone: {
-    backgroundColor: '#9ca3af',
+    backgroundColor: '#94a3b8',
   },
   inlineBtnText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
   },
   errorText: {
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   successText: {
     fontSize: 12,
-    color: '#0ea5e9',
+    color: '#3b82f6',
     marginTop: 4,
     paddingLeft: 4,
   },
@@ -528,17 +528,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   timerText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#ef4444',
     fontWeight: '600',
   },
   submitBtn: {
-    backgroundColor: '#0ea5e9',
+    backgroundColor: '#3b82f6',
     paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
-    shadowColor: '#0ea5e9',
+    shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 18,
   },
   footer: {
     flexDirection: 'row',
@@ -555,13 +555,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   footerText: {
-    fontSize: 13,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#64748b',
   },
   footerLink: {
-    fontSize: 13,
-    color: '#0ea5e9',
-    fontWeight: '700',
+    fontSize: 14,
+    color: '#3b82f6',
+    fontWeight: '600',
     textDecorationLine: 'underline',
   },
 });

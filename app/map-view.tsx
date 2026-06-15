@@ -84,7 +84,7 @@ export default function MapViewPage() {
       {/* 헤더 (지도 위에 떠있는 형태) */}
       <View style={[s.header, { paddingTop: insets.top - 10 }]}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn} activeOpacity={0.8}>
-          <Ionicons name="chevron-back" size={22} color="#111827" />
+          <Ionicons name="chevron-back" size={22} color="#0f172a" />
         </TouchableOpacity>
         <View style={s.headerTextWrap}>
           <Text style={s.headerTitle} numberOfLines={1}>위치 보기</Text>
@@ -119,7 +119,7 @@ export default function MapViewPage() {
 
       {loading && isValid && (
         <View style={s.loading} pointerEvents="none">
-          <ActivityIndicator size="large" color="#0ea5e9" />
+          <ActivityIndicator size="large" color="#3b82f6" />
         </View>
       )}
 
@@ -135,17 +135,17 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 12, paddingBottom: 12,
     backgroundColor: 'rgba(255,255,255,0.96)',
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   backBtn: {
     width: 40, height: 40, borderRadius: 20,
     alignItems: 'center', justifyContent: 'center',
   },
   headerTextWrap: { flex: 1, marginLeft: 4 },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
-  headerSub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  headerSub: { fontSize: 12, color: '#64748b', marginTop: 2 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  errText: { fontSize: 14, color: '#9ca3af' },
+  errText: { fontSize: 14, color: '#94a3b8' },
   loading: {
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     alignItems: 'center', justifyContent: 'center',

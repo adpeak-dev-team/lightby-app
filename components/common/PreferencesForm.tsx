@@ -57,7 +57,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
   if (isLoading) {
     return (
       <View style={s.loadingWrap}>
-        <ActivityIndicator size="large" color="#38bdf8" />
+        <ActivityIndicator size="large" color="#60a5fa" />
         <Text style={s.loadingText}>선호도 정보를 불러오는 중...</Text>
       </View>
     );
@@ -142,50 +142,50 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
   );
 }
 
-const TEAL = '#007595';
+const TEAL = '#2563eb';
 
 const s = StyleSheet.create({
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 60 },
-  loadingText: { fontSize: 14, color: '#9ca3af' },
+  loadingText: { fontSize: 16, color: '#94a3b8' },
 
   scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
 
   section: { marginBottom: 36 },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937', marginBottom: 14 },
-  hint: { fontSize: 11, color: '#9ca3af', marginTop: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b', marginBottom: 14 },
+  hint: { fontSize: 12, color: '#94a3b8', marginTop: 8 },
 
   regionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   regionChip: {
     width: '31%', paddingVertical: 12, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e5e7eb', backgroundColor: '#fff', alignItems: 'center',
+    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff', alignItems: 'center',
   },
   regionChipActive: { backgroundColor: TEAL, borderColor: TEAL },
-  regionText: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  regionText: { fontSize: 14, fontWeight: '500', color: '#334155' },
   regionTextActive: { color: '#fff' },
 
   industryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   industryChip: {
     width: '48%', flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e5e7eb', backgroundColor: '#fff',
+    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff',
   },
   industryChipActive: { borderColor: TEAL, backgroundColor: `${TEAL}18` },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#d1d5db' },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cbd5e1' },
   dotActive: { backgroundColor: TEAL },
-  industryText: { fontSize: 13, color: '#374151', flex: 1 },
-  industryTextActive: { color: TEAL, fontWeight: '700' },
+  industryText: { fontSize: 14, color: '#334155', flex: 1 },
+  industryTextActive: { color: TEAL, fontWeight: '600' },
 
   rolesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   roleChip: {
     paddingHorizontal: 16, paddingVertical: 9, borderRadius: 20,
-    borderWidth: 1.5, borderColor: '#d1d5db', backgroundColor: '#fff',
+    borderWidth: 1.5, borderColor: '#cbd5e1', backgroundColor: '#fff',
   },
-  roleChipActive: { backgroundColor: '#1f2937', borderColor: '#1f2937' },
-  roleText: { fontSize: 13, color: '#6b7280' },
-  roleTextActive: { color: '#fff', fontWeight: '700' },
+  roleChipActive: { backgroundColor: '#1e293b', borderColor: '#1e293b' },
+  roleText: { fontSize: 14, color: '#64748b' },
+  roleTextActive: { color: '#fff', fontWeight: '600' },
 
   saveBtn: {
-    backgroundColor: '#38bdf8', borderRadius: 16, paddingVertical: 16,
+    backgroundColor: '#60a5fa', borderRadius: 16, paddingVertical: 16,
     alignItems: 'center', justifyContent: 'center', marginTop: 8,
   },
   saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },

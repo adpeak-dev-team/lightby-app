@@ -100,7 +100,7 @@ export function SalarySection({
                             value={baseSalary}
                             onChangeText={(v) => onBaseSalaryChange(v.replace(/[^0-9]/g, ''))}
                             placeholder="만원 단위 숫자만 입력 ex) 300"
-                            placeholderTextColor="#9ca3af"
+                            placeholderTextColor="#94a3b8"
                             keyboardType="number-pad"
                         />
                     </View>
@@ -125,7 +125,7 @@ export function SalarySection({
                                         value={item.category}
                                         onChangeText={(v) => updateCategory(index, v)}
                                         placeholder="ex) 아파트"
-                                        placeholderTextColor="#9ca3af"
+                                        placeholderTextColor="#94a3b8"
                                     />
                                     <View style={s.feeAmountRow}>
                                         <TextInput
@@ -133,7 +133,7 @@ export function SalarySection({
                                             value={min}
                                             onChangeText={(v) => updateAmount(index, 'min', v)}
                                             placeholder="최소 ex) 500"
-                                            placeholderTextColor="#9ca3af"
+                                            placeholderTextColor="#94a3b8"
                                             keyboardType="number-pad"
                                         />
                                         <Text style={s.tilde}>~</Text>
@@ -142,7 +142,7 @@ export function SalarySection({
                                             value={max}
                                             onChangeText={(v) => updateAmount(index, 'max', v)}
                                             placeholder="최대 ex) 1000"
-                                            placeholderTextColor="#9ca3af"
+                                            placeholderTextColor="#94a3b8"
                                             keyboardType="number-pad"
                                         />
                                         <TouchableOpacity
@@ -151,7 +151,7 @@ export function SalarySection({
                                             style={[s.removeBtn, fee.length === 1 && s.removeBtnDisabled]}
                                             activeOpacity={0.7}
                                         >
-                                            <Ionicons name="trash-outline" size={14} color={fee.length === 1 ? '#d1d5db' : '#9ca3af'} />
+                                            <Ionicons name="trash-outline" size={14} color={fee.length === 1 ? '#cbd5e1' : '#94a3b8'} />
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -230,7 +230,7 @@ const s = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 4,
     },
-    addBtnText: { fontSize: 12, fontWeight: '700', color: '#16a34a' },
+    addBtnText: { fontSize: 12, fontWeight: '500', color: '#16a34a' },
     feeItemBlock: {
         gap: 6,
         paddingVertical: 4,
@@ -248,7 +248,7 @@ const s = StyleSheet.create({
         marginBottom: 0,
         paddingHorizontal: 10,
     },
-    tilde: { fontSize: 14, color: '#6b7280' },
+    tilde: { fontSize: 16, color: '#64748b' },
     removeBtn: {
         width: 32,
         height: 38,
@@ -257,11 +257,11 @@ const s = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#fff',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
     },
     removeBtnDisabled: { opacity: 0.4 },
     hintList: { gap: 2, marginTop: 4 },
-    feeHint: { fontSize: 11, color: '#16a34a', lineHeight: 16 },
+    feeHint: { fontSize: 12, color: '#16a34a', lineHeight: 16 },
     col: { flexDirection: 'column', gap: 12 },
     row: { flexDirection: 'row', gap: 10 },
     field: { gap: 6 },

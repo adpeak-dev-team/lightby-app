@@ -106,7 +106,7 @@ function Pill({
     return (
         <GestureDetector gesture={tap}>
             <View style={[ss.pill, green && ss.pillGreenIdle, active && (green ? ss.pillGreenActive : ss.pillActive)]}>
-                <Text style={[ss.pillText, active && (green ? ss.pillGreenTextActive : ss.pillTextActive)]}>{label}</Text>
+                <Text style={[ss.pillText, green && ss.pillTextGreen, active && (green ? ss.pillGreenTextActive : ss.pillTextActive)]}>{label}</Text>
             </View>
         </GestureDetector>
     );
@@ -153,7 +153,7 @@ export function ChoiceField({
                     value={customValue}
                     onChangeText={(t) => { setCustomValue(t); onChange(t); }}
                     placeholder={customPlaceholder}
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                 />
             )}
         </View>
@@ -186,7 +186,7 @@ export function ProvideField({
                     value={detail}
                     onChangeText={(t) => { setDetail(t); onChange(t); }}
                     placeholder={placeholder}
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                 />
             )}
         </View>
@@ -231,7 +231,7 @@ export function MealField({ value, onChange }: { value: string; onChange: (v: st
                     value={customValue}
                     onChangeText={(t) => { setCustomValue(t); onChange(t); }}
                     placeholder="ex) 식사 제공 / 식대 10만"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                 />
             )}
         </View>
@@ -316,20 +316,20 @@ export const ss = StyleSheet.create({
         gap: 12,
     },
     sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-    sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#0ea5e9' },
-    sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1f2937' },
-    sectionSub: { fontSize: 11, color: '#9ca3af', marginLeft: 'auto' },
-    label: { fontSize: 13, fontWeight: '600', color: '#374151', marginTop: 2 },
+    sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#3b82f6' },
+    sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1e293b' },
+    sectionSub: { fontSize: 12, color: '#94a3b8', marginLeft: 'auto' },
+    label: { fontSize: 14, fontWeight: '500', color: '#334155', marginTop: 2 },
     required: { color: '#f87171' },
     input: {
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         borderRadius: 12,
         paddingHorizontal: 12,
         paddingVertical: 10,
         fontSize: 14,
-        color: '#111827',
-        backgroundColor: '#f9fafb',
+        color: '#0f172a',
+        backgroundColor: '#f8fafc',
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     chip: {
@@ -340,14 +340,14 @@ export const ss = StyleSheet.create({
         paddingHorizontal: 4,
         borderRadius: 10,
         borderWidth: 1.5,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         backgroundColor: '#fff',
         alignItems: 'center',
     },
-    chipActive: { backgroundColor: '#eff6ff', borderColor: '#0ea5e9' },
-    chipText: { fontSize: 12, fontWeight: '500', color: '#6b7280' },
-    chipTextActive: { color: '#0ea5e9', fontWeight: '700' },
-    chipGreen: { borderColor: '#e5e7eb', backgroundColor: '#fff' },
+    chipActive: { backgroundColor: '#eff6ff', borderColor: '#3b82f6' },
+    chipText: { fontSize: 14, fontWeight: '500', color: '#64748b' },
+    chipTextActive: { color: '#3b82f6', fontWeight: '500' },
+    chipGreen: { borderColor: '#e2e8f0', backgroundColor: '#fff' },
     chipGreenActive: { backgroundColor: '#16a34a', borderColor: '#16a34a' },
     chipGreenTextActive: { color: '#fff', fontWeight: '700' },
 
@@ -359,14 +359,15 @@ export const ss = StyleSheet.create({
         paddingVertical: 7,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         backgroundColor: '#fff',
     },
-    pillActive: { backgroundColor: '#e0f2fe', borderColor: '#0ea5e9' },
-    pillText: { fontSize: 12, fontWeight: '500', color: '#6b7280' },
-    pillTextActive: { color: '#0369a1', fontWeight: '700' },
+    pillActive: { backgroundColor: '#dbeafe', borderColor: '#3b82f6' },
+    pillText: { fontSize: 12, fontWeight: '500', color: '#64748b' },
+    pillTextGreen: { fontSize: 14 },
+    pillTextActive: { color: '#1d4ed8', fontWeight: '500' },
     // 수수료 형태(초록) 변형 — front의 green 칩
     pillGreenIdle: { borderColor: '#86efac' },
     pillGreenActive: { backgroundColor: '#16a34a', borderColor: '#16a34a' },
-    pillGreenTextActive: { color: '#fff', fontWeight: '700' },
+    pillGreenTextActive: { color: '#fff', fontWeight: '500' },
 });

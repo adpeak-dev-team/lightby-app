@@ -46,7 +46,7 @@ function ApplicantCard({ item }: { item: ApplicantItem }) {
             <Image source={{ uri: imageUri }} style={c.thumb} />
           ) : (
             <View style={[c.thumb, c.thumbPlaceholder]}>
-              <Ionicons name="image-outline" size={24} color="#d1d5db" />
+              <Ionicons name="image-outline" size={24} color="#cbd5e1" />
             </View>
           )}
         </View>
@@ -99,7 +99,7 @@ export default function ApplicantManagementPage() {
     <View style={s.container}>
       <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>지원자 관리</Text>
         <View style={{ width: 40 }} />
@@ -114,8 +114,8 @@ export default function ApplicantManagementPage() {
         ListHeaderComponent={
           <View style={s.statsGrid}>
             {[
-              { label: '전체 공고', value: allCount, labelColor: '#6b7280', valColor: '#1f2937' },
-              { label: '진행중', value: goingCount, labelColor: '#38bdf8', valColor: '#0284c7' },
+              { label: '전체 공고', value: allCount, labelColor: '#64748b', valColor: '#1e293b' },
+              { label: '진행중', value: goingCount, labelColor: '#60a5fa', valColor: '#2563eb' },
               { label: '마감', value: endCount, labelColor: '#fb7185', valColor: '#e11d48' },
             ].map(({ label, value, labelColor, valColor }) => (
               <View key={label} style={s.statCard}>
@@ -142,33 +142,33 @@ export default function ApplicantManagementPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   list: { padding: 12, paddingBottom: 32, gap: 10 },
   statsGrid: { flexDirection: 'row', gap: 10, marginBottom: 4 },
   statCard: {
     flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center',
-    borderWidth: 1, borderColor: '#e5e7eb',
+    borderWidth: 1, borderColor: '#e2e8f0',
   },
-  statLabel: { fontSize: 9, fontWeight: '700', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  statVal: { fontSize: 20, fontWeight: '700' },
+  statLabel: { fontSize: 12, fontWeight: '500', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  statVal: { fontSize: 24, fontWeight: '700' },
   skeletons: { gap: 10 },
-  empty: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 14 },
+  empty: { textAlign: 'center', color: '#94a3b8', marginTop: 60, fontSize: 14 },
 });
 
 const sk = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 14, padding: 12, flexDirection: 'row', gap: 12 },
-  thumb: { width: 80, height: 80, borderRadius: 10, backgroundColor: '#e5e7eb', flexShrink: 0 },
+  thumb: { width: 80, height: 80, borderRadius: 10, backgroundColor: '#e2e8f0', flexShrink: 0 },
   content: { flex: 1, gap: 8, justifyContent: 'center' },
-  line1: { height: 10, backgroundColor: '#e5e7eb', borderRadius: 5, width: '30%' },
-  line2: { height: 14, backgroundColor: '#e5e7eb', borderRadius: 5, width: '80%' },
-  line3: { height: 10, backgroundColor: '#e5e7eb', borderRadius: 5, width: '40%' },
+  line1: { height: 10, backgroundColor: '#e2e8f0', borderRadius: 5, width: '30%' },
+  line2: { height: 14, backgroundColor: '#e2e8f0', borderRadius: 5, width: '80%' },
+  line3: { height: 10, backgroundColor: '#e2e8f0', borderRadius: 5, width: '40%' },
 });
 
 const c = StyleSheet.create({
@@ -177,27 +177,27 @@ const c = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
   },
   row: { flexDirection: 'row', gap: 12 },
-  thumbWrap: { width: 80, height: 80, borderRadius: 10, overflow: 'hidden', flexShrink: 0, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#f3f4f6' },
+  thumbWrap: { width: 80, height: 80, borderRadius: 10, overflow: 'hidden', flexShrink: 0, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#f1f5f9' },
   thumb: { width: '100%', height: '100%' },
   thumbPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   content: { flex: 1, gap: 6 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   statusBadge: { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
-  badgeActive: { backgroundColor: '#e0f2fe', borderWidth: 1, borderColor: '#bae6fd' },
-  badgeEnded: { backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' },
-  statusText: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
-  statusTextActive: { color: '#0284c7' },
-  statusTextEnded: { color: '#9ca3af' },
-  dateRange: { fontSize: 10, color: '#9ca3af', fontWeight: '500' },
-  title: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#f3f4f6', marginTop: 10, paddingTop: 10 },
+  badgeActive: { backgroundColor: '#dbeafe', borderWidth: 1, borderColor: '#bfdbfe' },
+  badgeEnded: { backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#e2e8f0' },
+  statusText: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase' },
+  statusTextActive: { color: '#2563eb' },
+  statusTextEnded: { color: '#94a3b8' },
+  dateRange: { fontSize: 10, color: '#94a3b8', fontWeight: '500' },
+  title: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
+  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#f1f5f9', marginTop: 10, paddingTop: 10 },
   stats: { flexDirection: 'row', gap: 20 },
   stat: { gap: 2 },
-  statLabel: { fontSize: 10, color: '#9ca3af', fontWeight: '600' },
-  statVal: { fontSize: 14, fontWeight: '700', color: '#1f2937' },
+  statLabel: { fontSize: 10, color: '#94a3b8', fontWeight: '500' },
+  statVal: { fontSize: 14, fontWeight: '800', color: '#1e293b' },
   statUnit: { fontSize: 10, fontWeight: '500' },
   unreadLabel: { color: '#fb7185' },
-  unreadVal: { color: '#e11d48' },
-  viewBtn: { backgroundColor: '#1f2937', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 },
+  unreadVal: { color: '#e11d48', fontWeight: '700' },
+  viewBtn: { backgroundColor: '#1e293b', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 },
   viewBtnText: { fontSize: 11, fontWeight: '700', color: '#fff' },
 });

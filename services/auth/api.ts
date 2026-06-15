@@ -86,12 +86,14 @@ export interface OAuthSignUpResponse {
 }
 
 export async function signUp(body: SignUpRequest): Promise<SignUpResponse> {
-  const res = await apiClient.post<SignUpResponse>('/auth/sign-up', body);
+  // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프
+  const res = await apiClient.post<SignUpResponse>('/auth/sign-up', { ...body, platform: 'app' });
   return res.data;
 }
 
 export async function signIn(body: SignInRequest): Promise<SignInResponse> {
-  const res = await apiClient.post<SignInResponse>('/auth/sign-in', body);
+  // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프
+  const res = await apiClient.post<SignInResponse>('/auth/sign-in', { ...body, platform: 'app' });
   return res.data;
 }
 
@@ -139,7 +141,8 @@ export async function oauthAppleSignIn(
 }
 
 export async function oauthSignUp(body: OAuthSignUpRequest): Promise<OAuthSignUpResponse> {
-  const res = await apiClient.post<OAuthSignUpResponse>('/auth/sign-up/oauth', body);
+  // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프
+  const res = await apiClient.post<OAuthSignUpResponse>('/auth/sign-up/oauth', { ...body, platform: 'app' });
   return res.data;
 }
 

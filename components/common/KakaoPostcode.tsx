@@ -111,14 +111,14 @@ export function KakaoPostcode({ address, onSelect }: Props) {
                     value={inputText}
                     onChangeText={setInputText}
                     placeholder="주소를 검색해주세요"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                     returnKeyType="done"
                     onSubmitEditing={handleApply}
                 />
 
 
                 {loading && (
-                    <ActivityIndicator size="small" color="#0ea5e9" style={s.spinner} />
+                    <ActivityIndicator size="small" color="#3b82f6" style={s.spinner} />
                 )}
 
                 {showApplyButton && !loading && (
@@ -146,11 +146,11 @@ export function KakaoPostcode({ address, onSelect }: Props) {
                 <SafeAreaView style={s.postcodeModal}>
                     <View style={s.postcodeHeader}>
                         <TouchableOpacity onPress={() => setPostcodeVisible(false)} hitSlop={8}>
-                            <Ionicons name="chevron-back" size={22} color="#111827" />
+                            <Ionicons name="chevron-back" size={22} color="#0f172a" />
                         </TouchableOpacity>
                         <Text style={s.postcodeTitle}>주소 검색</Text>
                         <TouchableOpacity onPress={() => setPostcodeVisible(false)} hitSlop={8}>
-                            <Ionicons name="close" size={24} color="#111827" />
+                            <Ionicons name="close" size={24} color="#0f172a" />
                         </TouchableOpacity>
                     </View>
                     <WebView
@@ -204,26 +204,26 @@ const s = StyleSheet.create({
     input: {
         flex: 1,
         borderWidth: 1.5,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         borderRadius: 10,
         paddingHorizontal: 12,
         paddingVertical: 11,
         fontSize: 14,
-        color: '#111827',
-        backgroundColor: '#f9fafb',
+        color: '#0f172a',
+        backgroundColor: '#f8fafc',
     },
     spinner: {
         marginHorizontal: 4,
     },
     iconBtn: {
-        backgroundColor: '#374151',
+        backgroundColor: '#334155',
         borderRadius: 10,
         padding: 12,
         alignItems: 'center',
         justifyContent: 'center',
     },
     btnApply: {
-        backgroundColor: '#0ea5e9',
+        backgroundColor: '#3b82f6',
     },
 
     // 우편번호 모달
@@ -238,12 +238,12 @@ const s = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
+        borderBottomColor: '#f1f5f9',
     },
     postcodeTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#111827',
+        color: '#0f172a',
     },
 
     // 에러 모달
@@ -276,11 +276,11 @@ const s = StyleSheet.create({
     errorTitle: {
         fontSize: 17,
         fontWeight: '700',
-        color: '#111827',
+        color: '#0f172a',
     },
     errorDesc: {
         fontSize: 14,
-        color: '#6b7280',
+        color: '#64748b',
         textAlign: 'center',
         lineHeight: 21,
         marginBottom: 8,
@@ -289,7 +289,7 @@ const s = StyleSheet.create({
         width: '100%',
         paddingVertical: 14,
         borderRadius: 14,
-        backgroundColor: '#111827',
+        backgroundColor: '#0f172a',
         alignItems: 'center',
         marginTop: 4,
     },
@@ -301,7 +301,7 @@ const s = StyleSheet.create({
     hint: {
         marginTop: 0,
         fontSize: 11,
-        color: '#9ca3af',
+        color: '#94a3b8',
         lineHeight: 16,
     },
 });

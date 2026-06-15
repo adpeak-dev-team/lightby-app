@@ -8,11 +8,11 @@ export interface CommunityPostsPage {
   hasMore: boolean;
 }
 
-export async function getCommunityPosts(search?: string, page = 1, limit = 10): Promise<CommunityPostsPage> {
+export async function getCommunityPosts(search?: string, category?: string, page = 1, limit = 10): Promise<CommunityPostsPage> {
   const { data } = await apiClient.get<{
     success: boolean; data: CommunityItem[]; page: number; limit: number; hasMore: boolean;
   }>('/community/posts', {
-    params: { ...(search ? { search } : {}), page, limit },
+    params: { ...(search ? { search } : {}), ...(category ? { category } : {}), page, limit },
   });
   return { data: data.data, page: data.page, limit: data.limit, hasMore: data.hasMore };
 }

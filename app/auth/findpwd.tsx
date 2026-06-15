@@ -189,7 +189,7 @@ export default function FindPasswordPage() {
                 value={loginId}
                 onChangeText={(v) => { setLoginId(v); setInputErr(''); }}
                 placeholder="아이디를 입력하세요"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -201,7 +201,7 @@ export default function FindPasswordPage() {
                 value={phone}
                 onChangeText={(v) => { setPhone(formatPhoneNumber(v)); setInputErr(''); }}
                 placeholder="010-0000-0000"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 keyboardType="phone-pad"
               />
             </View>
@@ -232,7 +232,7 @@ export default function FindPasswordPage() {
                 value={otpCode}
                 onChangeText={(v) => { setOtpCode(v.replace(/\D/g, '').slice(0, 6)); setOtpErr(''); }}
                 placeholder="인증번호 6자리"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 keyboardType="number-pad"
                 maxLength={6}
               />
@@ -270,7 +270,7 @@ export default function FindPasswordPage() {
                 value={newPwd}
                 onChangeText={(v) => { setNewPwd(v); setPwdErr(''); }}
                 placeholder="8~20자리 비밀번호"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 secureTextEntry
               />
             </View>
@@ -281,7 +281,7 @@ export default function FindPasswordPage() {
                 value={confirmPwd}
                 onChangeText={(v) => { setConfirmPwd(v); setPwdErr(''); }}
                 placeholder="비밀번호를 다시 입력하세요"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 secureTextEntry
               />
             </View>
@@ -306,39 +306,39 @@ const stepDot = (active: boolean) => ({
   width: active ? 24 : 8,
   height: 8,
   borderRadius: 4,
-  backgroundColor: active ? '#0ea5e9' : '#d1d5db',
+  backgroundColor: active ? '#3b82f6' : '#cbd5e1',
 });
 
 const s = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  container: { flexGrow: 1, backgroundColor: '#f8fafc', paddingHorizontal: 24 },
   headerWrap: { alignItems: 'center', marginBottom: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#111827', marginBottom: 8 },
-  sub: { fontSize: 14, color: '#6b7280', textAlign: 'center' },
+  title: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
+  sub: { fontSize: 14, color: '#64748b', textAlign: 'center' },
   stepWrap: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 28 },
   form: { gap: 12 },
   fieldWrap: { gap: 6 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  label: { fontSize: 14, fontWeight: '500', color: '#334155' },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   input: {
-    borderWidth: 1, borderColor: '#d1d5db', borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 12, fontSize: 15,
-    backgroundColor: '#fff', color: '#111827',
+    borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
+    backgroundColor: '#fff', color: '#0f172a',
   },
   inputErr: { borderColor: '#ef4444' },
   btn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
-  btnBlue: { backgroundColor: '#0ea5e9' },
+  btnBlue: { backgroundColor: '#3b82f6' },
   btnGreen: { backgroundColor: '#10b981' },
-  btnDisabled: { backgroundColor: '#9ca3af' },
-  btnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  timer: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
+  btnDisabled: { backgroundColor: '#94a3b8' },
+  btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  timer: { fontSize: 14, fontWeight: '500', color: '#64748b' },
   timerExpired: { color: '#ef4444' },
-  errText: { fontSize: 12, color: '#ef4444' },
+  errText: { fontSize: 14, color: '#ef4444' },
   linkBtn: { alignItems: 'center', paddingVertical: 8 },
-  linkText: { fontSize: 13, color: '#9ca3af', textDecorationLine: 'underline' },
-  linkTextBlue: { fontSize: 13, color: '#0ea5e9', fontWeight: '600' },
+  linkText: { fontSize: 14, color: '#94a3b8', textDecorationLine: 'underline' },
+  linkTextBlue: { fontSize: 14, color: '#3b82f6', fontWeight: '600' },
   successBox: {
     backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#86efac',
     borderRadius: 12, padding: 14,
   },
-  successText: { color: '#16a34a', fontSize: 14, fontWeight: '600' },
+  successText: { color: '#16a34a', fontSize: 14, fontWeight: '500' },
 });

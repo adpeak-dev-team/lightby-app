@@ -43,7 +43,7 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
               </View>
               {myId === reply.user_id && (
                 <TouchableOpacity onPress={() => onDeleteReply(reply.id)} hitSlop={8}>
-                  <Ionicons name="trash-outline" size={14} color="#d1d5db" />
+                  <Ionicons name="trash-outline" size={14} color="#cbd5e1" />
                 </TouchableOpacity>
               )}
             </View>
@@ -58,14 +58,14 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
 
 const s = StyleSheet.create({
   section: { paddingHorizontal: 16, paddingTop: 16 },
-  header: { fontSize: 15, fontWeight: '700', color: '#111827', marginBottom: 14 },
-  empty: { color: '#9ca3af', fontSize: 14, textAlign: 'center', paddingVertical: 24 },
-  item: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
+  header: { fontSize: 18, fontWeight: '600', color: '#0f172a', marginBottom: 14 },
+  empty: { color: '#94a3b8', fontSize: 16, textAlign: 'center', paddingVertical: 24 },
+  item: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f8fafc' },
   itemHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  author: { fontSize: 13, fontWeight: '700', color: '#374151' },
-  authorBadge: { backgroundColor: '#e0f2fe', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  authorBadgeText: { fontSize: 10, fontWeight: '700', color: '#0369a1' },
-  date: { fontSize: 11, color: '#9ca3af' },
-  content: { fontSize: 14, color: '#4b5563', lineHeight: 21 },
+  author: { fontSize: 14, fontWeight: '600', color: '#334155' },
+  authorBadge: { backgroundColor: '#dbeafe', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+  authorBadgeText: { fontSize: 11, fontWeight: '600', color: '#1d4ed8' },
+  date: { fontSize: 12, color: '#94a3b8' },
+  content: { fontSize: 14, color: '#475569', lineHeight: 23 },
 });

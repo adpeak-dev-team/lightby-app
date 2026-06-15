@@ -1,5 +1,5 @@
 import { apiClient } from '@/api/apiClient';
-import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary, FeeItem } from './types';
+import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary, FeeItem, MainStats } from './types';
 
 export async function getJobDetail(id: string): Promise<JobPostDetail> {
   const { data } = await apiClient.get<{ success: boolean; data: JobPostDetail }>(`/detail/get-job-detail?id=${id}`);
@@ -66,10 +66,16 @@ export async function markApplyAsRead(applyId: number): Promise<void> {
 
 export interface JobPostingPayload {
   address: string;
+  addressDetail: string;
   agency: string;
   baseSalary: string;
   careerPeriod: string;
   detailContent: string;
+  siteUrl: string;
+  enforcement: string;
+  construction: string;
+  requireGender: string;
+  requireAge: string;
   fee: FeeItem[];
   feeType: string;
   mealExpense: string;
@@ -128,6 +134,11 @@ export interface BannerItem {
 
 export async function getBanners(): Promise<BannerItem[]> {
   const { data } = await apiClient.get('/main/banners');
+  return data.data;
+}
+
+export async function getMainStats(): Promise<MainStats> {
+  const { data } = await apiClient.get('/main/stats');
   return data.data;
 }
 

@@ -117,16 +117,16 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#e2e8f0',
   },
   chipActive: {
-    backgroundColor: '#0ea5e9',
-    borderColor: '#0ea5e9',
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
   },
   chipText: {
-    fontSize: 13,
-    color: '#6b7280',
-    fontWeight: '500',
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '700',
   },
   chipTextActive: {
     color: '#fff',

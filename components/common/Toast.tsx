@@ -14,7 +14,7 @@ interface ToastItem extends ToastOptions {
 const TYPE_CONFIG: Record<ToastType, { bg: string; icon: keyof typeof Ionicons.glyphMap; iconColor: string }> = {
     success: { bg: '#22c55e', icon: 'checkmark-circle', iconColor: '#fff' },
     error: { bg: '#ef4444', icon: 'close-circle', iconColor: '#fff' },
-    info: { bg: '#38bdf8', icon: 'information-circle', iconColor: '#fff' },
+    info: { bg: '#60a5fa', icon: 'information-circle', iconColor: '#fff' },
     warning: { bg: '#f59e0b', icon: 'warning', iconColor: '#fff' },
 };
 

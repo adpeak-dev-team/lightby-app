@@ -71,7 +71,7 @@ function JobPostList() {
     }
   };
 
-  if (isLoading) return <ActivityIndicator size="large" color="#38bdf8" style={{ marginTop: 40 }} />;
+  if (isLoading) return <ActivityIndicator size="large" color="#60a5fa" style={{ marginTop: 40 }} />;
   if (error) return <Text style={e.errorText}>데이터를 불러오지 못했습니다.</Text>;
   if (posts.length === 0) return <Text style={e.emptyText}>등록한 구인공고가 없습니다.</Text>;
 
@@ -84,7 +84,7 @@ function JobPostList() {
           <View style={e.itemWrap}>
             <JobCard job={item as JobItem} onPress={() => router.push({ pathname: '/posts/site/[id]', params: { id: item.id } })} />
             <TouchableOpacity style={e.deleteBtn} onPress={() => setDeleteTargetId(item.id)}>
-              <Ionicons name="trash-outline" size={16} color="#9ca3af" />
+              <Ionicons name="trash-outline" size={16} color="#94a3b8" />
             </TouchableOpacity>
           </View>
         )}
@@ -92,7 +92,7 @@ function JobPostList() {
         showsVerticalScrollIndicator={false}
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#38bdf8" style={{ paddingVertical: 16 }} /> : null}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#60a5fa" style={{ paddingVertical: 16 }} /> : null}
       />
       <DeleteModal
         visible={deleteTargetId !== null}
@@ -127,7 +127,7 @@ function BoardPostList() {
     }
   };
 
-  if (isLoading) return <ActivityIndicator size="large" color="#38bdf8" style={{ marginTop: 40 }} />;
+  if (isLoading) return <ActivityIndicator size="large" color="#60a5fa" style={{ marginTop: 40 }} />;
   if (error) return <Text style={e.errorText}>데이터를 불러오지 못했습니다.</Text>;
   if (posts.length === 0) return <Text style={e.emptyText}>등록한 게시글이 없습니다.</Text>;
 
@@ -140,7 +140,7 @@ function BoardPostList() {
           <View style={e.itemWrap}>
             <CommunityCard item={item as any} onPress={() => router.push({ pathname: '/posts/board/[id]', params: { id: item.id } })} />
             <TouchableOpacity style={e.deleteBtn} onPress={() => setDeleteTargetId(item.id)}>
-              <Ionicons name="trash-outline" size={16} color="#9ca3af" />
+              <Ionicons name="trash-outline" size={16} color="#94a3b8" />
             </TouchableOpacity>
           </View>
         )}
@@ -148,7 +148,7 @@ function BoardPostList() {
         showsVerticalScrollIndicator={false}
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#38bdf8" style={{ paddingVertical: 16 }} /> : null}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#60a5fa" style={{ paddingVertical: 16 }} /> : null}
       />
       <DeleteModal
         visible={deleteTargetId !== null}
@@ -169,7 +169,7 @@ export default function PostPage() {
     <View style={s.container}>
       <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>내 글 관리</Text>
         <View style={{ width: 40 }} />
@@ -194,20 +194,20 @@ export default function PostPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
-  tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   tabItem: { flex: 1, alignItems: 'center', paddingTop: 12, paddingBottom: 0 },
-  tabLabel: { fontSize: 14, fontWeight: '600', color: '#9ca3af', paddingBottom: 10 },
-  tabLabelActive: { color: '#111827' },
+  tabLabel: { fontSize: 14, fontWeight: '600', color: '#94a3b8', paddingBottom: 10 },
+  tabLabelActive: { color: '#0f172a' },
   tabUnderline: { height: 2, width: '100%', backgroundColor: 'transparent' },
-  tabUnderlineActive: { backgroundColor: '#111827' },
+  tabUnderlineActive: { backgroundColor: '#0f172a' },
 });
 
 const e = StyleSheet.create({
@@ -215,10 +215,10 @@ const e = StyleSheet.create({
   itemWrap: { position: 'relative', marginBottom: 10 },
   deleteBtn: {
     position: 'absolute', top: 10, right: 10,
-    backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e7eb',
+    backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0',
     borderRadius: 8, width: 30, height: 30, alignItems: 'center', justifyContent: 'center',
   },
-  emptyText: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 14 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 60, fontSize: 14 },
   errorText: { textAlign: 'center', color: '#f87171', marginTop: 60, fontSize: 14 },
 });
 
@@ -226,11 +226,11 @@ const m = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center', padding: 24 },
   box: { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 320, alignItems: 'center' },
   iconWrap: { width: 52, height: 52, borderRadius: 26, backgroundColor: '#fef2f2', alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
-  title: { fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 6 },
-  desc: { fontSize: 13, color: '#9ca3af', marginBottom: 20 },
+  title: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
+  desc: { fontSize: 14, color: '#94a3b8', marginBottom: 20 },
   btnRow: { flexDirection: 'row', gap: 10, width: '100%' },
-  cancelBtn: { flex: 1, backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  cancelText: { fontSize: 14, fontWeight: '600', color: '#6b7280' },
+  cancelBtn: { flex: 1, backgroundColor: '#f1f5f9', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  cancelText: { fontSize: 14, fontWeight: '600', color: '#64748b' },
   deleteBtn: { flex: 1, backgroundColor: '#f87171', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   deleteText: { fontSize: 14, fontWeight: '700', color: '#fff' },
   btnDisabled: { opacity: 0.6 },

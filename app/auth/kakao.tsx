@@ -274,7 +274,7 @@ export default function KakaoLoginPage() {
                   value={nickname}
                   onChangeText={(v) => { setNickname(v); setIsNicknameVerified(false); setNicknameErr(''); }}
                   placeholder="닉네임을 입력하세요"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   autoCapitalize="none"
                 />
                 <TouchableOpacity
@@ -302,7 +302,7 @@ export default function KakaoLoginPage() {
                   value={phone}
                   onChangeText={(v) => { setPhone(formatPhoneNumber(v)); setPhoneErr(''); }}
                   placeholder="010-0000-0000"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   keyboardType="phone-pad"
                   editable={!isPhoneVerified}
                 />
@@ -326,7 +326,7 @@ export default function KakaoLoginPage() {
                       value={otpCode}
                       onChangeText={(v) => { setOtpCode(v.replace(/\D/g, '').slice(0, 6)); setOtpErr(''); }}
                       placeholder="인증번호 6자리"
-                      placeholderTextColor="#9ca3af"
+                      placeholderTextColor="#94a3b8"
                       keyboardType="number-pad"
                       maxLength={6}
                     />
@@ -378,38 +378,38 @@ export default function KakaoLoginPage() {
 }
 
 const s = StyleSheet.create({
-  center: { flex: 1, backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center', gap: 16 },
-  loadingText: { fontSize: 16, fontWeight: '700', color: '#374151' },
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  center: { flex: 1, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center', gap: 16 },
+  loadingText: { fontSize: 20, fontWeight: '700', color: '#334155' },
+  container: { flexGrow: 1, backgroundColor: '#f8fafc', paddingHorizontal: 24 },
   headerWrap: { alignItems: 'center', marginBottom: 28 },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#111827', marginBottom: 6 },
-  headerSub: { fontSize: 13, color: '#ef4444', textAlign: 'center', fontWeight: '500' },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
+  headerSub: { fontSize: 14, color: '#ef4444', textAlign: 'center', fontWeight: '500' },
   fieldWrap: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { fontSize: 14, fontWeight: '500', color: '#334155', marginBottom: 6 },
   row: { flexDirection: 'row', gap: 8 },
   input: {
-    borderWidth: 1, borderColor: '#d1d5db', borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 12, fontSize: 15,
-    backgroundColor: '#fff', color: '#111827',
+    borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
+    backgroundColor: '#fff', color: '#0f172a',
   },
-  inputDone: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
+  inputDone: { backgroundColor: '#f1f5f9', borderColor: '#e2e8f0' },
   subBtn: {
-    backgroundColor: '#0ea5e9', borderRadius: 12, paddingHorizontal: 14,
+    backgroundColor: '#3b82f6', borderRadius: 12, paddingHorizontal: 14,
     alignItems: 'center', justifyContent: 'center', minWidth: 80,
   },
-  subBtnDone: { backgroundColor: '#9ca3af' },
-  subBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  subBtnDone: { backgroundColor: '#94a3b8' },
+  subBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   errText: { fontSize: 12, color: '#ef4444', marginTop: 4 },
   okText: { fontSize: 12, color: '#10b981', marginTop: 4, fontWeight: '500' },
   otpMeta: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  timer: { fontSize: 13, color: '#6b7280', fontWeight: '600' },
+  timer: { fontSize: 14, color: '#64748b', fontWeight: '600' },
   timerExpired: { color: '#ef4444' },
   submitBtn: {
     backgroundColor: '#FEE500', paddingVertical: 16, borderRadius: 14,
     alignItems: 'center', marginTop: 8,
   },
-  submitBtnDisabled: { backgroundColor: '#e5e7eb' },
-  submitBtnText: { color: '#191919', fontWeight: '700', fontSize: 16 },
+  submitBtnDisabled: { backgroundColor: '#e2e8f0' },
+  submitBtnText: { color: '#191919', fontWeight: '700', fontSize: 18 },
   cancelBtn: { alignItems: 'center', marginTop: 16 },
-  cancelText: { fontSize: 13, color: '#9ca3af', textDecorationLine: 'underline' },
+  cancelText: { fontSize: 14, color: '#94a3b8', textDecorationLine: 'underline' },
 });

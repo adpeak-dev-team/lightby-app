@@ -74,14 +74,14 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
   return (
     <View style={styles.wrap}>
       <View style={[styles.bar, focused && styles.barFocused]}>
-        <Ionicons name="search-outline" size={16} color="#9ca3af" />
+        <Ionicons name="search-outline" size={16} color="#94a3b8" />
 
         <TextInput
           style={styles.input}
           value={localInput}
           onChangeText={setLocalInput}
           placeholder="어떤 현장을 찾으시나요?"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor="#94a3b8"
           returnKeyType="search"
           onSubmitEditing={handleSubmit}
           onFocus={() => setFocused(true)}
@@ -92,7 +92,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
         {!!localInput && (
           <TouchableOpacity onPress={handleClear} hitSlop={8}>
-            <Ionicons name="close-circle" size={16} color="#9ca3af" />
+            <Ionicons name="close-circle" size={16} color="#94a3b8" />
           </TouchableOpacity>
         )}
 
@@ -100,7 +100,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
         <TouchableOpacity style={styles.sortBtn} onPress={openSheet}>
           <Text style={styles.sortLabel}>필터</Text>
-          <Ionicons name="funnel-outline" size={13} color="#6b7280" />
+          <Ionicons name="funnel-outline" size={13} color="#64748b" />
         </TouchableOpacity>
       </View>
 
@@ -119,7 +119,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
               <Text style={[styles.sheetItemText, sort === opt.value && styles.sheetItemTextActive]}>
                 {opt.label}
               </Text>
-              {sort === opt.value && <Ionicons name="checkmark" size={16} color="#06b6d4" />}
+              {sort === opt.value && <Ionicons name="checkmark" size={16} color="#3b82f6" />}
             </TouchableOpacity>
           ))}
         </Animated.View>
@@ -130,35 +130,41 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16, // px-4
+    paddingVertical: 4, // mb-1 톤
     backgroundColor: '#fff',
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    backgroundColor: '#fff', // 웹 기본: 흰 배경
+    borderRadius: 16, // rounded-2xl
+    paddingHorizontal: 16, // px-4
+    paddingVertical: 8,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: '#f1f5f9', // border-slate-100
   },
   barFocused: {
-    borderColor: '#06b6d4',
+    borderColor: '#3b82f6', // border-primary-500
     backgroundColor: '#fff',
+    // shadow-xl
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 8,
   },
   input: {
     flex: 1,
     fontSize: 14,
-    color: '#111827',
+    color: '#1e293b', // text-slate-800
     padding: 0,
   },
   divider: {
     width: 1,
     height: 16,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e2e8f0',
   },
   sortBtn: {
     flexDirection: 'row',
@@ -167,8 +173,8 @@ const styles = StyleSheet.create({
   },
   sortLabel: {
     fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
+    color: '#64748b',
+    fontWeight: '400',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -189,15 +195,15 @@ const styles = StyleSheet.create({
   sheetHandle: {
     width: 36,
     height: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e2e8f0',
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
   },
   sheetTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f172a',
     marginBottom: 12,
   },
   sheetItem: {
@@ -209,14 +215,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   sheetItemActive: {
-    backgroundColor: '#ecfeff',
+    backgroundColor: '#eff6ff', // primary-50
   },
   sheetItemText: {
     fontSize: 14,
-    color: '#374151',
+    color: '#334155',
   },
   sheetItemTextActive: {
-    color: '#06b6d4',
-    fontWeight: '700',
+    color: '#2563eb', // primary-600
+    fontWeight: '600',
   },
 });
