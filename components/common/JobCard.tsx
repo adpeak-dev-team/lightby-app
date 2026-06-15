@@ -92,18 +92,12 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
       <View style={vertical ? styles.col : styles.row}>
         {/* 썸네일 */}
         <View style={thumbWrapStyle}>
-          {imageUri ? (
-            <Image
-              source={{ uri: imageUri }}
-              style={styles.thumb}
-              contentFit="cover"
-              transition={200}
-            />
-          ) : (
-            <View style={[styles.thumb, styles.thumbPlaceholder]}>
-              <Ionicons name="image-outline" size={24} color="#cbd5e1" />
-            </View>
-          )}
+          <Image
+            source={imageUri ? { uri: imageUri } : require('@/assets/images/alt_image.jpg')}
+            style={styles.thumb}
+            contentFit="cover"
+            transition={200}
+          />
         </View>
 
         {/* 내용 */}
