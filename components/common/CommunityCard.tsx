@@ -50,7 +50,7 @@ export function CommunityCard({ item, onPress }: Props) {
             {profileUri ? (
               <Image source={{ uri: profileUri }} style={s.avatarImg} contentFit="cover" />
             ) : (
-              <Ionicons name="person-outline" size={13} color="#9ca3af" />
+              <Ionicons name="person-outline" size={13} color="#94a3b8" />
             )}
           </View>
           <Text style={s.authorText}>{isAnon ? '익명' : item.is_withdrawn ? '탈퇴한 회원' : item.nickname}</Text>
@@ -92,14 +92,14 @@ const s = StyleSheet.create({
     gap: 4,
   },
   title: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f172a',
     lineHeight: 22,
   },
   content: {
-    fontSize: 13,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#64748b',
     lineHeight: 19,
   },
   thumb: {
@@ -110,7 +110,7 @@ const s = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
     marginBottom: 10,
   },
   footer: {
@@ -127,7 +127,7 @@ const s = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -137,16 +137,16 @@ const s = StyleSheet.create({
     height: '100%',
   },
   authorText: {
-    fontSize: 12,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#64748b',
   },
   dot: {
-    fontSize: 11,
-    color: '#d1d5db',
+    fontSize: 12,
+    color: '#cbd5e1',
   },
   dateText: {
-    fontSize: 11,
-    color: '#9ca3af',
+    fontSize: 12,
+    color: '#94a3b8',
   },
   statsRow: {
     flexDirection: 'row',
@@ -158,7 +158,7 @@ const s = StyleSheet.create({
     gap: 3,
   },
   statNum: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '400',
   },
 });

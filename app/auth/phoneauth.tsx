@@ -147,7 +147,7 @@ export default function PhoneAuthPage() {
               value={phone}
               onChangeText={(v) => { setPhone(formatPhoneNumber(v)); setPhoneErr(''); }}
               placeholder="010-0000-0000"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               keyboardType="phone-pad"
               editable={!isVerified}
             />
@@ -178,7 +178,7 @@ export default function PhoneAuthPage() {
               value={otpCode}
               onChangeText={(v) => { setOtpCode(v.replace(/\D/g, '').slice(0, 6)); setOtpErr(''); }}
               placeholder="인증번호 6자리"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               keyboardType="number-pad"
               maxLength={6}
             />
@@ -216,38 +216,38 @@ export default function PhoneAuthPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  container: { flexGrow: 1, backgroundColor: '#f8fafc', paddingHorizontal: 24 },
   headerWrap: { alignItems: 'center', marginBottom: 32 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#111827', marginBottom: 8 },
-  sub: { fontSize: 14, color: '#6b7280', textAlign: 'center' },
+  title: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
+  sub: { fontSize: 14, color: '#64748b', textAlign: 'center' },
   fieldWrap: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { fontSize: 14, fontWeight: '500', color: '#334155', marginBottom: 6 },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   row: { flexDirection: 'row', gap: 8 },
   input: {
-    borderWidth: 1, borderColor: '#d1d5db', borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 12, fontSize: 15,
-    backgroundColor: '#fff', color: '#111827',
+    borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
+    backgroundColor: '#fff', color: '#0f172a',
   },
-  inputDone: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
+  inputDone: { backgroundColor: '#f1f5f9', borderColor: '#e2e8f0' },
   inputErr: { borderColor: '#ef4444' },
   subBtn: {
-    backgroundColor: '#0ea5e9', borderRadius: 12, paddingHorizontal: 14,
+    backgroundColor: '#3b82f6', borderRadius: 12, paddingHorizontal: 14,
     alignItems: 'center', justifyContent: 'center', minWidth: 90,
   },
-  subBtnDisabled: { backgroundColor: '#9ca3af' },
-  subBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  subBtnDisabled: { backgroundColor: '#94a3b8' },
+  subBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   btn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
-  btnBlue: { backgroundColor: '#0ea5e9' },
+  btnBlue: { backgroundColor: '#3b82f6' },
   btnGreen: { backgroundColor: '#10b981', marginTop: 10 },
-  btnDisabled: { backgroundColor: '#9ca3af' },
-  btnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  timer: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
+  btnDisabled: { backgroundColor: '#94a3b8' },
+  btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  timer: { fontSize: 14, fontWeight: '500', color: '#64748b' },
   timerExpired: { color: '#ef4444' },
-  errText: { fontSize: 12, color: '#ef4444', marginTop: 4 },
+  errText: { fontSize: 14, color: '#ef4444', marginTop: 4 },
   successBox: {
     backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#86efac',
     borderRadius: 12, padding: 14, marginBottom: 16,
   },
-  successText: { color: '#16a34a', fontSize: 14, fontWeight: '600' },
+  successText: { color: '#16a34a', fontSize: 14, fontWeight: '500' },
 });

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
 
-const ACTIVE_COLOR = '#61a2ff';
+const ACTIVE_COLOR = '#3b82f6';
 const INACTIVE_COLOR = '#868686';
 
 export default function TabLayout() {
@@ -20,7 +20,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: INACTIVE_COLOR,
         tabBarStyle: {
           backgroundColor: '#fff',
-          borderTopColor: '#f3f4f6',
+          borderTopColor: '#f1f5f9',
           borderTopWidth: 1,
           height: 52 + insets.bottom,
           paddingBottom: insets.bottom,

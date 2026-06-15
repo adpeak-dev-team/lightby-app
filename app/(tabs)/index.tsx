@@ -46,8 +46,8 @@ const SECTION_CONFIG: Record<SectionType, {
   icon: keyof typeof Ionicons.glyphMap; iconBg: string; iconColor: string;
 }> = {
   premium: { title: '프리미엄 현장', subtitle: 'ADPEAK PREMIUM', icon: 'star', iconBg: '#fef3c7', iconColor: '#d97706' },
-  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#e0f2fe', iconColor: '#0ea5e9' },
-  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f3f4f6', iconColor: '#4b5563' },
+  top: { title: '지역 TOP', subtitle: 'LOCAL BEST', icon: 'trophy', iconBg: '#dbeafe', iconColor: '#3b82f6' },
+  free: { title: '일반 공고', subtitle: 'FREE JOBS', icon: 'list', iconBg: '#f1f5f9', iconColor: '#475569' },
 };
 
 // ─── 스켈레톤 ────────────────────────────────────────────────────────────────
@@ -75,13 +75,13 @@ function SkeletonCard() {
   );
 }
 const sk = StyleSheet.create({
-  card: { flexDirection: 'row', gap: 12, backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6' },
-  thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#e5e7eb' },
+  card: { flexDirection: 'row', gap: 12, backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#f1f5f9' },
+  thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#e2e8f0' },
   content: { flex: 1, gap: 8, justifyContent: 'center' },
-  line1: { width: 80, height: 10, backgroundColor: '#e5e7eb', borderRadius: 5 },
-  line2: { width: '90%', height: 14, backgroundColor: '#e5e7eb', borderRadius: 5 },
-  line3: { width: 70, height: 12, backgroundColor: '#e5e7eb', borderRadius: 5 },
-  line4: { width: 100, height: 10, backgroundColor: '#e5e7eb', borderRadius: 5 },
+  line1: { width: 80, height: 10, backgroundColor: '#e2e8f0', borderRadius: 5 },
+  line2: { width: '90%', height: 14, backgroundColor: '#e2e8f0', borderRadius: 5 },
+  line3: { width: 70, height: 12, backgroundColor: '#e2e8f0', borderRadius: 5 },
+  line4: { width: 100, height: 10, backgroundColor: '#e2e8f0', borderRadius: 5 },
 });
 
 // ─── 섹션 헤더 ──────────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ function BannerCarousel() {
 }
 
 const bn = StyleSheet.create({
-  wrap: { position: 'relative', marginHorizontal: 16, marginBottom: 4, borderRadius: 12, overflow: 'hidden', backgroundColor: '#f3f4f6' },
+  wrap: { position: 'relative', marginHorizontal: 16, marginBottom: 4, borderRadius: 12, overflow: 'hidden', backgroundColor: '#f1f5f9' },
   dots: { position: 'absolute', bottom: 5, right: 8, flexDirection: 'row', gap: 4 },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.5)' },
   dotActive: { width: 12, backgroundColor: '#fff' },
@@ -251,7 +251,7 @@ export default function HomePage() {
   }, [handlePressJob]);
 
   const listFooter = isFetchingNextPage ? (
-    <ActivityIndicator size="large" color="#38bdf8" style={{ paddingVertical: 20 }} />
+    <ActivityIndicator size="large" color="#60a5fa" style={{ paddingVertical: 20 }} />
   ) : null;
 
   return (
@@ -268,7 +268,7 @@ export default function HomePage() {
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" colors={['#3b82f6']} />
         }
       />
 
@@ -311,14 +311,14 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f172a',
   },
   sectionSubtitle: {
     fontSize: 9,
-    fontWeight: '600',
-    color: '#9ca3af',
+    fontWeight: '500',
+    color: '#94a3b8',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },

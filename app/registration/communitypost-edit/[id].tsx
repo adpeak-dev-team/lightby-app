@@ -88,7 +88,7 @@ export default function CommunityPostEditPage() {
   if (isLoading || !isInitialized) {
     return (
       <View style={s.centered}>
-        <ActivityIndicator size="large" color="#0ea5e9" />
+        <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
   }
@@ -129,7 +129,7 @@ export default function CommunityPostEditPage() {
       {/* 헤더 */}
       <View style={s.nav}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>게시글 수정</Text>
         <View style={{ width: 40 }} />
@@ -149,7 +149,7 @@ export default function CommunityPostEditPage() {
               value={title}
               onChangeText={setTitle}
               placeholder="제목을 입력해 주세요"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               maxLength={60}
             />
           </View>
@@ -174,7 +174,7 @@ export default function CommunityPostEditPage() {
               value={content}
               onChangeText={setContent}
               placeholder="이곳에 내용을 작성해 주세요..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               multiline
               numberOfLines={10}
               textAlignVertical="top"
@@ -184,7 +184,7 @@ export default function CommunityPostEditPage() {
           {/* 이미지 저장 중 표시 */}
           {updateImagesMutation.isPending && (
             <View style={s.imageSavingBar}>
-              <ActivityIndicator size="small" color="#0ea5e9" />
+              <ActivityIndicator size="small" color="#3b82f6" />
               <Text style={s.imageSavingText}>이미지 저장 중...</Text>
             </View>
           )}
@@ -214,16 +214,16 @@ export default function CommunityPostEditPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingVertical: 10, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
 
   scroll: { padding: 16, gap: 12 },
 
@@ -231,16 +231,16 @@ const s = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 16, padding: 16,
     borderWidth: 1, borderColor: '#f1f5f9', gap: 10,
   },
-  label: { fontSize: 14, fontWeight: '700', color: '#1f2937' },
-  subInline: { fontSize: 12, color: '#9ca3af', fontWeight: '400' },
+  label: { fontSize: 14, fontWeight: '600', color: '#1e293b' },
+  subInline: { fontSize: 12, color: '#94a3b8', fontWeight: '400' },
 
   titleInput: {
-    borderBottomWidth: 1, borderBottomColor: '#e5e7eb',
-    paddingVertical: 8, fontSize: 15, color: '#111827',
+    borderBottomWidth: 1, borderBottomColor: '#e2e8f0',
+    paddingVertical: 8, fontSize: 14, color: '#0f172a',
   },
   contentInput: {
-    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12,
-    padding: 12, fontSize: 14, color: '#111827', minHeight: 200,
+    borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,
+    padding: 12, fontSize: 14, color: '#0f172a', minHeight: 200,
     backgroundColor: '#fff',
   },
 
@@ -248,22 +248,22 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 8, paddingVertical: 8,
   },
-  imageSavingText: { fontSize: 13, color: '#6b7280' },
+  imageSavingText: { fontSize: 13, color: '#64748b' },
 
   actionRow: { flexDirection: 'row', gap: 10 },
   cancelBtn: {
-    flex: 1, backgroundColor: '#f3f4f6', borderRadius: 16,
+    flex: 1, backgroundColor: '#f1f5f9', borderRadius: 16,
     paddingVertical: 16, alignItems: 'center',
   },
-  cancelBtnText: { fontSize: 15, fontWeight: '700', color: '#6b7280' },
+  cancelBtnText: { fontSize: 16, fontWeight: '500', color: '#64748b' },
   submitBtn: {
-    flex: 2, backgroundColor: '#0ea5e9', borderRadius: 16,
+    flex: 2, backgroundColor: '#3b82f6', borderRadius: 16,
     paddingVertical: 16, alignItems: 'center',
-    shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
   submitBtnDisabled: { backgroundColor: '#cbd5e1', shadowOpacity: 0, elevation: 0 },
-  submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(17,24,39,0.55)',
@@ -280,17 +280,17 @@ const s = StyleSheet.create({
     width: 64, height: 64, borderRadius: 32,
     alignItems: 'center', justifyContent: 'center', marginBottom: 14,
   },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 8, textAlign: 'center' },
-  modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a', marginBottom: 8, textAlign: 'center' },
+  modalDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 21, marginBottom: 22 },
   modalBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
   modalCancelBtn: {
     flex: 1, paddingVertical: 14, borderRadius: 14,
-    borderWidth: 1.5, borderColor: '#e5e7eb', backgroundColor: '#f9fafb', alignItems: 'center',
+    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#f8fafc', alignItems: 'center',
   },
-  modalCancelText: { fontSize: 15, fontWeight: '700', color: '#374151' },
+  modalCancelText: { fontSize: 14, fontWeight: '700', color: '#334155' },
   modalLeaveBtn: {
     flex: 1, paddingVertical: 14, borderRadius: 14,
     backgroundColor: '#ef4444', alignItems: 'center',
   },
-  modalLeaveText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  modalLeaveText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

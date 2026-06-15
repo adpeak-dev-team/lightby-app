@@ -161,7 +161,7 @@ export default function FavoritePage() {
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" colors={['#3b82f6']} />
         }
         ListHeaderComponent={ListHeader}
         ListEmptyComponent={EmptyView}
@@ -181,7 +181,7 @@ export default function FavoritePage() {
           <View style={s.modalHeader}>
             <Text style={s.modalTitle}>관심 설정</Text>
             <TouchableOpacity onPress={() => setPrefsVisible(false)} activeOpacity={0.7}>
-              <Ionicons name="close" size={24} color="#374151" />
+              <Ionicons name="close" size={24} color="#334155" />
             </TouchableOpacity>
           </View>
           <PreferencesForm
@@ -207,29 +207,29 @@ const s = StyleSheet.create({
     width: 80, height: 80, borderRadius: 40, backgroundColor: '#fefce8',
     alignItems: 'center', justifyContent: 'center', marginBottom: 20,
   },
-  loginTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10 },
-  loginDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22 },
-  accent: { color: '#0ea5e9', fontWeight: '700' },
+  loginTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a', marginBottom: 10 },
+  loginDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 22 },
+  accent: { color: '#3b82f6', fontWeight: '700' },
   loginBtn: {
     marginTop: 28, backgroundColor: Colors.primary, paddingHorizontal: 32, paddingVertical: 12,
     borderRadius: 12,
   },
-  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  loginBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
   /* 탭 */
   tabBar: {
     flexDirection: 'row', backgroundColor: '#fff',
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   tabItem: { flex: 1, alignItems: 'center', paddingTop: 12, paddingBottom: 0 },
-  tabLabel: { fontSize: 14, fontWeight: '600', color: '#9ca3af', paddingBottom: 10 },
-  tabLabelActive: { color: '#111827' },
+  tabLabel: { fontSize: 14, fontWeight: '600', color: '#94a3b8', paddingBottom: 10 },
+  tabLabelActive: { color: '#0f172a' },
   tabUnderline: { height: 2, width: '100%', backgroundColor: 'transparent' },
-  tabUnderlineActive: { backgroundColor: '#111827' },
+  tabUnderlineActive: { backgroundColor: '#0f172a' },
 
   /* 리스트 */
   list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 96, flexGrow: 1 },
-  emptyText: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 14 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 60, fontSize: 14 },
   errorText: { textAlign: 'center', color: '#f87171', marginTop: 60, fontSize: 14 },
 
   /* 관심 설정 버튼 (맞춤 현장 우상단) */
@@ -243,19 +243,19 @@ const s = StyleSheet.create({
   /* 관심 설정 필요 안내 */
   setupBox: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 16 },
   setupIcon: {
-    width: 64, height: 64, borderRadius: 32, backgroundColor: '#e0f2fe',
+    width: 64, height: 64, borderRadius: 32, backgroundColor: '#dbeafe',
     alignItems: 'center', justifyContent: 'center', marginBottom: 16,
   },
-  setupTitle: { fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 8 },
-  setupDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21, marginBottom: 24 },
+  setupTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
+  setupDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 21, marginBottom: 24 },
   setupBtn: { backgroundColor: Colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
-  setupBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  setupBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
   /* 모달 */
   modalContainer: { flex: 1, backgroundColor: '#fff' },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#111827' },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
 });

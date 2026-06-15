@@ -386,11 +386,11 @@ export default function SortableImage({
 
 const s = StyleSheet.create({
   container: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f8fafc',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#e2e8f0',
     gap: 12,
   },
   grid: {
@@ -402,7 +402,7 @@ const s = StyleSheet.create({
   item: {
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e2e8f0',
   },
   floatingItem: {
     shadowColor: '#000',
@@ -424,7 +424,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 10,
   },
-  removeBtnText: { color: '#fff', fontSize: 10, fontWeight: '700', lineHeight: 12 },
+  removeBtnText: { color: '#fff', fontSize: 12, fontWeight: '400', lineHeight: 12 },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -432,7 +432,7 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
   },
   addBtn: {
-    backgroundColor: '#0ea5e9',
+    backgroundColor: '#3b82f6',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -442,6 +442,6 @@ const s = StyleSheet.create({
     minHeight: 34,
   },
   addBtnDisabled: { opacity: 0.6 },
-  addBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  hint: { fontSize: 11, color: '#9ca3af', flex: 1 },
+  addBtnText: { color: '#fff', fontSize: 14, fontWeight: '400' },
+  hint: { fontSize: 12, color: '#94a3b8', flex: 1 },
 });

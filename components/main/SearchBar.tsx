@@ -74,14 +74,14 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
   return (
     <View style={styles.wrap}>
       <View style={[styles.bar, focused && styles.barFocused]}>
-        <Ionicons name="search-outline" size={16} color="#9ca3af" />
+        <Ionicons name="search-outline" size={16} color="#94a3b8" />
 
         <TextInput
           style={styles.input}
           value={localInput}
           onChangeText={setLocalInput}
           placeholder="어떤 현장을 찾으시나요?"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor="#94a3b8"
           returnKeyType="search"
           onSubmitEditing={handleSubmit}
           onFocus={() => setFocused(true)}
@@ -92,7 +92,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
         {!!localInput && (
           <TouchableOpacity onPress={handleClear} hitSlop={8}>
-            <Ionicons name="close-circle" size={16} color="#9ca3af" />
+            <Ionicons name="close-circle" size={16} color="#94a3b8" />
           </TouchableOpacity>
         )}
 
@@ -100,7 +100,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
 
         <TouchableOpacity style={styles.sortBtn} onPress={openSheet}>
           <Text style={styles.sortLabel}>필터</Text>
-          <Ionicons name="funnel-outline" size={13} color="#6b7280" />
+          <Ionicons name="funnel-outline" size={13} color="#64748b" />
         </TouchableOpacity>
       </View>
 
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -152,13 +152,13 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 14,
-    color: '#111827',
+    color: '#0f172a',
     padding: 0,
   },
   divider: {
     width: 1,
     height: 16,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e2e8f0',
   },
   sortBtn: {
     flexDirection: 'row',
@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
   },
   sortLabel: {
     fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
+    color: '#64748b',
+    fontWeight: '400',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -189,15 +189,15 @@ const styles = StyleSheet.create({
   sheetHandle: {
     width: 36,
     height: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e2e8f0',
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
   },
   sheetTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f172a',
     marginBottom: 12,
   },
   sheetItem: {
@@ -213,10 +213,10 @@ const styles = StyleSheet.create({
   },
   sheetItemText: {
     fontSize: 14,
-    color: '#374151',
+    color: '#334155',
   },
   sheetItemTextActive: {
     color: '#06b6d4',
-    fontWeight: '700',
+    fontWeight: '600',
   },
 });

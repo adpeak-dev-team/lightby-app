@@ -38,18 +38,18 @@ export function PreviousPostingModal({ visible, onClose, onSelect, isLoading: ou
                             <Text style={s.headerTitle}>이전 등록 공고 불러오기</Text>
                         </View>
                         <TouchableOpacity onPress={onClose} hitSlop={8}>
-                            <Ionicons name="close" size={22} color="#9ca3af" />
+                            <Ionicons name="close" size={22} color="#94a3b8" />
                         </TouchableOpacity>
                     </View>
 
                     {/* 콘텐츠 */}
                     {isLoading ? (
                         <View style={s.center}>
-                            <ActivityIndicator size="large" color="#0ea5e9" />
+                            <ActivityIndicator size="large" color="#3b82f6" />
                         </View>
                     ) : !posts || posts.length === 0 ? (
                         <View style={s.center}>
-                            <Ionicons name="folder-open-outline" size={52} color="#e5e7eb" />
+                            <Ionicons name="folder-open-outline" size={52} color="#e2e8f0" />
                             <Text style={s.emptyText}>이전에 등록한 공고가 없습니다.</Text>
                         </View>
                     ) : (
@@ -129,13 +129,13 @@ const s = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 18,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
+        borderBottomColor: '#f1f5f9',
     },
     headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    headerBar: { width: 4, height: 18, borderRadius: 2, backgroundColor: '#0ea5e9' },
-    headerTitle: { fontSize: 15, fontWeight: '700', color: '#111827' },
+    headerBar: { width: 4, height: 18, borderRadius: 2, backgroundColor: '#3b82f6' },
+    headerTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
     center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, gap: 12 },
-    emptyText: { fontSize: 14, color: '#9ca3af' },
+    emptyText: { fontSize: 14, color: '#94a3b8' },
     list: { padding: 16, gap: 10 },
     item: {
         flexDirection: 'row',
@@ -144,32 +144,32 @@ const s = StyleSheet.create({
         padding: 12,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: '#e5e7eb',
+        borderColor: '#e2e8f0',
         backgroundColor: '#fff',
     },
     thumb: {
         width: 60,
         height: 60,
         borderRadius: 10,
-        backgroundColor: '#f3f4f6',
+        backgroundColor: '#f1f5f9',
     },
     info: { flex: 1, gap: 6 },
-    subject: { fontSize: 13, fontWeight: '600', color: '#111827', lineHeight: 18 },
+    subject: { fontSize: 13, fontWeight: '600', color: '#0f172a', lineHeight: 18 },
     meta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1 },
     badgeActive: { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' },
-    badgeInactive: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
-    badgeText: { fontSize: 10, fontWeight: '700' },
+    badgeInactive: { backgroundColor: '#f1f5f9', borderColor: '#e2e8f0' },
+    badgeText: { fontSize: 9, fontWeight: '800' },
     badgeTextActive: { color: '#2563eb' },
-    badgeTextInactive: { color: '#9ca3af' },
-    date: { fontSize: 11, color: '#9ca3af' },
-    loadText: { fontSize: 11, fontWeight: '700', color: '#0ea5e9' },
+    badgeTextInactive: { color: '#94a3b8' },
+    date: { fontSize: 10, color: '#94a3b8' },
+    loadText: { fontSize: 11, fontWeight: '700', color: '#3b82f6' },
     footer: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16 },
     closeBtn: {
         paddingVertical: 14,
         borderRadius: 14,
-        backgroundColor: '#f3f4f6',
+        backgroundColor: '#f1f5f9',
         alignItems: 'center',
     },
-    closeBtnText: { fontSize: 14, fontWeight: '600', color: '#6b7280' },
+    closeBtnText: { fontSize: 14, fontWeight: '600', color: '#64748b' },
 });

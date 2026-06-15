@@ -66,7 +66,7 @@ export function JobCard({ job, onPress }: JobCardProps) {
             />
           ) : (
             <View style={[styles.thumb, styles.thumbPlaceholder]}>
-              <Ionicons name="image-outline" size={24} color="#d1d5db" />
+              <Ionicons name="image-outline" size={24} color="#cbd5e1" />
             </View>
           )}
         </View>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: '#f1f5f9',
   },
   row: {
     flexDirection: 'row',
@@ -144,8 +144,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     flexShrink: 0,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
-    backgroundColor: '#f9fafb',
+    borderColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
   },
   thumb: {
     width: '100%',
@@ -170,9 +170,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f172a',
     lineHeight: 21,
   },
   feeRow: {
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
   },
   feeType: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: '#94a3b8',
   },
   fee: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#0284c7',
+    color: '#2563eb',
   },
   tags: {
     flexDirection: 'row',
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '400',
   },
   badges: {
     flexDirection: 'row',

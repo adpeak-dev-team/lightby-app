@@ -30,7 +30,7 @@ export function AgencySection({
                 value={enforcement}
                 onChangeText={onEnforcementChange}
                 placeholder="ex) OO건설"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
             />
             <Label text="시공사" />
             <TextInput
@@ -38,7 +38,7 @@ export function AgencySection({
                 value={construction}
                 onChangeText={onConstructionChange}
                 placeholder="ex) OO시공"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
             />
             <Label text="분양대행사" required />
             <TextInput
@@ -46,7 +46,7 @@ export function AgencySection({
                 value={agency}
                 onChangeText={onAgencyChange}
                 placeholder="ex) OO분양대행"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
             />
             <Label text="담당자 성함" required />
             <TextInput
@@ -54,7 +54,7 @@ export function AgencySection({
                 value={managerName}
                 onChangeText={onManagerNameChange}
                 placeholder="ex) 홍길동"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
             />
             <Label text="연락처" required />
             <TextInput
@@ -62,7 +62,7 @@ export function AgencySection({
                 value={managerPhone}
                 onChangeText={onManagerPhoneChange}
                 placeholder="ex) 010-1234-5678"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
                 keyboardType="phone-pad"
             />
         </View>

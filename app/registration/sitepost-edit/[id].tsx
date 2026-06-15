@@ -214,7 +214,7 @@ export default function SitePostEditPage() {
     if (isLoading || !isInitialized) {
         return (
             <View style={s.centered}>
-                <ActivityIndicator size="large" color="#0ea5e9" />
+                <ActivityIndicator size="large" color="#3b82f6" />
             </View>
         );
     }
@@ -266,7 +266,7 @@ export default function SitePostEditPage() {
             {/* 네비게이션 헤더 */}
             <View style={s.nav}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
-                    <Ionicons name="chevron-back" size={24} color="#111827" />
+                    <Ionicons name="chevron-back" size={24} color="#0f172a" />
                 </TouchableOpacity>
                 <Text style={s.navTitle}>구인 공고 수정</Text>
                 <View style={{ width: 40 }} />
@@ -357,7 +357,7 @@ export default function SitePostEditPage() {
                 {/* 이미지 저장 중 인디케이터 */}
                 {updateImagesMutation.isPending && (
                     <View style={s.imageSavingBar}>
-                        <ActivityIndicator size="small" color="#0ea5e9" />
+                        <ActivityIndicator size="small" color="#3b82f6" />
                         <Text style={s.imageSavingText}>이미지 저장 중...</Text>
                     </View>
                 )}
@@ -378,20 +378,20 @@ const s = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
+        borderBottomColor: '#f1f5f9',
     },
     navBack: { width: 40, alignItems: 'flex-start' },
-    navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+    navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
 
     scroll: { paddingHorizontal: 16, paddingVertical: 8, gap: 24 },
 
     submitBtn: {
-        backgroundColor: '#0ea5e9',
+        backgroundColor: '#3b82f6',
         borderRadius: 16,
         paddingVertical: 16,
         alignItems: 'center',
         marginTop: 4,
-        shadowColor: '#0ea5e9',
+        shadowColor: '#3b82f6',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -404,7 +404,7 @@ const s = StyleSheet.create({
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
         gap: 8, paddingVertical: 10,
     },
-    imageSavingText: { fontSize: 13, color: '#6b7280' },
+    imageSavingText: { fontSize: 13, color: '#64748b' },
 
     modalOverlay: {
         flex: 1, backgroundColor: 'rgba(0,0,0,0.5)',
@@ -421,17 +421,17 @@ const s = StyleSheet.create({
         width: 72, height: 72, borderRadius: 36,
         backgroundColor: '#fef2f2', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
     },
-    modalTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10, textAlign: 'center' },
-    modalDesc: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 22, marginBottom: 28 },
+    modalTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a', marginBottom: 10, textAlign: 'center' },
+    modalDesc: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 22, marginBottom: 28 },
     modalBtnRow: { flexDirection: 'row', gap: 10, width: '100%' },
     modalCancelBtn: {
         flex: 1, paddingVertical: 14, borderRadius: 14,
-        borderWidth: 1.5, borderColor: '#e5e7eb', backgroundColor: '#f9fafb', alignItems: 'center',
+        borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#f8fafc', alignItems: 'center',
     },
-    modalCancelText: { fontSize: 15, fontWeight: '700', color: '#374151' },
+    modalCancelText: { fontSize: 14, fontWeight: '700', color: '#334155' },
     modalLeaveBtn: {
         flex: 1, paddingVertical: 14, borderRadius: 14,
         backgroundColor: '#ef4444', alignItems: 'center',
     },
-    modalLeaveText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+    modalLeaveText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

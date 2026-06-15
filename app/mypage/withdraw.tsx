@@ -60,7 +60,7 @@ export default function WithdrawPage() {
       {/* 네비 */}
       <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack} hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>회원 탈퇴</Text>
         <View style={{ width: 40 }} />
@@ -93,7 +93,7 @@ export default function WithdrawPage() {
           <Ionicons
             name={agreed ? 'checkbox' : 'square-outline'}
             size={20}
-            color={agreed ? '#ef4444' : '#9ca3af'}
+            color={agreed ? '#ef4444' : '#94a3b8'}
           />
           <Text style={s.agreeText}>안내 사항을 모두 확인했으며, 탈퇴에 동의합니다.</Text>
         </TouchableOpacity>
@@ -121,10 +121,10 @@ const s = StyleSheet.create({
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   scroll: { padding: 24, paddingTop: 32 },
 
   headerBox: { alignItems: 'center', marginBottom: 28 },
@@ -132,8 +132,8 @@ const s = StyleSheet.create({
     width: 64, height: 64, borderRadius: 32, backgroundColor: '#fef2f2',
     alignItems: 'center', justifyContent: 'center', marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 8 },
-  subtitle: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 21 },
+  title: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
+  subtitle: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 21 },
 
   noticeCard: {
     backgroundColor: '#fff', borderRadius: 16, padding: 20, gap: 12,
@@ -141,19 +141,19 @@ const s = StyleSheet.create({
   },
   noticeRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#fca5a5', marginTop: 7 },
-  noticeText: { flex: 1, fontSize: 14, color: '#4b5563', lineHeight: 21 },
+  noticeText: { flex: 1, fontSize: 14, color: '#475569', lineHeight: 21 },
 
   agreeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24 },
-  agreeText: { flex: 1, fontSize: 14, color: '#374151' },
+  agreeText: { flex: 1, fontSize: 14, color: '#334155' },
 
   footer: {
     backgroundColor: Colors.bgGray, paddingHorizontal: 24, paddingTop: 12,
-    borderTopWidth: 1, borderTopColor: '#f3f4f6',
+    borderTopWidth: 1, borderTopColor: '#f1f5f9',
   },
   withdrawBtn: {
     paddingVertical: 16, borderRadius: 16, backgroundColor: '#ef4444', alignItems: 'center',
   },
-  withdrawBtnDisabled: { backgroundColor: '#e5e7eb' },
+  withdrawBtnDisabled: { backgroundColor: '#e2e8f0' },
   withdrawBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  withdrawBtnTextDisabled: { color: '#9ca3af' },
+  withdrawBtnTextDisabled: { color: '#94a3b8' },
 });

@@ -89,8 +89,8 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: '#fff',
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '800',
+    fontSize: 12,
   },
   logoutBtn: {
     flexDirection: 'row',
@@ -104,6 +104,6 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#64748b',
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: 12,
   },
 });

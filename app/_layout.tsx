@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Text, TextInput } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +13,21 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
 
 const queryClient = new QueryClient();
+
+// 웹(Pretendard)과 동일한 폰트를 앱 전역 기본값으로 적용.
+// RN은 폰트가 상속되지 않으므로 Text/TextInput defaultProps에 한 번만 주입한다.
+// 가변 폰트라 각 컴포넌트의 fontWeight 값이 그대로 살아난다(별도 매핑 불필요).
+let fontDefaultsApplied = false;
+function applyPretendardDefault() {
+  if (fontDefaultsApplied) return;
+  fontDefaultsApplied = true;
+  const T = Text as unknown as { defaultProps?: { style?: unknown } };
+  const TI = TextInput as unknown as { defaultProps?: { style?: unknown } };
+  T.defaultProps = T.defaultProps ?? {};
+  T.defaultProps.style = [{ fontFamily: 'Pretendard' }, T.defaultProps.style];
+  TI.defaultProps = TI.defaultProps ?? {};
+  TI.defaultProps.style = [{ fontFamily: 'Pretendard' }, TI.defaultProps.style];
+}
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -36,6 +52,14 @@ function useWebWordBreak() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   useWebWordBreak();
+
+  const [fontsLoaded] = useFonts({
+    Pretendard: require('../assets/fonts/PretendardVariable.ttf'),
+  });
+
+  // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지)
+  if (!fontsLoaded) return null;
+  applyPretendardDefault();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

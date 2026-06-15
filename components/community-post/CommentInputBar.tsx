@@ -28,7 +28,7 @@ export default function CommentInputBar({
         value={value}
         onChangeText={onChange}
         placeholder={isLoggedIn ? '댓글을 입력해주세요...' : '로그인 후 댓글을 작성할 수 있습니다.'}
-        placeholderTextColor="#9ca3af"
+        placeholderTextColor="#94a3b8"
         editable={isLoggedIn}
         multiline
         maxLength={500}
@@ -48,16 +48,16 @@ const s = StyleSheet.create({
   bar: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8,
     paddingHorizontal: 12, paddingTop: 15, paddingBottom: 15,
-    borderTopWidth: 1, borderTopColor: '#f3f4f6',
+    borderTopWidth: 1, borderTopColor: '#f1f5f9',
     backgroundColor: '#fff',
   },
   input: {
     flex: 1, minHeight: 40, maxHeight: 100,
-    backgroundColor: '#f9fafb', borderRadius: 12,
+    backgroundColor: '#f8fafc', borderRadius: 12,
     paddingHorizontal: 14, paddingVertical: 10,
-    fontSize: 14, color: '#111827',
-    borderWidth: 1, borderColor: '#e5e7eb',
+    fontSize: 14, color: '#0f172a',
+    borderWidth: 1, borderColor: '#e2e8f0',
   },
-  sendBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#0ea5e9', alignItems: 'center', justifyContent: 'center' },
-  sendBtnDisabled: { backgroundColor: '#bae6fd' },
+  sendBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#3b82f6', alignItems: 'center', justifyContent: 'center' },
+  sendBtnDisabled: { backgroundColor: '#bfdbfe' },
 });

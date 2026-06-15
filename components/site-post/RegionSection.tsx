@@ -41,7 +41,7 @@ export function RegionSection({
             {showMap && (
                 hasCoords
                     ? <KakaoMap latitude={latitude!} longitude={longitude!} label={address} />
-                    : <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                    : <Text style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>
                         📍 {address}
                     </Text>
             )}
@@ -52,7 +52,7 @@ export function RegionSection({
                 value={addressDetail}
                 onChangeText={onAddressDetailChange}
                 placeholder="ex) 101동 / 3층"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#94a3b8"
             />
 
             <Label text="근무 지역" required />

@@ -63,13 +63,13 @@ export default function CommunityPage() {
       {/* 검색창 */}
       <View style={s.searchWrap}>
         <View style={s.searchBar}>
-          <Ionicons name="search-outline" size={16} color="#9ca3af" />
+          <Ionicons name="search-outline" size={16} color="#94a3b8" />
           <TextInput
             style={s.searchInput}
             value={input}
             onChangeText={setInput}
             placeholder="제목 또는 내용으로 검색"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#94a3b8"
             returnKeyType="search"
             onSubmitEditing={handleSubmit}
             autoCorrect={false}
@@ -77,11 +77,11 @@ export default function CommunityPage() {
           />
           {!!input && (
             <TouchableOpacity onPress={handleClear} hitSlop={8}>
-              <Ionicons name="close-circle" size={16} color="#9ca3af" />
+              <Ionicons name="close-circle" size={16} color="#94a3b8" />
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={handleSubmit} hitSlop={8}>
-            <Ionicons name="arrow-forward-circle" size={20} color="#0ea5e9" />
+            <Ionicons name="arrow-forward-circle" size={20} color="#3b82f6" />
           </TouchableOpacity>
         </View>
         {!!search && (
@@ -105,11 +105,11 @@ export default function CommunityPage() {
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0ea5e9" colors={['#0ea5e9']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" colors={['#3b82f6']} />
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator size="large" color="#38bdf8" style={{ marginTop: 60 }} />
+            <ActivityIndicator size="large" color="#60a5fa" style={{ marginTop: 60 }} />
           ) : (
             <Text style={s.empty}>
               {search ? `"${search}" 검색 결과가 없습니다.` : '게시글이 없습니다.'}
@@ -118,7 +118,7 @@ export default function CommunityPage() {
         }
         ListFooterComponent={
           isFetchingNextPage ? (
-            <ActivityIndicator color="#38bdf8" style={{ paddingVertical: 20 }} />
+            <ActivityIndicator color="#60a5fa" style={{ paddingVertical: 20 }} />
           ) : !hasNextPage && posts.length > 0 ? (
             <Text style={s.endText}>마지막 게시글입니다.</Text>
           ) : null
@@ -138,14 +138,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: '#f1f5f9',
     gap: 6,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -153,12 +153,12 @@ const s = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#111827',
+    color: '#0f172a',
     padding: 0,
   },
-  searchResult: { fontSize: 11, color: '#9ca3af', paddingHorizontal: 2 },
-  searchKeyword: { fontWeight: '700', color: '#374151' },
+  searchResult: { fontSize: 12, color: '#94a3b8', paddingHorizontal: 2 },
+  searchKeyword: { fontWeight: '600', color: '#334155' },
   list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 96 },
-  empty: { textAlign: 'center', color: '#9ca3af', marginTop: 60, fontSize: 15 },
-  endText: { textAlign: 'center', color: '#d1d5db', fontSize: 12, paddingVertical: 16 },
+  empty: { textAlign: 'center', color: '#94a3b8', marginTop: 60, fontSize: 14 },
+  endText: { textAlign: 'center', color: '#cbd5e1', fontSize: 12, paddingVertical: 16 },
 });

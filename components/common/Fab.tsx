@@ -15,7 +15,7 @@ interface FabProps {
 
 /**
  * 글쓰기/등록용 플로팅 버튼.
- * lightby-front(웹)의 그라데이션 알약형 버튼(#5587ED → #4876D6)과 동일한 스타일.
+ * lightby-front(웹)의 그라데이션 알약형 버튼(#3b82f6 → #2563eb)과 동일한 스타일.
  */
 export function Fab({ label, onPress, icon = 'add-circle', bottom = 24 }: FabProps) {
   return (

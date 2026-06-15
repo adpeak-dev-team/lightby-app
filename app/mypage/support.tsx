@@ -29,7 +29,7 @@ function AccordionItem({ question, answer }: { question: string; answer: string 
           <Text style={a.qLabel}>Q.</Text>
           <Text style={a.question} numberOfLines={open ? undefined : 2}>{question}</Text>
         </View>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" />
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#94a3b8" />
       </TouchableOpacity>
       {open && (
         <View style={a.answerWrap}>
@@ -68,7 +68,7 @@ function InquiryCard({ content, images, is_answered, created_at, answer }: {
           </View>
           <Text style={c.contentPreview} numberOfLines={1}>{content}</Text>
         </View>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" style={{ marginLeft: 8 }} />
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#94a3b8" style={{ marginLeft: 8 }} />
       </TouchableOpacity>
 
       {open && (
@@ -120,7 +120,7 @@ export default function SupportPage() {
       {/* 네비 */}
       <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
+          <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={s.navTitle}>고객센터</Text>
         <View style={{ width: 40 }} />
@@ -196,20 +196,20 @@ export default function SupportPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
-  navTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   scroll: { padding: 16 },
   hero: { alignItems: 'center', paddingVertical: 24, gap: 6 },
-  heroTitle: { fontSize: 22, fontWeight: '700', color: '#111827', letterSpacing: -0.5 },
-  heroSub: { fontSize: 13, color: '#9ca3af' },
+  heroTitle: { fontSize: 24, fontWeight: '800', color: '#0f172a', letterSpacing: -0.5 },
+  heroSub: { fontSize: 14, color: '#94a3b8' },
   tabSwitch: {
-    flexDirection: 'row', backgroundColor: '#e5e7eb', borderRadius: 14,
+    flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 14,
     padding: 4, gap: 4, marginBottom: 16,
   },
   switchItem: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
@@ -217,10 +217,10 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 2,
   },
-  switchLabel: { fontSize: 13, fontWeight: '600', color: '#9ca3af' },
-  switchLabelActive: { color: '#0ea5e9' },
+  switchLabel: { fontSize: 14, fontWeight: '600', color: '#94a3b8' },
+  switchLabelActive: { color: '#3b82f6' },
   list: { gap: 10 },
-  empty: { textAlign: 'center', color: '#9ca3af', fontSize: 14, paddingVertical: 40 },
+  empty: { textAlign: 'center', color: '#94a3b8', fontSize: 14, paddingVertical: 40 },
   fab: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9',
@@ -231,7 +231,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#2563eb', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
-  fabText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  fabText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });
 
 const a = StyleSheet.create({
@@ -243,9 +243,9 @@ const a = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
   questionRow: { flexDirection: 'row', gap: 8, flex: 1 },
   qLabel: { fontSize: 14, fontWeight: '700', color: '#60a5fa' },
-  question: { fontSize: 14, fontWeight: '600', color: '#1f2937', flex: 1 },
-  answerWrap: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: '#f9fafb' },
-  answer: { fontSize: 13, color: '#6b7280', lineHeight: 20, paddingTop: 12 },
+  question: { fontSize: 14, fontWeight: '500', color: '#1e293b', flex: 1 },
+  answerWrap: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: '#f8fafc' },
+  answer: { fontSize: 14, color: '#64748b', lineHeight: 20, paddingTop: 12 },
 });
 
 const c = StyleSheet.create({
@@ -262,17 +262,17 @@ const c = StyleSheet.create({
   badgeText: { fontSize: 10, fontWeight: '700' },
   badgeTextDone: { color: '#16a34a' },
   badgeTextWait: { color: '#d97706' },
-  date: { fontSize: 11, color: '#9ca3af' },
-  contentPreview: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
-  body: { borderTopWidth: 1, borderTopColor: '#f3f4f6', padding: 16, gap: 12 },
+  date: { fontSize: 11, color: '#94a3b8' },
+  contentPreview: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
+  body: { borderTopWidth: 1, borderTopColor: '#f1f5f9', padding: 16, gap: 12 },
   section: { gap: 4 },
-  sectionLabel: { fontSize: 11, fontWeight: '700', color: '#9ca3af' },
-  bodyText: { fontSize: 14, color: '#374151', lineHeight: 22 },
+  sectionLabel: { fontSize: 11, fontWeight: '600', color: '#94a3b8' },
+  bodyText: { fontSize: 14, color: '#334155', lineHeight: 22 },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   image: { width: '31%', aspectRatio: 1, borderRadius: 10 },
-  divider: { height: 1, backgroundColor: '#e5e7eb' },
+  divider: { height: 1, backgroundColor: '#e2e8f0' },
   answerBox: { backgroundColor: '#eff6ff', borderRadius: 12, padding: 12, gap: 4 },
-  answerLabel: { fontSize: 11, fontWeight: '700', color: '#60a5fa' },
+  answerLabel: { fontSize: 11, fontWeight: '600', color: '#60a5fa' },
   answerText: { fontSize: 14, color: '#1d4ed8', lineHeight: 22 },
-  pendingText: { fontSize: 12, color: '#9ca3af', textAlign: 'center', paddingVertical: 4 },
+  pendingText: { fontSize: 12, color: '#94a3b8', textAlign: 'center', paddingVertical: 4 },
 });

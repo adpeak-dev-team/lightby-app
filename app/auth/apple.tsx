@@ -249,7 +249,7 @@ export default function AppleLoginPage() {
   if (isLoading) {
     return (
       <View style={[s.center, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color="#111827" />
+        <ActivityIndicator size="large" color="#0f172a" />
         <Text style={s.loadingText}>Apple 로그인 처리 중...</Text>
       </View>
     );
@@ -281,7 +281,7 @@ export default function AppleLoginPage() {
                   value={nickname}
                   onChangeText={(v) => { setNickname(v); setIsNicknameVerified(false); setNicknameErr(''); }}
                   placeholder="닉네임을 입력하세요"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   autoCapitalize="none"
                 />
                 <TouchableOpacity
@@ -309,7 +309,7 @@ export default function AppleLoginPage() {
                   value={phone}
                   onChangeText={(v) => { setPhone(formatPhoneNumber(v)); setPhoneErr(''); }}
                   placeholder="010-0000-0000"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#94a3b8"
                   keyboardType="phone-pad"
                   editable={!isPhoneVerified}
                 />
@@ -333,7 +333,7 @@ export default function AppleLoginPage() {
                       value={otpCode}
                       onChangeText={(v) => { setOtpCode(v.replace(/\D/g, '').slice(0, 6)); setOtpErr(''); }}
                       placeholder="인증번호 6자리"
-                      placeholderTextColor="#9ca3af"
+                      placeholderTextColor="#94a3b8"
                       keyboardType="number-pad"
                       maxLength={6}
                     />
@@ -385,38 +385,38 @@ export default function AppleLoginPage() {
 }
 
 const s = StyleSheet.create({
-  center: { flex: 1, backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center', gap: 16 },
-  loadingText: { fontSize: 16, fontWeight: '700', color: '#374151' },
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24 },
+  center: { flex: 1, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center', gap: 16 },
+  loadingText: { fontSize: 20, fontWeight: '700', color: '#334155' },
+  container: { flexGrow: 1, backgroundColor: '#f8fafc', paddingHorizontal: 24 },
   headerWrap: { alignItems: 'center', marginBottom: 28 },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#111827', marginBottom: 6 },
-  headerSub: { fontSize: 13, color: '#ef4444', textAlign: 'center', fontWeight: '500' },
+  headerTitle: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
+  headerSub: { fontSize: 14, color: '#ef4444', textAlign: 'center', fontWeight: '500' },
   fieldWrap: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { fontSize: 14, fontWeight: '500', color: '#334155', marginBottom: 6 },
   row: { flexDirection: 'row', gap: 8 },
   input: {
-    borderWidth: 1, borderColor: '#d1d5db', borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 12, fontSize: 15,
-    backgroundColor: '#fff', color: '#111827',
+    borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
+    backgroundColor: '#fff', color: '#0f172a',
   },
-  inputDone: { backgroundColor: '#f3f4f6', borderColor: '#e5e7eb' },
+  inputDone: { backgroundColor: '#f1f5f9', borderColor: '#e2e8f0' },
   subBtn: {
-    backgroundColor: '#0ea5e9', borderRadius: 12, paddingHorizontal: 14,
+    backgroundColor: '#3b82f6', borderRadius: 12, paddingHorizontal: 14,
     alignItems: 'center', justifyContent: 'center', minWidth: 80,
   },
-  subBtnDone: { backgroundColor: '#9ca3af' },
-  subBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  subBtnDone: { backgroundColor: '#94a3b8' },
+  subBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
   errText: { fontSize: 12, color: '#ef4444', marginTop: 6 },
   okText: { fontSize: 12, color: '#10b981', marginTop: 6, fontWeight: '600' },
   otpMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 },
-  timer: { fontSize: 13, color: '#0ea5e9', fontWeight: '700' },
+  timer: { fontSize: 14, color: '#3b82f6', fontWeight: '700' },
   timerExpired: { color: '#ef4444' },
   submitBtn: {
-    backgroundColor: '#111827', paddingVertical: 16, borderRadius: 12,
+    backgroundColor: '#0f172a', paddingVertical: 16, borderRadius: 12,
     alignItems: 'center', marginTop: 8,
   },
-  submitBtnDisabled: { backgroundColor: '#9ca3af' },
-  submitBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  submitBtnDisabled: { backgroundColor: '#94a3b8' },
+  submitBtnText: { color: '#fff', fontWeight: '700', fontSize: 18 },
   cancelBtn: { alignItems: 'center', marginTop: 16 },
-  cancelText: { fontSize: 13, color: '#6b7280', textDecorationLine: 'underline' },
+  cancelText: { fontSize: 14, color: '#64748b', textDecorationLine: 'underline' },
 });
