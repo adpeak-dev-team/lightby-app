@@ -19,9 +19,10 @@ type Props = {
   myId?: number;
   postAuthorId?: number;
   onDeleteReply: (id: number) => void;
+  onReportReply?: (id: number, userId: number, isWithdrawn: boolean) => void;
 };
 
-export default function CommentsSection({ replies, myId, postAuthorId, onDeleteReply }: Props) {
+export default function CommentsSection({ replies, myId, postAuthorId, onDeleteReply, onReportReply }: Props) {
   return (
     <View style={s.section}>
       <Text style={s.header}>댓글 {replies.length}개</Text>
@@ -41,10 +42,17 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
                 )}
                 <Text style={s.date}>{formatDate(reply.created_at)}</Text>
               </View>
-              {myId === reply.user_id && (
+              {myId === reply.user_id ? (
                 <TouchableOpacity onPress={() => onDeleteReply(reply.id)} hitSlop={8}>
                   <Ionicons name="trash-outline" size={14} color="#cbd5e1" />
                 </TouchableOpacity>
+              ) : (
+                // 타인의 댓글 — 신고/차단 (App Store 1.2). 탈퇴 회원이면 시트에서 안내 표시
+                onReportReply && (
+                  <TouchableOpacity onPress={() => onReportReply(reply.id, reply.user_id, !!reply.is_withdrawn)} hitSlop={8}>
+                    <Ionicons name="ellipsis-horizontal" size={16} color="#cbd5e1" />
+                  </TouchableOpacity>
+                )
               )}
             </View>
             <Text style={s.content}>{reply.content}</Text>

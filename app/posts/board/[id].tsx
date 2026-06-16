@@ -19,6 +19,7 @@ import { formatDate } from '@/lib/lib';
 import PostTopNav from '@/components/common/PostTopNav';
 import CommentsSection from '@/components/community-post/CommentsSection';
 import CommentInputBar from '@/components/community-post/CommentInputBar';
+import ContentActionSheet from '@/components/community-post/ContentActionSheet';
 
 function PostImage({ uri }: { uri: string }) {
   const [ratio, setRatio] = useState(1);
@@ -42,9 +43,11 @@ export default function BoardDetailPage() {
   const router = useRouter();
   const { bottom: bottomInset } = useSafeAreaInsets();
 
-  const { data: post, isLoading: isPostLoading } = useGetCommunityPostById(postId);
-  const { data: replies = [] } = useGetCommunityReplies(postId);
-  const { data: me } = useGetMe();
+  const { data: me, isLoading: meLoading } = useGetMe();
+  // viewerId(me.id) 전달 → 차단한 사용자의 글/댓글은 서버에서 걸러진다.
+  // me 확정 전에는 조회를 미뤄 차단 콘텐츠가 잠깐 노출되지 않도록 한다.
+  const { data: post, isLoading: isPostLoading } = useGetCommunityPostById(postId, me?.id, !meLoading);
+  const { data: replies = [] } = useGetCommunityReplies(postId, me?.id, !meLoading);
 
   const toggleLikeMutation = useToggleLike(postId);
   const createReplyMutation = useCreateReply(postId);
@@ -57,6 +60,11 @@ export default function BoardDetailPage() {
   const [commentText, setCommentText] = useState('');
   const [showUnlikeModal, setShowUnlikeModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // 신고/차단 액션 시트 대상 (게시글 또는 특정 댓글)
+  const [actionTarget, setActionTarget] = useState<
+    { type: 'board' | 'reply'; id: number; userId?: number; label: string; withdrawn?: boolean } | null
+  >(null);
 
   const keyboardVisible = useKeyboardVisible();
 
@@ -116,6 +124,11 @@ export default function BoardDetailPage() {
     deleteReplyMutation.mutate(replyId);
   }, []);
 
+  // 댓글 신고/차단 시트 열기
+  const handleReportReply = useCallback((replyId: number, replyUserId: number, isWithdrawn: boolean) => {
+    setActionTarget({ type: 'reply', id: replyId, userId: replyUserId, label: '이 댓글', withdrawn: isWithdrawn });
+  }, []);
+
   const handleDeletePost = useCallback(() => {
     if (!me?.id) return;
     deletePostMutation.mutate(
@@ -160,7 +173,10 @@ export default function BoardDetailPage() {
           ...(isOwner ? [
             { icon: 'pencil-outline', color: '#3b82f6', onPress: () => router.push({ pathname: '/registration/communitypost-edit/[id]', params: { id } } as never) },
             { icon: 'trash-outline', color: '#ef4444', onPress: () => setShowDeleteModal(true) },
-          ] : []),
+          ] : [
+            // 비작성자에게는 신고/차단 메뉴 제공 (App Store 1.2)
+            { icon: 'ellipsis-horizontal', onPress: () => setActionTarget({ type: 'board', id: postId, userId: post?.user_id, label: '이 게시글', withdrawn: !!post?.is_withdrawn }) },
+          ]),
           { icon: 'share-outline', onPress: handleShare },
         ]}
       />
@@ -223,6 +239,7 @@ export default function BoardDetailPage() {
             myId={me?.id}
             postAuthorId={post?.user_id}
             onDeleteReply={handleDeleteReply}
+            onReportReply={handleReportReply}
           />
         </ScrollView>
 
@@ -253,6 +270,22 @@ export default function BoardDetailPage() {
           </View>
         </View>
       </Modal>
+
+      {/* 신고/차단 액션 시트 */}
+      <ContentActionSheet
+        visible={!!actionTarget}
+        onClose={() => setActionTarget(null)}
+        reporterId={me?.id}
+        targetType={actionTarget?.type ?? 'board'}
+        targetId={actionTarget?.id ?? 0}
+        targetUserId={actionTarget?.userId}
+        targetLabel={actionTarget?.label}
+        targetWithdrawn={actionTarget?.withdrawn}
+        onBlocked={() => {
+          // 게시글 작성자를 차단하면 이 글이 더 이상 보이지 않으므로 목록으로 복귀
+          if (actionTarget?.type === 'board') router.replace('/(tabs)/community');
+        }}
+      />
 
       {/* 게시글 삭제 모달 */}
       <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => setShowDeleteModal(false)}>

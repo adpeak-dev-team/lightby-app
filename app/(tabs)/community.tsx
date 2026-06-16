@@ -11,6 +11,7 @@ import Header from '@/components/common/Header';
 import { CommunityCard } from '@/components/common/CommunityCard';
 import { Fab } from '@/components/common/Fab';
 import { useGetCommunityPosts } from '@/services/community/queries';
+import { useGetMe } from '@/services/auth/queries';
 import { useRequireLogin } from '@/hooks/use-require-login';
 import { COMMUNITY_TABS, CommunityCategory } from '@/lib/communityCategory';
 
@@ -22,9 +23,11 @@ export default function CommunityPage() {
   const [focused, setFocused] = useState(false);
   const [tab, setTab] = useState<'all' | CommunityCategory>('all');
 
+  // me(로그인 정보)가 확정된 뒤에 피드를 불러와야 차단 필터(viewerId)가 빠진 결과가 캐시되지 않는다
+  const { data: me, isLoading: meLoading } = useGetMe();
   const {
     data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage,
-  } = useGetCommunityPosts(search, tab === 'all' ? undefined : tab);
+  } = useGetCommunityPosts(search, tab === 'all' ? undefined : tab, me?.id, !meLoading);
 
   // 여러 페이지를 하나의 배열로 평탄화
   const posts = data?.pages.flatMap((p) => p.data) ?? [];

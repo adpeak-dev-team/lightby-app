@@ -11,6 +11,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
+// TODO: 네이티브 재빌드 전까지 인앱결제 임시 비활성화 (react-native-nitro-modules 미링크 크래시 방지)
+// import { initIAP } from '@/lib/iap';
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,12 @@ export default function RootLayout() {
     Pretendard: require('../assets/fonts/PretendardVariable.ttf'),
   });
 
+  // iOS 인앱결제(RevenueCat) 초기화. 로그인 후에는 loginIAP(userId)로 유저를 연결한다.
+  // TODO: 네이티브 재빌드(npx expo run:android/ios) 후 주석 해제
+  // useEffect(() => {
+  //   initIAP();
+  // }, []);
+
   // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지)
   if (!fontsLoaded) return null;
   applyPretendardDefault();
@@ -86,12 +94,14 @@ export default function RootLayout() {
                 <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/withdraw" options={{ headerShown: false }} />
+                <Stack.Screen name="mypage/blocked" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/sitepost-edit/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/qna" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/communitypost" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/communitypost-edit/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="map-view" options={{ headerShown: false }} />
+                <Stack.Screen name="terms" options={{ headerShown: false }} />
                 <Stack.Screen name="fortune" options={{ headerShown: false }} />
             <Stack.Screen name="posts/applicants/[id]" options={{ headerShown: false }} />
               </Stack>

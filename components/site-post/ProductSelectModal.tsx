@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import {
-  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet,
+  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
+import { isIAPSupported, purchaseProduct, finishIAPTransaction, isUserCancelled, resolveProductId } from '@/lib/iap';
+import { verifyIosReceipt } from '@/services/iap/api';
 
 export type ProductType = 'FREE' | 'TOP' | 'PREMIUM';
 
@@ -24,6 +26,25 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
     const [selected, setSelected] = useState<ProductType>('FREE');
     const [selectedIcons, setSelectedIcons] = useState<number[]>([]);
     const [paymentAlertVisible, setPaymentAlertVisible] = useState(false);
+    const [purchasing, setPurchasing] = useState(false);
+
+    // iOS 인앱결제: 상품(아이콘 포함 여부 반영) 구매 → 백엔드 영수증 검증 → 거래완료 → 공고 등록.
+    const handlePaidConfirm = async () => {
+        const productId = resolveProductId(selected as 'PREMIUM' | 'TOP', selectedIcons.length);
+        setPurchasing(true);
+        try {
+            const { purchase, receipt } = await purchaseProduct(productId);
+            await verifyIosReceipt({ receipt, productId }); // 백엔드 Apple 검증 + 결제 확정
+            await finishIAPTransaction(purchase);           // 소비성 거래 완료
+            onConfirm(selected, selectedIcons, totalAmount);
+        } catch (e: any) {
+            if (!isUserCancelled(e)) {
+                Alert.alert('결제 실패', e?.message ?? '결제에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+            }
+        } finally {
+            setPurchasing(false);
+        }
+    };
 
     const handleSelect = (p: ProductType) => {
         setSelected(p);
@@ -190,21 +211,26 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                     {/* 등록 버튼 */}
                     <View style={s.footer}>
                         <TouchableOpacity
-                            style={[s.confirmBtn, isPending && { opacity: 0.6 }]}
+                            style={[s.confirmBtn, (isPending || purchasing) && { opacity: 0.6 }]}
                             onPress={() => {
                                 const isPaid =
                                     selected === 'TOP' ||
                                     (selected === 'PREMIUM' && !freebies);
                                 if (isPaid) {
-                                    setPaymentAlertVisible(true);
+                                    // iOS는 인앱결제, 그 외(Android/web)는 아직 준비중
+                                    if (isIAPSupported()) {
+                                        handlePaidConfirm();
+                                    } else {
+                                        setPaymentAlertVisible(true);
+                                    }
                                     return;
                                 }
                                 onConfirm(selected, selectedIcons, freebies && selected === 'PREMIUM' ? 0 : totalAmount);
                             }}
-                            disabled={isPending}
+                            disabled={isPending || purchasing}
                             activeOpacity={0.85}
                         >
-                            {isPending
+                            {(isPending || purchasing)
                                 ? <ActivityIndicator size="small" color="#fff" />
                                 : <Text style={s.confirmBtnText}>
                                     {freebies || selected === 'FREE' ? '무료로 등록하기' : '등록하기'}

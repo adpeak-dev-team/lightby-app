@@ -71,6 +71,7 @@
           }
         }
       ],
+      "react-native-iap",
       "expo-font"
     ],
     "experiments": {

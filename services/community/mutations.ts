@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toggleLike, createReply, deleteReply, deleteBoardPost, createCommunityPost, updateCommunityPost, updateCommunityPostImages } from './api';
+import { toggleLike, createReply, deleteReply, deleteBoardPost, createCommunityPost, updateCommunityPost, updateCommunityPostImages, reportContent, blockUser, unblockUser } from './api';
 import { COMMUNITY_KEYS } from './queries';
 import type { CreateCommunityPostPayload } from './types';
 
@@ -77,5 +77,33 @@ export function useUpdateCommunityPostImages() {
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(id) });
     },
+  });
+}
+
+// ==================== 신고 / 차단 (App Store 1.2) ====================
+export function useReportContent() {
+  return useMutation({
+    mutationFn: ({ reporterId, targetType, targetId, reason }:
+      { reporterId: number; targetType: 'board' | 'reply'; targetId: number; reason: string }) =>
+      reportContent(reporterId, targetType, targetId, reason),
+  });
+}
+
+export function useBlockUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ blockerId, blockedId }: { blockerId: number; blockedId: number }) =>
+      blockUser(blockerId, blockedId),
+    // 차단 즉시 피드/상세/댓글에서 해당 사용자 콘텐츠가 사라지도록 전체 무효화
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['community'] }),
+  });
+}
+
+export function useUnblockUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ blockerId, blockedId }: { blockerId: number; blockedId: number }) =>
+      unblockUser(blockerId, blockedId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['community'] }),
   });
 }
