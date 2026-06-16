@@ -1,5 +1,19 @@
 export const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
+// 이용약관 / 개인정보처리방침 (가입 시 동의 — App Store 가이드라인 1.2)
+export const TERMS_URL = process.env.EXPO_PUBLIC_TERMS_URL ?? 'https://lightby.co.kr/terms';
+export const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL ?? 'https://lightby.co.kr/terms';
+
+// 신고 사유 목록 (커뮤니티 콘텐츠 신고)
+export const REPORT_REASONS = [
+  '욕설/비방',
+  '음란물/선정성',
+  '혐오 발언/차별',
+  '스팸/홍보',
+  '사기/허위정보',
+  '기타',
+] as const;
+
 export const regions = [
   "전국", "서울", "경기남부", "경기북부", "인천",
   "부산", "울산", "대구", "경상도", "대전",

@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCheckLoginId, useCheckNickname, useSendOtp, useVerifyOtp, useSignUp } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import * as Haptics from 'expo-haptics';
+import TermsAgreement from '@/components/common/TermsAgreement';
 
 // ── 유틸 함수 (백엔드 연결 전 더미) ──────────────────────────
 const validateId = (v: string) => /^[a-zA-Z0-9_]+$/.test(v);
@@ -112,6 +113,7 @@ export default function RegisterPage() {
   const [isNicknameVerified, setIsNicknameVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
   const [timeLeft, setTimeLeft] = useState('03:00');
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -241,6 +243,7 @@ export default function RegisterPage() {
       phone: !form.phone ? '전화번호를 입력해주세요.' : !isOtpVerified ? '휴대폰 인증을 완료해주세요.' : null,
       password: !form.password ? '비밀번호를 입력해주세요.' : !validatePassword(form.password) ? '비밀번호는 8자리 이상이어야 합니다.' : null,
       passwordCheck: form.password !== form.passwordCheck ? '비밀번호가 일치하지 않습니다.' : null,
+      terms: !agreedTerms ? '이용약관에 동의해주세요.' : null,
     };
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean)) return;
@@ -418,8 +421,15 @@ export default function RegisterPage() {
           />
         </View>
 
+        {/* 이용약관 동의 (App Store 1.2) */}
+        <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} error={!!errors.terms} />
+
         {/* 가입하기 버튼 */}
-        <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={[styles.submitBtn, !agreedTerms && styles.submitBtnDisabled]}
+          onPress={handleSubmit}
+          activeOpacity={0.85}
+        >
           <Text style={styles.submitBtnText}>가입하기</Text>
         </TouchableOpacity>
 
@@ -543,6 +553,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
+  },
+  submitBtnDisabled: {
+    backgroundColor: '#93c5fd',
   },
   submitBtnText: {
     color: '#fff',

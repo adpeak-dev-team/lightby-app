@@ -8,22 +8,57 @@ export interface CommunityPostsPage {
   hasMore: boolean;
 }
 
-export async function getCommunityPosts(search?: string, category?: string, page = 1, limit = 10): Promise<CommunityPostsPage> {
+export async function getCommunityPosts(search?: string, category?: string, page = 1, limit = 10, viewerId?: number): Promise<CommunityPostsPage> {
   const { data } = await apiClient.get<{
     success: boolean; data: CommunityItem[]; page: number; limit: number; hasMore: boolean;
   }>('/community/posts', {
-    params: { ...(search ? { search } : {}), ...(category ? { category } : {}), page, limit },
+    params: { ...(search ? { search } : {}), ...(category ? { category } : {}), page, limit, ...(viewerId ? { viewerId } : {}) },
   });
   return { data: data.data, page: data.page, limit: data.limit, hasMore: data.hasMore };
 }
 
-export async function getCommunityPostById(id: number): Promise<CommunityItem> {
-  const { data } = await apiClient.get<{ success: boolean; data: CommunityItem }>(`/community/posts/${id}`);
+export async function getCommunityPostById(id: number, viewerId?: number): Promise<CommunityItem> {
+  const { data } = await apiClient.get<{ success: boolean; data: CommunityItem }>(`/community/posts/${id}`, {
+    params: { ...(viewerId ? { viewerId } : {}) },
+  });
   return data.data;
 }
 
-export async function getCommunityReplies(boardId: number): Promise<Comment[]> {
-  const { data } = await apiClient.get<{ success: boolean; data: Comment[] }>(`/community/posts/${boardId}/replies`);
+export async function getCommunityReplies(boardId: number, viewerId?: number): Promise<Comment[]> {
+  const { data } = await apiClient.get<{ success: boolean; data: Comment[] }>(`/community/posts/${boardId}/replies`, {
+    params: { ...(viewerId ? { viewerId } : {}) },
+  });
+  return data.data;
+}
+
+// ==================== 신고 / 차단 (App Store 1.2) ====================
+export async function reportContent(
+  reporterId: number,
+  targetType: 'board' | 'reply',
+  targetId: number,
+  reason: string,
+): Promise<void> {
+  await apiClient.post('/community/report', { reporterId, targetType, targetId, reason });
+}
+
+export async function blockUser(blockerId: number, blockedId: number): Promise<void> {
+  await apiClient.post('/community/block', { blockerId, blockedId });
+}
+
+export async function unblockUser(blockerId: number, blockedId: number): Promise<void> {
+  await apiClient.post('/community/unblock', { blockerId, blockedId });
+}
+
+export interface BlockedUser {
+  user_id: number;
+  nickname: string | null;
+  created_at: string;
+}
+
+export async function getBlockedUsers(userId: number): Promise<BlockedUser[]> {
+  const { data } = await apiClient.get<{ success: boolean; data: BlockedUser[] }>('/community/blocks', {
+    params: { userId },
+  });
   return data.data;
 }
 

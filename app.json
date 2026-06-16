@@ -69,7 +69,8 @@
             ]
           }
         }
-      ]
+      ],
+      "react-native-iap"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -355,6 +355,19 @@ export default function AccountPage() {
           )}
         </View>
 
+        {/* 차단 관리 */}
+        <TouchableOpacity
+          style={s.linkRow}
+          onPress={() => router.push('/mypage/blocked' as never)}
+          activeOpacity={0.75}
+        >
+          <View style={[s.linkIcon, { backgroundColor: '#fee2e2' }]}>
+            <Ionicons name="ban" size={18} color="#ef4444" />
+          </View>
+          <Text style={s.linkLabel}>차단 관리</Text>
+          <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
+        </TouchableOpacity>
+
         <Text style={s.footer}>
           회원정보는 개인정보 처리방침에 따라 안전하게 보호되며,{'\n'}정보 변경 시 즉시 서비스에 반영됩니다.
         </Text>
@@ -429,6 +442,13 @@ const s = StyleSheet.create({
   btnRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 },
   confirmBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
   confirmBtnText: { color: '#fff', fontSize: 14, fontWeight: '500' },
+  linkRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, marginTop: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+  },
+  linkIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  linkLabel: { flex: 1, fontSize: 16, fontWeight: '500', color: '#1e293b' },
   footer: { fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 20, lineHeight: 18 },
   withdrawWrap: { alignItems: 'center', marginTop: 24 },
   withdrawText: { fontSize: 12, color: '#94a3b8', textDecorationLine: 'underline' },

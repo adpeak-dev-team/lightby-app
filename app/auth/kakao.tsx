@@ -9,6 +9,7 @@ import { login } from '@react-native-seoul/kakao-login';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import { useOAuthKakaoSignIn, useOAuthSignUp, useCheckNickname, useSendOtp, useVerifyOtp } from '@/services/auth/mutations';
 import { toast } from '@/hooks/use-toast';
+import TermsAgreement from '@/components/common/TermsAgreement';
 
 const formatPhoneNumber = (raw: string) => {
   const nums = raw.replace(/\D/g, '').slice(0, 11);
@@ -60,6 +61,9 @@ export default function KakaoLoginPage() {
   const [otpErr, setOtpErr] = useState('');
   const [timeLeft, setTimeLeft] = useState('03:00');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // 이용약관 동의 (App Store 1.2)
+  const [agreedTerms, setAgreedTerms] = useState(false);
 
   const oauthSignInMutate = useOAuthKakaoSignIn();
   const oauthSignUpMutate = useOAuthSignUp();
@@ -210,6 +214,10 @@ export default function KakaoLoginPage() {
       Alert.alert('알림', '휴대폰 인증을 완료해주세요.');
       return;
     }
+    if (!agreedTerms) {
+      Alert.alert('알림', '이용약관 및 운영정책에 동의해주세요.');
+      return;
+    }
     if (!kakaoProfile) return;
 
     const deviceId = await getOrCreateDeviceId();
@@ -348,17 +356,21 @@ export default function KakaoLoginPage() {
             </View>
           )}
 
+          {/* 이용약관 동의 (App Store 1.2) */}
+          <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} />
+
           <TouchableOpacity
             style={[
               s.submitBtn,
-              (needsNickname && !isNicknameVerified) || (needsPhone && !isPhoneVerified)
+              (needsNickname && !isNicknameVerified) || (needsPhone && !isPhoneVerified) || !agreedTerms
                 ? s.submitBtnDisabled : {},
             ]}
             onPress={handleSignUp}
             disabled={
               oauthSignUpMutate.isPending ||
               (needsNickname && !isNicknameVerified) ||
-              (needsPhone && !isPhoneVerified)
+              (needsPhone && !isPhoneVerified) ||
+              !agreedTerms
             }
           >
             <Text style={s.submitBtnText}>
