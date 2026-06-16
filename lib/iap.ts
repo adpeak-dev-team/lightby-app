@@ -70,10 +70,10 @@ export async function initIAP() {
 
 export interface IAPPurchase {
   purchase: any;
-  receipt: string; // base64 인코딩된 iOS 영수증 (백엔드 검증용)
+  jws: string; // StoreKit2 서명 거래(purchaseToken) — 백엔드가 Apple 서명 검증
 }
 
-/** 소비성 상품 구매. 성공 시 purchase + 영수증 반환. 이벤트 기반이라 리스너로 결과 수신. */
+/** 소비성 상품 구매. 성공 시 purchase + JWS(purchaseToken) 반환. 이벤트 기반이라 리스너로 결과 수신. */
 export async function purchaseProduct(productId: string): Promise<IAPPurchase> {
   const IAP = getIAP();
   if (!IAP) throw new Error('IAP를 사용할 수 없는 환경입니다.');
@@ -88,9 +88,9 @@ export async function purchaseProduct(productId: string): Promise<IAPPurchase> {
       .catch((e: any) => { pending = null; reject(e); });
   });
 
-  let receipt = '';
-  try { receipt = (await IAP.getReceiptDataIOS()) ?? ''; } catch { /* noop */ }
-  return { purchase, receipt };
+  // StoreKit2 통합 토큰(iOS=JWS). 백엔드가 Apple 루트 인증서로 서명 검증한다.
+  const jws: string = purchase?.purchaseToken ?? '';
+  return { purchase, jws };
 }
 
 /** 백엔드 영수증 검증 성공 후 호출 — 소비성 거래 완료(같은 상품 재구매 가능) */

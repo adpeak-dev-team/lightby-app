@@ -5,7 +5,8 @@ import { getJobDetail, copyImages } from './api';
 import { useCreateJobPost } from './mutations';
 import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
-import { ProductType } from '@/components/site-post/ProductSelectModal';
+import { ProductType, ApplePayment } from '@/components/site-post/ProductSelectModal';
+import { finishIAPTransaction } from '@/lib/iap';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -144,6 +145,7 @@ export function useSitePostForm() {
         selectedIcons: number[],
         totalAmount: number,
         callbacks: { onSuccess: () => void; onCloseModal: () => void },
+        applePayment?: ApplePayment,  // iOS 인앱결제로 결제한 경우만 전달
     ) => {
         const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
         const resultAddress = addressDetail ? `${address} ${addressDetail}`.trim() : address;
@@ -165,10 +167,16 @@ export function useSitePostForm() {
                 selectedProduct,
                 selectedIcons,
                 totalAmount,
+                // 애플 인앱결제면 JWS(purchaseToken)를 보내 서버가 서명 검증·기록(멱등성)한다
+                ...(applePayment
+                    ? { paymentMethod: 'apple' as const, appleJws: applePayment.jws }
+                    : {}),
             },
             {
-                onSuccess: (res) => {
+                onSuccess: async (res) => {
                     if (res.success) {
+                        // 서버가 결제를 확정한 뒤에야 애플 거래를 완료 처리(소비) — 실패 시 미완료로 남겨 재시도/환불 가능
+                        if (applePayment) await finishIAPTransaction(applePayment.purchase);
                         isSuccessRef.current = true;
                         callbacks.onCloseModal();
                         Alert.alert('등록 완료', '공고가 등록되었습니다.', [

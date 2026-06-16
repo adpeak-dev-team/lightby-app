@@ -11,8 +11,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
-// TODO: 네이티브 재빌드 전까지 인앱결제 임시 비활성화 (react-native-nitro-modules 미링크 크래시 방지)
-// import { initIAP } from '@/lib/iap';
+// 인앱결제(IAP)는 부팅 시 초기화하지 않고 결제 시점에 지연 초기화한다(lib/iap.ts purchaseProduct 내부).
+// → 네이티브 모듈(react-native-iap/nitro)이 빌드 안 된 환경에서도 앱 부팅이 크래시하지 않는다.
 
 const queryClient = new QueryClient();
 
@@ -58,12 +58,6 @@ export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     Pretendard: require('../assets/fonts/PretendardVariable.ttf'),
   });
-
-  // iOS 인앱결제(RevenueCat) 초기화. 로그인 후에는 loginIAP(userId)로 유저를 연결한다.
-  // TODO: 네이티브 재빌드(npx expo run:android/ios) 후 주석 해제
-  // useEffect(() => {
-  //   initIAP();
-  // }, []);
 
   // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지)
   if (!fontsLoaded) return null;
