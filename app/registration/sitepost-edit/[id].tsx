@@ -31,6 +31,13 @@ function parseJsonArray(value: any): string[] {
     return [];
 }
 
+// 위경도 값을 안전하게 숫자로 변환. 변환 불가(null/빈문자/NaN)면 null.
+// DB의 위경도(DECIMAL)는 드라이버가 문자열("37.123")로 반환하므로 그대로 두면 @IsNumber 검증에서 400이 난다.
+function toCoord(v: unknown): number | null {
+    const n = Number(v);
+    return v === null || v === undefined || v === '' || Number.isNaN(n) ? null : n;
+}
+
 export default function SitePostEditPage() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const postId = parseInt(id);
@@ -94,8 +101,8 @@ export default function SitePostEditPage() {
             setAddress(job.address ?? '');
             setAddressDetail(job.address_detail ?? '');
             setResultAddress(job.result_address ?? '');
-            setLatitude(job.latitude ?? null);
-            setLongitude(job.longitude ?? null);
+            setLatitude(toCoord(job.latitude));
+            setLongitude(toCoord(job.longitude));
             setWorkRegions(regions[0] ?? '');
             setEnforcement(job.enforcement ?? '');
             setConstruction(job.construction ?? '');
