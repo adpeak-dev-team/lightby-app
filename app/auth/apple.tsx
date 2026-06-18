@@ -55,6 +55,9 @@ export default function AppleLoginPage() {
   // 이용약관 동의 (App Store 1.2)
   const [agreedTerms, setAgreedTerms] = useState(false);
 
+  // 회원 탈퇴 시 Apple 토큰 revoke를 위해 서버에 전달할 authorizationCode (로그인/가입 호출에 사용)
+  const authorizationCodeRef = useRef<string | undefined>(undefined);
+
   const appleSignInMutate = useOAuthAppleSignIn();
   const oauthSignUpMutate = useOAuthSignUp();
   const checkNicknameMutate = useCheckNickname();
@@ -108,8 +111,11 @@ export default function AppleLoginPage() {
 
       const deviceId = await getOrCreateDeviceId();
 
+      // 탈퇴 시 토큰 revoke용 — 신규 가입 시 회원가입 호출에도 재사용
+      authorizationCodeRef.current = credential.authorizationCode ?? undefined;
+
       appleSignInMutate.mutate(
-        { identityToken: credential.identityToken, deviceId, name },
+        { identityToken: credential.identityToken, deviceId, name, authorizationCode: credential.authorizationCode ?? undefined },
         {
           onSuccess: (data) => {
             const profile = data.oauthProfile ?? data.kakaoProfile;
@@ -240,6 +246,7 @@ export default function AppleLoginPage() {
         profileImage: oauthProfile.profileImage,
         thumbnailImage: oauthProfile.thumbnailImage,
         deviceId,
+        authorizationCode: authorizationCodeRef.current,
       },
       {
         onSuccess: () => {

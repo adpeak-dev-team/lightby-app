@@ -95,8 +95,8 @@ export function useOAuthKakaoSignIn() {
 
 export function useOAuthAppleSignIn() {
   return useMutation({
-    mutationFn: ({ identityToken, deviceId, name }: { identityToken: string; deviceId: string; name?: string }) =>
-      oauthAppleSignIn(identityToken, deviceId, name),
+    mutationFn: ({ identityToken, deviceId, name, authorizationCode }: { identityToken: string; deviceId: string; name?: string; authorizationCode?: string }) =>
+      oauthAppleSignIn(identityToken, deviceId, name, authorizationCode),
     onSuccess: async (data: OAuthSignInResponse) => {
       // 로그인 완료된 경우만 토큰 저장
       if (data.accessToken && data.refreshToken) {
