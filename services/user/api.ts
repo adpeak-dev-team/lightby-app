@@ -103,7 +103,7 @@ export async function savePreferences(body: {
   return data;
 }
 
-// 회원 탈퇴 (소프트 삭제)
+// 회원 탈퇴 (완전 삭제 — 개인정보·UGC 물리 삭제, 결제기록만 법적 보관, Apple 토큰 revoke)
 // 주의: Fastify는 application/json + 빈 body를 400으로 거부하므로 빈 객체를 보낸다
 export async function withdrawUser(): Promise<{ success: boolean; message: string }> {
   const { data } = await apiClient.post('/auth/withdrawal', {});

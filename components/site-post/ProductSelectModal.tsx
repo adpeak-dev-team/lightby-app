@@ -5,21 +5,23 @@ import {
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
-import { isIAPSupported, purchaseProduct, finishIAPTransaction, isUserCancelled, resolveProductId } from '@/lib/iap';
-import { verifyIosReceipt } from '@/services/iap/api';
+import { isIAPSupported, purchaseProduct, isUserCancelled, resolveProductId } from '@/lib/iap';
 
 export type ProductType = 'FREE' | 'TOP' | 'PREMIUM';
+// iOS 인앱결제 정보 (유료 등록 시 onConfirm으로 전달 → 서버가 JWS 서명 검증·기록)
+export type ApplePayment = { jws: string; purchase: any };
 
 interface Props {
     visible: boolean;
     onClose: () => void;
-    onConfirm: (product: ProductType, selectedIcons: number[], totalAmount: number) => void;
+    onConfirm: (product: ProductType, selectedIcons: number[], totalAmount: number, applePayment?: ApplePayment) => void;
     freebies?: boolean;
     isPending?: boolean;
 }
 
-const PREMIUM_PRICE = 66000;
-const TOP_PRICE = 49500;
+// 오픈기념 50% 할인가 (표시용). 실제 청구가는 App Store Connect의 IAP 상품 가격으로 처리된다 — 콘솔에서 동일하게 맞춰야 함.
+const PREMIUM_PRICE = 27900;
+const TOP_PRICE = 13900;
 const ICON_PRICE = 2200;
 
 export function ProductSelectModal({ visible, onClose, onConfirm, freebies = false, isPending = false }: Props) {
@@ -28,15 +30,14 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
     const [paymentAlertVisible, setPaymentAlertVisible] = useState(false);
     const [purchasing, setPurchasing] = useState(false);
 
-    // iOS 인앱결제: 상품(아이콘 포함 여부 반영) 구매 → 백엔드 영수증 검증 → 거래완료 → 공고 등록.
+    // iOS 인앱결제: 상품 구매 → 영수증을 onConfirm(공고 등록)으로 전달.
+    // 서버가 createJobPost에서 Apple 검증 + 결제 기록(멱등성)하고, 성공 후 거래를 완료(소비) 처리한다.
     const handlePaidConfirm = async () => {
         const productId = resolveProductId(selected as 'PREMIUM' | 'TOP', selectedIcons.length);
         setPurchasing(true);
         try {
-            const { purchase, receipt } = await purchaseProduct(productId);
-            await verifyIosReceipt({ receipt, productId }); // 백엔드 Apple 검증 + 결제 확정
-            await finishIAPTransaction(purchase);           // 소비성 거래 완료
-            onConfirm(selected, selectedIcons, totalAmount);
+            const { purchase, jws } = await purchaseProduct(productId);
+            onConfirm(selected, selectedIcons, totalAmount, { jws, purchase });
         } catch (e: any) {
             if (!isUserCancelled(e)) {
                 Alert.alert('결제 실패', e?.message ?? '결제에 실패했습니다. 잠시 후 다시 시도해 주세요.');

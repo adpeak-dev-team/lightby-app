@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { PreviousPostingModal } from '@/components/site-post/PreviousPostingModal';
-import { ProductSelectModal, ProductType } from '@/components/site-post/ProductSelectModal';
+import { ProductSelectModal, ProductType, ApplePayment } from '@/components/site-post/ProductSelectModal';
 import { useSitePostForm } from '@/services/site/useSitePostForm';
 
 import { ImageSection } from '@/components/site-post/ImageSection';
@@ -81,11 +81,11 @@ export default function SitePostPage() {
         setProductModalVisible(true);
     };
 
-    const handleConfirmProduct = (product: ProductType, icons: number[], total: number) => {
+    const handleConfirmProduct = (product: ProductType, icons: number[], total: number, applePayment?: ApplePayment) => {
         form.confirmProduct(product, icons, total, {
             onCloseModal: () => setProductModalVisible(false),
             onSuccess: () => router.back(),
-        });
+        }, applePayment);
     };
 
     return (

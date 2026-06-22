@@ -5,9 +5,16 @@ import { getJobDetail, copyImages } from './api';
 import { useCreateJobPost } from './mutations';
 import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
-import { ProductType } from '@/components/site-post/ProductSelectModal';
+import { ProductType, ApplePayment } from '@/components/site-post/ProductSelectModal';
+import { finishIAPTransaction } from '@/lib/iap';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
+
+// 위경도 값을 안전하게 숫자로 변환. 변환 불가(null/빈문자/NaN)면 null.
+const toCoord = (v: unknown): number | null => {
+    const n = Number(v);
+    return v === null || v === undefined || v === '' || Number.isNaN(n) ? null : n;
+};
 
 export function useSitePostForm() {
     // ── 폼 상태 ──
@@ -85,8 +92,10 @@ export function useSitePostForm() {
             setImages(copiedImgs);
             setAddress(d.address ?? '');
             setAddressDetail(d.address_detail ?? '');
-            setLatitude(typeof d.latitude === 'number' ? d.latitude : null);
-            setLongitude(typeof d.longitude === 'number' ? d.longitude : null);
+            // DB의 위경도(DECIMAL)는 드라이버가 문자열("37.123")로 반환하므로 숫자로 변환.
+            // typeof 'number' 검사만 하면 문자열이 전부 null이 되어 등록 시 400(@IsNumber 실패)이 난다.
+            setLatitude(toCoord(d.latitude));
+            setLongitude(toCoord(d.longitude));
             setWorkRegions(Array.isArray(d.regions) ? (d.regions[0] ?? '') : '');
             setEnforcement(d.enforcement ?? '');
             setConstruction(d.construction ?? '');
@@ -128,6 +137,10 @@ export function useSitePostForm() {
         if (!managerPhone.trim())     return '연락처를 입력해주세요.';
         if (workIndustry.length === 0) return '업종을 선택해주세요.';
         if (workOccupation.length === 0) return '직종을 선택해주세요.';
+        // 좌표 누락 가드: 백엔드가 latitude/longitude를 필수 number로 받으므로(@IsNumber),
+        // null이면 등록 시 불투명한 400이 난다. 제출 전에 친절히 안내한다.
+        if (typeof latitude !== 'number' || typeof longitude !== 'number')
+            return '지도에서 위치를 확인할 수 없습니다. 주소를 다시 검색해주세요.';
         if (!feeType)                 return '수수료 형태를 선택해주세요.';
         // 수수료 항목은 '계약 수수료' / '기본급 + 수수료'일 때만 필수 (front 기준)
         const showFee = feeType === '계약 수수료' || feeType === '기본급 + 수수료';
@@ -144,6 +157,7 @@ export function useSitePostForm() {
         selectedIcons: number[],
         totalAmount: number,
         callbacks: { onSuccess: () => void; onCloseModal: () => void },
+        applePayment?: ApplePayment,  // iOS 인앱결제로 결제한 경우만 전달
     ) => {
         const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
         const resultAddress = addressDetail ? `${address} ${addressDetail}`.trim() : address;
@@ -165,10 +179,16 @@ export function useSitePostForm() {
                 selectedProduct,
                 selectedIcons,
                 totalAmount,
+                // 애플 인앱결제면 JWS(purchaseToken)를 보내 서버가 서명 검증·기록(멱등성)한다
+                ...(applePayment
+                    ? { paymentMethod: 'apple' as const, appleJws: applePayment.jws }
+                    : {}),
             },
             {
-                onSuccess: (res) => {
+                onSuccess: async (res) => {
                     if (res.success) {
+                        // 서버가 결제를 확정한 뒤에야 애플 거래를 완료 처리(소비) — 실패 시 미완료로 남겨 재시도/환불 가능
+                        if (applePayment) await finishIAPTransaction(applePayment.purchase);
                         isSuccessRef.current = true;
                         callbacks.onCloseModal();
                         Alert.alert('등록 완료', '공고가 등록되었습니다.', [

@@ -76,6 +76,8 @@ export interface OAuthSignUpRequest {
   profileImage: string | null;
   thumbnailImage: string | null;
   deviceId: string;
+  // Apple 신규 가입 시 탈퇴 revoke용 — 서버가 refresh_token으로 교환·보관
+  authorizationCode?: string;
 }
 
 export interface OAuthSignUpResponse {
@@ -132,10 +134,11 @@ export async function oauthAppleSignIn(
   identityToken: string,
   deviceId: string,
   name?: string,
+  authorizationCode?: string,
 ): Promise<OAuthSignInResponse> {
   const res = await apiClient.post<OAuthSignInResponse>(
     '/auth/sign-in/oauth/apple/app',
-    { identityToken, deviceId, name },
+    { identityToken, deviceId, name, authorizationCode },
   );
   return res.data;
 }

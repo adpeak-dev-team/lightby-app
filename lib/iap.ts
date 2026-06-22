@@ -13,11 +13,12 @@ import { Platform } from 'react-native';
 
 // Apple IAP는 고정가라 "기본가 + 아이콘"을 동적 합산할 수 없다.
 // 아이콘은 최대 1개 선택이므로, 아이콘 포함 여부에 따른 조합 상품 4개로 구성한다.
+// 가격은 App Store Connect의 각 상품에 설정된 값으로 청구된다 — 아래 주석은 오픈기념 50% 할인 정가(콘솔과 일치시킬 것).
 export const IAP_PRODUCT_IDS = {
-  PREMIUM: 'com.lightby.app.premium_post',            // 66,000
-  PREMIUM_ICON: 'com.lightby.app.premium_post_icon',  // 68,200 (아이콘 1개 포함)
-  TOP: 'com.lightby.app.top_post',                    // 49,500
-  TOP_ICON: 'com.lightby.app.top_post_icon',          // 51,700 (아이콘 1개 포함)
+  PREMIUM: 'com.lightby.app.premium_post',            // 27,900
+  PREMIUM_ICON: 'com.lightby.app.premium_post_icon',  // 30,100 (아이콘 1개 포함)
+  TOP: 'com.lightby.app.top_post',                    // 13,900
+  TOP_ICON: 'com.lightby.app.top_post_icon',          // 16,100 (아이콘 1개 포함)
 } as const;
 
 /** 상품 등급 + 아이콘 선택 수로 실제 결제할 IAP 제품 ID를 결정 */
@@ -70,10 +71,10 @@ export async function initIAP() {
 
 export interface IAPPurchase {
   purchase: any;
-  receipt: string; // base64 인코딩된 iOS 영수증 (백엔드 검증용)
+  jws: string; // StoreKit2 서명 거래(purchaseToken) — 백엔드가 Apple 서명 검증
 }
 
-/** 소비성 상품 구매. 성공 시 purchase + 영수증 반환. 이벤트 기반이라 리스너로 결과 수신. */
+/** 소비성 상품 구매. 성공 시 purchase + JWS(purchaseToken) 반환. 이벤트 기반이라 리스너로 결과 수신. */
 export async function purchaseProduct(productId: string): Promise<IAPPurchase> {
   const IAP = getIAP();
   if (!IAP) throw new Error('IAP를 사용할 수 없는 환경입니다.');
@@ -88,9 +89,9 @@ export async function purchaseProduct(productId: string): Promise<IAPPurchase> {
       .catch((e: any) => { pending = null; reject(e); });
   });
 
-  let receipt = '';
-  try { receipt = (await IAP.getReceiptDataIOS()) ?? ''; } catch { /* noop */ }
-  return { purchase, receipt };
+  // StoreKit2 통합 토큰(iOS=JWS). 백엔드가 Apple 루트 인증서로 서명 검증한다.
+  const jws: string = purchase?.purchaseToken ?? '';
+  return { purchase, jws };
 }
 
 /** 백엔드 영수증 검증 성공 후 호출 — 소비성 거래 완료(같은 상품 재구매 가능) */
