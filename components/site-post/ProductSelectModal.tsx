@@ -19,8 +19,9 @@ interface Props {
     isPending?: boolean;
 }
 
-const PREMIUM_PRICE = 66000;
-const TOP_PRICE = 49500;
+// 오픈기념 50% 할인가 (표시용). 실제 청구가는 App Store Connect의 IAP 상품 가격으로 처리된다 — 콘솔에서 동일하게 맞춰야 함.
+const PREMIUM_PRICE = 27900;
+const TOP_PRICE = 13900;
 const ICON_PRICE = 2200;
 
 export function ProductSelectModal({ visible, onClose, onConfirm, freebies = false, isPending = false }: Props) {

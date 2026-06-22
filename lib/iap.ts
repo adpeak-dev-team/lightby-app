@@ -13,11 +13,12 @@ import { Platform } from 'react-native';
 
 // Apple IAP는 고정가라 "기본가 + 아이콘"을 동적 합산할 수 없다.
 // 아이콘은 최대 1개 선택이므로, 아이콘 포함 여부에 따른 조합 상품 4개로 구성한다.
+// 가격은 App Store Connect의 각 상품에 설정된 값으로 청구된다 — 아래 주석은 오픈기념 50% 할인 정가(콘솔과 일치시킬 것).
 export const IAP_PRODUCT_IDS = {
-  PREMIUM: 'com.lightby.app.premium_post',            // 66,000
-  PREMIUM_ICON: 'com.lightby.app.premium_post_icon',  // 68,200 (아이콘 1개 포함)
-  TOP: 'com.lightby.app.top_post',                    // 49,500
-  TOP_ICON: 'com.lightby.app.top_post_icon',          // 51,700 (아이콘 1개 포함)
+  PREMIUM: 'com.lightby.app.premium_post',            // 27,900
+  PREMIUM_ICON: 'com.lightby.app.premium_post_icon',  // 30,100 (아이콘 1개 포함)
+  TOP: 'com.lightby.app.top_post',                    // 13,900
+  TOP_ICON: 'com.lightby.app.top_post_icon',          // 16,100 (아이콘 1개 포함)
 } as const;
 
 /** 상품 등급 + 아이콘 선택 수로 실제 결제할 IAP 제품 ID를 결정 */
