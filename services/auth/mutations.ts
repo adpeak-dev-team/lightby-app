@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tokenStorage } from '@/api/apiClient';
+import { registerForPushNotifications } from '@/services/push/register';
 import {
   signIn, SignInRequest,
   signUp, SignUpRequest,
@@ -16,12 +17,21 @@ import {
 
 export const REFRESH_TOKEN_KEY = 'refresh_token';
 
+// 로그인/가입으로 토큰이 새로 저장되면 푸시 토큰을 user_id와 재연결한다.
+// (부팅 시 비로그인 상태로 등록됐던 기기를 로그인 계정에 묶기 위함 — 안 하면
+//  갓 로그인한 유저의 기기는 user_id=NULL로 남아 sendToUser 대상에서 빠진다.)
+async function persistAuthTokens(accessToken: string, refreshToken: string) {
+  await tokenStorage.set(accessToken);
+  await tokenStorage.setRefresh(refreshToken);
+  // fire-and-forget: 로그인 응답을 막지 않음
+  void registerForPushNotifications();
+}
+
 export function useSignUp() {
   return useMutation({
     mutationFn: (body: SignUpRequest) => signUp(body),
     onSuccess: async (data) => {
-      await tokenStorage.set(data.accessToken);
-      await tokenStorage.setRefresh(data.refreshToken);
+      await persistAuthTokens(data.accessToken, data.refreshToken);
     },
   });
 }
@@ -57,8 +67,7 @@ export function useSignIn() {
     onSuccess: async (data) => {
       // needsPhoneAuth인 경우 토큰이 없으므로 저장하지 않음
       if (!data.needsPhoneAuth && data.accessToken) {
-        await tokenStorage.set(data.accessToken);
-        await tokenStorage.setRefresh(data.refreshToken);
+        await persistAuthTokens(data.accessToken, data.refreshToken);
       }
     },
   });
@@ -86,8 +95,7 @@ export function useOAuthKakaoSignIn() {
     onSuccess: async (data: OAuthKakaoSignInResponse) => {
       // 로그인 완료된 경우만 토큰 저장
       if (data.accessToken && data.refreshToken) {
-        await tokenStorage.set(data.accessToken);
-        await tokenStorage.setRefresh(data.refreshToken);
+        await persistAuthTokens(data.accessToken, data.refreshToken);
       }
     },
   });
@@ -100,8 +108,7 @@ export function useOAuthAppleSignIn() {
     onSuccess: async (data: OAuthSignInResponse) => {
       // 로그인 완료된 경우만 토큰 저장
       if (data.accessToken && data.refreshToken) {
-        await tokenStorage.set(data.accessToken);
-        await tokenStorage.setRefresh(data.refreshToken);
+        await persistAuthTokens(data.accessToken, data.refreshToken);
       }
     },
   });
@@ -111,8 +118,7 @@ export function useOAuthSignUp() {
   return useMutation({
     mutationFn: (body: OAuthSignUpRequest) => oauthSignUp(body),
     onSuccess: async (data) => {
-      await tokenStorage.set(data.accessToken);
-      await tokenStorage.setRefresh(data.refreshToken);
+      await persistAuthTokens(data.accessToken, data.refreshToken);
     },
   });
 }

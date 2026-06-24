@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "595972396181",
+    "project_id": "lightby-push",
+    "storage_bucket": "lightby-push.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:595972396181:android:663296d5c2868c6ea1b79c",
+        "android_client_info": {
+          "package_name": "com.lightby.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHHGGN7IY99dsFj8TW29yeVjQ_nrahL7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

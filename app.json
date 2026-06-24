@@ -30,6 +30,7 @@
       "softwareKeyboardLayoutMode": "pan",
       "predictiveBackGestureEnabled": false,
       "versionCode": 6,
+      "googleServicesFile": "./google-services.json",
       "package": "com.lightby.app"
     },
     "web": {
