@@ -13,7 +13,7 @@ import { Fab } from '@/components/common/Fab';
 import { useGetCommunityPosts } from '@/services/community/queries';
 import { useGetMe } from '@/services/auth/queries';
 import { useRequireLogin } from '@/hooks/use-require-login';
-import { COMMUNITY_TABS, CommunityCategory } from '@/lib/communityCategory';
+import { COMMUNITY_TABS, CommunityTabKey } from '@/lib/communityCategory';
 
 export default function CommunityPage() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function CommunityPage() {
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
   const [focused, setFocused] = useState(false);
-  const [tab, setTab] = useState<'all' | CommunityCategory>('all');
+  const [tab, setTab] = useState<CommunityTabKey>('all');
 
   // me(로그인 정보)가 확정된 뒤에 피드를 불러와야 차단 필터(viewerId)가 빠진 결과가 캐시되지 않는다
   const { data: me, isLoading: meLoading } = useGetMe();

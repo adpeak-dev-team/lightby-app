@@ -97,6 +97,7 @@ export default function RootLayout() {
                 <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
+                <Stack.Screen name="mypage/notifications" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/withdraw" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/blocked" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />
