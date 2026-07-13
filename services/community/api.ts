@@ -34,7 +34,7 @@ export async function getCommunityReplies(boardId: number, viewerId?: number): P
 // ==================== 신고 / 차단 (App Store 1.2) ====================
 export async function reportContent(
   reporterId: number,
-  targetType: 'board' | 'reply',
+  targetType: 'board' | 'reply' | 'site',
   targetId: number,
   reason: string,
 ): Promise<void> {

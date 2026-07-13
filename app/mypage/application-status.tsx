@@ -9,8 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useGetMyApplications } from '@/services/site/queries';
 import { useCancelApplication } from '@/services/site/mutations';
 import { ApplicationItem } from '@/services/site/types';
-
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+import { getImageUrl } from '@/lib/lib';
 
 function SkeletonCard() {
   return (
@@ -29,7 +28,9 @@ function ApplicationCard({
   item, onCancel, isCancelling,
 }: { item: ApplicationItem; onCancel: (id: number) => void; isCancelling: boolean }) {
   const router = useRouter();
-  const imageUri = item.thumbnail ? `${IMAGE_PREFIX}${item.thumbnail}` : null;
+  // 썸네일이 http로 시작하는 절대 URL이면 그대로, 상대 경로면 GCS 프리픽스를 붙인다.
+  // (기존엔 무조건 prefix를 붙여서 절대 URL인 경우 이중 프리픽스로 404가 났음)
+  const imageUri = item.thumbnail ? getImageUrl(item.thumbnail) : null;
   const isRead = item.status === 'read';
   const date = new Date(item.created_at);
   const dateStr = `${String(date.getFullYear()).slice(2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;

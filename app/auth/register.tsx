@@ -114,6 +114,7 @@ export default function RegisterPage() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedAge, setAgreedAge] = useState(false);
   const [timeLeft, setTimeLeft] = useState('03:00');
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -243,7 +244,7 @@ export default function RegisterPage() {
       phone: !form.phone ? '전화번호를 입력해주세요.' : !isOtpVerified ? '휴대폰 인증을 완료해주세요.' : null,
       password: !form.password ? '비밀번호를 입력해주세요.' : !validatePassword(form.password) ? '비밀번호는 8자리 이상이어야 합니다.' : null,
       passwordCheck: form.password !== form.passwordCheck ? '비밀번호가 일치하지 않습니다.' : null,
-      terms: !agreedTerms ? '이용약관에 동의해주세요.' : null,
+      terms: !agreedAge ? '만 18세 이상만 가입할 수 있습니다.' : !agreedTerms ? '이용약관에 동의해주세요.' : null,
     };
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean)) return;
@@ -422,11 +423,11 @@ export default function RegisterPage() {
         </View>
 
         {/* 이용약관 동의 (App Store 1.2) */}
-        <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} error={!!errors.terms} />
+        <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} ageChecked={agreedAge} onAgeChange={setAgreedAge} error={!!errors.terms} />
 
         {/* 가입하기 버튼 */}
         <TouchableOpacity
-          style={[styles.submitBtn, !agreedTerms && styles.submitBtnDisabled]}
+          style={[styles.submitBtn, (!agreedTerms || !agreedAge) && styles.submitBtnDisabled]}
           onPress={handleSubmit}
           activeOpacity={0.85}
         >

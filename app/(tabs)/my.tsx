@@ -52,6 +52,13 @@ const MENU_ITEMS: MenuItem[] = [
     label: '고객센터',
     route: '/mypage/support',
   },
+  {
+    // 약관 상시 접근 (App Store 1.2 — EULA 접근성)
+    icon: 'document-text',
+    iconBg: '#e2e8f0', iconColor: '#64748b',
+    label: '약관 및 정책',
+    route: '/terms',
+  },
 ];
 
 export default function MyPage() {

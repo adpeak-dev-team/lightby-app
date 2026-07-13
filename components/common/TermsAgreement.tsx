@@ -6,15 +6,30 @@ import { useRouter } from 'expo-router';
 type Props = {
   checked: boolean;
   onChange: (v: boolean) => void;
+  // 연령 확인(만 18세 이상) — App Store 가이드라인 1.2. 약관 동의와 별개의 필수 항목.
+  ageChecked: boolean;
+  onAgeChange: (v: boolean) => void;
   error?: boolean;
 };
 
-// 가입 전 이용약관(EULA) 동의 — App Store 가이드라인 1.2
+// 가입 전 이용약관(EULA) 동의 + 연령(18세 이상) 확인 — App Store 가이드라인 1.2
 // 불쾌한 콘텐츠 및 악용 사용자에 대한 무관용 원칙을 명시하고, 약관/개인정보처리방침 링크를 제공한다.
-export default function TermsAgreement({ checked, onChange, error }: Props) {
+export default function TermsAgreement({ checked, onChange, ageChecked, onAgeChange, error }: Props) {
   const router = useRouter();
   return (
     <View style={s.wrap}>
+      {/* 연령 확인 (만 18세 이상) — 1.2 연령 등급 대응 */}
+      <TouchableOpacity style={s.row} activeOpacity={0.8} onPress={() => onAgeChange(!ageChecked)}>
+        <Ionicons
+          name={ageChecked ? 'checkbox' : 'square-outline'}
+          size={22}
+          color={ageChecked ? '#3b82f6' : error ? '#ef4444' : '#94a3b8'}
+        />
+        <Text style={[s.label, error && !ageChecked && s.labelError]}>
+          [필수] 만 18세 이상입니다.
+        </Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={s.row} activeOpacity={0.8} onPress={() => onChange(!checked)}>
         <Ionicons
           name={checked ? 'checkbox' : 'square-outline'}

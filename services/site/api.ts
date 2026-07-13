@@ -127,6 +127,7 @@ interface GetJobsByProductParams {
   location?: string;
   limit?: number;
   start?: number;
+  viewerId?: number; // 차단한 사용자 공고 숨김용 (App Store 1.2)
 }
 
 export interface BannerItem {
@@ -152,6 +153,7 @@ export async function getJobsByProduct(params: GetJobsByProductParams): Promise<
   if (params.location) payload.location = params.location;
   if (params.limit !== undefined) payload.limit = params.limit;
   if (params.start !== undefined) payload.start = params.start;
+  if (params.viewerId !== undefined) payload.viewerId = params.viewerId;
 
   const { data } = await apiClient.post('/main/by-product', payload);
   return data.items || [];

@@ -11,7 +11,7 @@ type Props = {
   onClose: () => void;
   reporterId?: number;          // 신고/차단을 수행하는 로그인 사용자
   targetUserId?: number;        // 신고/차단 대상 작성자
-  targetType: 'board' | 'reply';
+  targetType: 'board' | 'reply' | 'site';
   targetId: number;
   targetLabel?: string;         // 표시용 (예: '이 게시글', '이 댓글')
   targetWithdrawn?: boolean;    // 대상 작성자가 탈퇴한 회원인지
