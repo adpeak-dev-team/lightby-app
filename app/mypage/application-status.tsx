@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
-  View, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator,
+  View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,8 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useGetMyApplications } from '@/services/site/queries';
 import { useCancelApplication } from '@/services/site/mutations';
 import { ApplicationItem } from '@/services/site/types';
-
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+import { getImageUrl } from '@/lib/lib';
 
 function SkeletonCard() {
   return (
@@ -29,7 +29,7 @@ function ApplicationCard({
   item, onCancel, isCancelling,
 }: { item: ApplicationItem; onCancel: (id: number) => void; isCancelling: boolean }) {
   const router = useRouter();
-  const imageUri = item.thumbnail ? `${IMAGE_PREFIX}${item.thumbnail}` : null;
+  const imageUri = item.thumbnail ? getImageUrl(item.thumbnail) : null;
   const isRead = item.status === 'read';
   const date = new Date(item.created_at);
   const dateStr = `${String(date.getFullYear()).slice(2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
@@ -39,7 +39,12 @@ function ApplicationCard({
       <View style={c.row}>
         <View style={c.thumbWrap}>
           {imageUri ? (
-            <Image source={{ uri: imageUri }} style={c.thumb} />
+            <Image
+              source={{ uri: imageUri }}
+              style={c.thumb}
+              contentFit="cover"
+              transition={200}
+            />
           ) : (
             <View style={[c.thumb, c.thumbPlaceholder]}>
               <Ionicons name="image-outline" size={24} color="#cbd5e1" />

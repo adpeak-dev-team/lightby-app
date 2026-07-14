@@ -1,12 +1,10 @@
 import {
-  Modal, View, TouchableOpacity, FlatList, Image, ActivityIndicator, StyleSheet,
+  Modal, View, TouchableOpacity, FlatList, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetMyRecentPosts } from '@/services/site/queries';
 import { MyPostSummary } from '@/services/site/types';
-
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
 interface Props {
     visible: boolean;
@@ -17,7 +15,6 @@ interface Props {
 
 export function PreviousPostingModal({ visible, onClose, onSelect, isLoading: outerLoading }: Props) {
     const { data: posts, isLoading } = useGetMyRecentPosts();
-    console.log(posts)
 
     const formatDate = (dateStr: string) => {
         const d = new Date(dateStr);
@@ -65,13 +62,6 @@ export function PreviousPostingModal({ visible, onClose, onSelect, isLoading: ou
                                     onPress={() => { onSelect(item); onClose(); }}
                                     disabled={outerLoading}
                                 >
-                                    {/* 썸네일 */}
-                                    <Image
-                                        source={{ uri: item.thumbnail ? `${IMAGE_PREFIX}${item.thumbnail}` : undefined }}
-                                        defaultSource={require('@/assets/images/alt_image.jpg')}
-                                        style={s.thumb}
-                                    />
-
                                     {/* 정보 */}
                                     <View style={s.info}>
                                         <Text style={s.subject} numberOfLines={2}>{item.subject}</Text>
@@ -146,12 +136,6 @@ const s = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#e2e8f0',
         backgroundColor: '#fff',
-    },
-    thumb: {
-        width: 60,
-        height: 60,
-        borderRadius: 10,
-        backgroundColor: '#f1f5f9',
     },
     info: { flex: 1, gap: 6 },
     subject: { fontSize: 13, fontWeight: '600', color: '#0f172a', lineHeight: 18 },

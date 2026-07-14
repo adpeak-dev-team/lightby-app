@@ -72,7 +72,6 @@
           }
         }
       ],
-      "react-native-iap",
       "expo-font",
       [
         "expo-notifications",

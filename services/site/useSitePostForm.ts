@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { apiClient } from '@/api/apiClient';
-import { getJobDetail, copyImages } from './api';
+import { getJobDetail, JobPostingPayload } from './api';
 import { useCreateJobPost } from './mutations';
 import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
-import { ProductType, ApplePayment } from '@/components/site-post/ProductSelectModal';
-import { finishIAPTransaction } from '@/lib/iap';
+import { ProductType } from '@/components/site-post/ProductSelectModal';
+import { requestPayapp } from '@/services/payapp/api';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -54,6 +54,7 @@ export function useSitePostForm() {
     const { data: userProfile } = useGetUserProfile();
     const createMutation = useCreateJobPost();
     const [isLoadingPrev, setIsLoadingPrev] = useState(false);
+    const [isPayappLoading, setIsPayappLoading] = useState(false);
 
     // 담당자 성함/연락처를 내 프로필에서 자동 입력 (사용자가 이미 입력했으면 유지)
     useEffect(() => {
@@ -78,18 +79,15 @@ export function useSitePostForm() {
     };
 
     // ── 이전 공고 불러오기 ──
+    // 이미지/썸네일은 의도적으로 가져오지 않는다 — 매물이 다를 가능성이 크고, 사용자가 새 이미지 업로드하도록 유도.
     const loadPreviousPost = async (post: MyPostSummary) => {
         setIsLoadingPrev(true);
         try {
             const d = await getJobDetail(String(post.id));
-            const originalImgs: string[] = Array.isArray(d.imgs)
-                ? d.imgs
-                : JSON.parse((d.imgs as any) || '[]');
-            const copiedImgs = originalImgs.length > 0 ? await copyImages(originalImgs) : [];
 
             setSubject(d.subject ?? '');
             setIntro(d.point_content ?? '');
-            setImages(copiedImgs);
+            setImages([]);
             setAddress(d.address ?? '');
             setAddressDetail(d.address_detail ?? '');
             // DB의 위경도(DECIMAL)는 드라이버가 문자열("37.123")로 반환하므로 숫자로 변환.
@@ -151,44 +149,57 @@ export function useSitePostForm() {
         return null;
     };
 
-    // ── 상품 선택 후 등록 ──
-    const confirmProduct = (
+    // 폼 → 서버 payload
+    const buildPayload = (
         selectedProduct: ProductType,
         selectedIcons: number[],
         totalAmount: number,
-        callbacks: { onSuccess: () => void; onCloseModal: () => void },
-        applePayment?: ApplePayment,  // iOS 인앱결제로 결제한 경우만 전달
-    ) => {
+    ): JobPostingPayload => {
         const cleanedFee = fee.filter(f => f.category.trim() || f.amount.trim());
         const resultAddress = addressDetail ? `${address} ${addressDetail}`.trim() : address;
-        createMutation.mutate(
-            {
-                subject, intro, images,
-                address, addressDetail, resultAddress,
-                latitude, longitude,
-                workRegions: workRegions ? [workRegions] : [],
-                enforcement, construction,
-                agency, managerName, managerPhone,
-                workIndustry, workOccupation,
-                requireGender, requireAge,
-                careerPeriod, headCount,
-                feeType, fee: cleanedFee,
-                mealExpense, transportExpense, housing, accommodationExpenses,
-                dailyExpense, businessExpense, promotion, baseSalary,
-                detailContent, siteUrl,
-                selectedProduct,
-                selectedIcons,
-                totalAmount,
-                // 애플 인앱결제면 JWS(purchaseToken)를 보내 서버가 서명 검증·기록(멱등성)한다
-                ...(applePayment
-                    ? { paymentMethod: 'apple' as const, appleJws: applePayment.jws }
-                    : {}),
-            },
-            {
-                onSuccess: async (res) => {
+        return {
+            subject, intro, images,
+            address, addressDetail, resultAddress,
+            latitude, longitude,
+            workRegions: workRegions ? [workRegions] : [],
+            enforcement, construction,
+            agency, managerName, managerPhone,
+            workIndustry, workOccupation,
+            requireGender, requireAge,
+            careerPeriod, headCount,
+            feeType, fee: cleanedFee,
+            mealExpense, transportExpense, housing, accommodationExpenses,
+            dailyExpense, businessExpense, promotion, baseSalary,
+            detailContent, siteUrl,
+            selectedProduct,
+            selectedIcons,
+            totalAmount,
+        };
+    };
+
+    // ── 상품 선택 후 등록 ──
+    // - FREE: 곧바로 createJobPost (기존 흐름)
+    // - PREMIUM/TOP: PayApp 결제 요청 → payurl/orderId 를 호출부로 전달 (호출부가 WebView 오픈).
+    //   결제 확정은 백엔드 웹훅이 처리 → 앱은 폴링 결과가 paid일 때 성공 처리만 하면 된다.
+    const confirmProduct = async (
+        selectedProduct: ProductType,
+        selectedIcons: number[],
+        totalAmount: number,
+        callbacks: {
+            onCloseModal: () => void;
+            onSuccess: () => void;
+            onPayappRequired?: (payurl: string, orderId: string) => void;
+        },
+    ) => {
+        const payload = buildPayload(selectedProduct, selectedIcons, totalAmount);
+
+        // 무료(FREE) 또는 프리미엄 첫 회 무료 혜택으로 totalAmount가 0인 경우 → 바로 등록
+        const isFreeFlow = selectedProduct === 'FREE' || totalAmount === 0;
+
+        if (isFreeFlow) {
+            createMutation.mutate(payload, {
+                onSuccess: (res) => {
                     if (res.success) {
-                        // 서버가 결제를 확정한 뒤에야 애플 거래를 완료 처리(소비) — 실패 시 미완료로 남겨 재시도/환불 가능
-                        if (applePayment) await finishIAPTransaction(applePayment.purchase);
                         isSuccessRef.current = true;
                         callbacks.onCloseModal();
                         Alert.alert('등록 완료', '공고가 등록되었습니다.', [
@@ -199,8 +210,29 @@ export function useSitePostForm() {
                     }
                 },
                 onError: () => Alert.alert('오류', '공고 등록 중 오류가 발생했습니다.'),
-            },
-        );
+            });
+            return;
+        }
+
+        // 유료 상품 → PayApp 결제 요청
+        setIsPayappLoading(true);
+        try {
+            const { payurl, orderId } = await requestPayapp(payload);
+            callbacks.onCloseModal();
+            callbacks.onPayappRequired?.(payurl, orderId);
+        } catch (e: any) {
+            Alert.alert('결제 요청 실패', e?.response?.data?.message ?? e?.message ?? '결제 요청 중 오류가 발생했습니다.');
+        } finally {
+            setIsPayappLoading(false);
+        }
+    };
+
+    // PayApp 결제 확정 후 호출 — 서버 웹훅이 이미 공고를 만들었으므로 성공 처리만.
+    const finalizeAfterPayapp = (onSuccess: () => void) => {
+        isSuccessRef.current = true;
+        Alert.alert('결제 완료', '결제 및 공고 등록이 완료되었습니다.', [
+            { text: '확인', onPress: onSuccess },
+        ]);
     };
 
     // ── 나가기 시 업로드 이미지 삭제 ──
@@ -250,7 +282,7 @@ export function useSitePostForm() {
         // 유저/API
         userProfile,
         isLoadingPrev,
-        isSubmitting: createMutation.isPending,
+        isSubmitting: createMutation.isPending || isPayappLoading,
         isSuccessRef,
         imagesRef,
         // 핸들러
@@ -258,6 +290,7 @@ export function useSitePostForm() {
         loadPreviousPost,
         validate,
         confirmProduct,
+        finalizeAfterPayapp,
         deleteUploadedImages,
     };
 }
