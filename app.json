@@ -16,7 +16,34 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "프로필 및 게시글 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다.",
-        "NSCameraUsageDescription": "게시글 이미지를 촬영하기 위해 카메라 접근 권한이 필요합니다."
+        "NSCameraUsageDescription": "게시글 이미지를 촬영하기 위해 카메라 접근 권한이 필요합니다.",
+        "LSApplicationQueriesSchemes": [
+          "kakaotalk",
+          "kakaopay",
+          "kftc-bankpay",
+          "ispmobile",
+          "cloudpay",
+          "payco",
+          "paycoapp",
+          "com.samsung.spay",
+          "shinhan-sr-ansimclick",
+          "smshinhanansimclick",
+          "kb-acp",
+          "mpocket.online.ansimclick",
+          "hdcardappcardansimclick",
+          "smhyundaiansimclick",
+          "lottesmartpay",
+          "lotteappcard",
+          "nhappcardansimclick",
+          "wooripay",
+          "wooricard",
+          "citispay",
+          "citimobileapp",
+          "hanawalletmembers",
+          "hanaskcardmobileportal",
+          "nonghyupcardansimclick",
+          "supay"
+        ]
       }
     },
     "android": {

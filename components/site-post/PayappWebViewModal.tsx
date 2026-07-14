@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Modal, View, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
+  Modal, View, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Linking, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView, type WebViewNavigation } from 'react-native-webview';
+import { WebView, type WebViewNavigation, type ShouldStartLoadRequest } from 'react-native-webview';
 import { getPayappStatus } from '@/services/payapp/api';
 
 interface Props {
@@ -106,6 +106,38 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
     }
   };
 
+  // 카드사/은행/카톡페이 등 외부 앱 스킴을 인터셉트해 Linking으로 넘긴다.
+  // WebView 자체는 http(s)만 로드하고, intent:// / kakao:// / ispmobile:// 등은 OS가 처리.
+  // (Android 기본 WebView는 이걸 못 열어 net::ERR_UNKNOWN_URL_SCHEME 를 냄)
+  const handleShouldStartLoad = (req: ShouldStartLoadRequest): boolean => {
+    const url = req.url;
+    if (!url) return true;
+
+    // 표준 웹 프로토콜 + about 은 WebView가 처리
+    if (/^(https?|about):/.test(url)) return true;
+
+    // Android intent:// URL: 우선 그대로 Linking에 넘기고, 실패하면 fallback URL 파싱 시도
+    if (Platform.OS === 'android' && url.startsWith('intent://')) {
+      Linking.openURL(url).catch(() => {
+        // intent 스킴 안에 browser_fallback_url 이 있으면 그걸로 대체
+        const fallbackMatch = url.match(/S\.browser_fallback_url=([^;]+)/);
+        if (fallbackMatch?.[1]) {
+          try {
+            const fallback = decodeURIComponent(fallbackMatch[1]);
+            Linking.openURL(fallback).catch(() => { /* noop */ });
+          } catch { /* noop */ }
+        }
+      });
+      return false;
+    }
+
+    // 그 외 커스텀 스킴 (kakao://, ispmobile://, kftc://, market:// 등) → OS로 위임
+    Linking.openURL(url).catch(() => {
+      Alert.alert('앱 실행 실패', '결제에 필요한 앱을 열 수 없습니다. 설치 여부를 확인해 주세요.');
+    });
+    return false;
+  };
+
   const handleClose = () => {
     if (returned && polling) {
       // 결제 완료 후 폴링 중이면 그냥 창만 닫지 않고 취소 처리
@@ -120,7 +152,7 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
 
   return (
     <Modal visible={visible} animationType="slide" statusBarTranslucent onRequestClose={handleClose}>
-      <View style={[s.container, { paddingTop: insets.top }]}>
+      <View style={[s.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         {/* 헤더 */}
         <View style={s.header}>
           <Text style={s.title}>결제 진행</Text>
@@ -134,6 +166,7 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
           <WebView
             source={{ uri: payurl }}
             onNavigationStateChange={handleNavChange}
+            onShouldStartLoadWithRequest={handleShouldStartLoad}
             startInLoadingState
             renderLoading={() => (
               <View style={s.loading}>
@@ -144,8 +177,9 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
             domStorageEnabled
             thirdPartyCookiesEnabled
             sharedCookiesEnabled
+            // 모든 origin 허용 + 커스텀 스킴을 handleShouldStartLoad에서 인터셉트
             originWhitelist={['*']}
-            // PayApp 결제 페이지가 카드사/은행 앱스킴을 자주 호출한다 → 허용 (Android 필수)
+            // 새창(target=_blank)으로 열리는 링크도 같은 WebView에서 처리
             setSupportMultipleWindows={false}
           />
 
