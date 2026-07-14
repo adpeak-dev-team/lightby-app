@@ -3,7 +3,7 @@ import { useRouter, useRootNavigationState } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 
 // 알림 payload(data)를 보고 화면 이동.
-// 현재 공고 관련 알림(등록완료/지원완료/신규지원자)은 모두 해당 공고 상세로 이동한다.
+// 라우팅 스펙은 [notifications.tsx handlePress]와 일치해야 한다 (동일한 알림을 인박스에서 눌러도, 푸시에서 눌러도 같은 곳으로).
 function routeFromData(
     router: ReturnType<typeof useRouter>,
     data: Record<string, any> | undefined,
@@ -12,22 +12,37 @@ function routeFromData(
     const siteId = data.siteId;
 
     switch (data.type) {
-        case 'jobpost_created': // 공고 등록 완료 → 등록한 공고
-        case 'job_applied':     // 지원 완료 → 지원한 공고
-        case 'new_applicant':   // 신규 지원자 → 해당 공고
-        case 'profile_viewed':  // 프로필 열람됨 → 해당 공고
-        case 'site_liked_milestone': // 관심 공고 증가 → 해당 공고
+        // 즉시 발송 (인박스 미표시)
+        case 'new_applicant':          // 신규 지원자 → 지원자관리
+        case 'applicants_pending':     // 미확인 지원자 누적 → 지원자관리
+            router.push('/mypage/applicant-management' as never);
+            return;
+        case 'profile_viewed':         // 프로필 열람됨 → 내 지원현황
+            router.push('/mypage/application-status' as never);
+            return;
+        case 'site_liked_milestone':   // 관심 공고 증가 → 해당 공고
             if (siteId != null) {
                 router.push({ pathname: '/posts/site/[id]', params: { id: String(siteId) } });
             }
-            break;
-        case 'applicants_pending': // 미확인 지원자 누적 → 해당 공고의 지원자 목록
-            if (siteId != null) {
-                router.push({ pathname: '/posts/applicants/[id]', params: { id: String(siteId) } });
-            }
-            break;
+            return;
+
+        // 예약 발송 (인박스 표시)
+        case 'matched_digest':         // 맞춤 공고 → 관심현장
+        case 'deadline_liker':
+        case 'deadline_liker_group':   // 찜 공고 마감 임박 → 관심현장
+            router.push('/(tabs)/favorite' as never);
+            return;
+        case 'deadline_owner':
+        case 'deadline_owner_group':   // 등록 공고 마감 임박 → 내 글 관리
+            router.push('/mypage/post' as never);
+            return;
+        case 'profile_incomplete':     // 프로필 미완성 → 프로필 편집
+            router.push('/mypage/talent' as never);
+            return;
+
+        // inactive 등은 이동 없음
         default:
-            break;
+            return;
     }
 }
 

@@ -66,28 +66,36 @@ export default function NotificationsPage() {
   const handlePress = useCallback((n: NotificationItem) => {
     if (!n.readAt) markAsRead.mutate(n.id);
 
+    // 라우팅은 [useNotificationObserver.ts routeFromData]와 일치시킨다.
     const siteId = n.data?.siteId;
     switch (n.type) {
-      case 'deadline_owner':
-      case 'low_exposure':
+      // 즉시 발송 (인박스엔 원래 안 남지만 방어적으로)
+      case 'new_applicant':
+      case 'applicants_pending':
+        router.push('/mypage/applicant-management' as never);
+        return;
+      case 'profile_viewed':
+        router.push('/mypage/application-status' as never);
+        return;
+      case 'site_liked_milestone':
         if (siteId) router.push({ pathname: '/posts/site/[id]', params: { id: String(siteId) } });
         return;
+
+      // 예약 발송 (인박스 표시)
+      case 'matched_digest':
       case 'deadline_liker':
-        if (siteId) router.push({ pathname: '/posts/site/[id]', params: { id: String(siteId) } });
-        return;
-      case 'deadline_owner_group':
-        router.push('/mypage/post' as never);
-        return;
       case 'deadline_liker_group':
         router.push('/(tabs)/favorite' as never);
+        return;
+      case 'deadline_owner':
+      case 'deadline_owner_group':
+        router.push('/mypage/post' as never);
         return;
       case 'profile_incomplete':
         router.push('/mypage/talent' as never);
         return;
-      case 'matched_digest':
-      case 'new_sites':
-      case 'weekly_popular':
-      case 'inactive':
+
+      // inactive 등은 홈으로
       default:
         router.push('/' as never);
         return;

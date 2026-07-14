@@ -8,7 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { PreviousPostingModal } from '@/components/site-post/PreviousPostingModal';
-import { ProductSelectModal, ProductType, ApplePayment } from '@/components/site-post/ProductSelectModal';
+import { ProductSelectModal, ProductType } from '@/components/site-post/ProductSelectModal';
+import { PayappWebViewModal } from '@/components/site-post/PayappWebViewModal';
 import { useSitePostForm } from '@/services/site/useSitePostForm';
 
 import { ImageSection } from '@/components/site-post/ImageSection';
@@ -32,6 +33,8 @@ export default function SitePostPage() {
     const [productModalVisible, setProductModalVisible] = useState(false);
     const [leaveModalVisible, setLeaveModalVisible] = useState(false);
     const [isDeletingImages, setIsDeletingImages] = useState(false);
+    // PayApp WebView 상태 — 결제 요청 성공 후 payurl/orderId 세팅되면 모달 오픈
+    const [payapp, setPayapp] = useState<{ payurl: string; orderId: string } | null>(null);
     const pendingActionRef = useRef<any>(null);
 
     // ── 나가기 확인 ──
@@ -81,11 +84,13 @@ export default function SitePostPage() {
         setProductModalVisible(true);
     };
 
-    const handleConfirmProduct = (product: ProductType, icons: number[], total: number, applePayment?: ApplePayment) => {
+    const handleConfirmProduct = (product: ProductType, icons: number[], total: number) => {
         form.confirmProduct(product, icons, total, {
             onCloseModal: () => setProductModalVisible(false),
             onSuccess: () => router.back(),
-        }, applePayment);
+            // 유료 상품 → PayApp WebView 오픈
+            onPayappRequired: (payurl, orderId) => setPayapp({ payurl, orderId }),
+        });
     };
 
     return (
@@ -103,6 +108,16 @@ export default function SitePostPage() {
                 onConfirm={handleConfirmProduct}
                 freebies={Boolean(form.userProfile?.freebies) && (form.userProfile?.freebies_count ?? 0) < 2}
                 isPending={form.isSubmitting}
+            />
+
+            {/* PayApp 결제 WebView — 유료 상품 선택 시 payurl/orderId가 세팅되면 오픈 */}
+            <PayappWebViewModal
+                visible={!!payapp}
+                payurl={payapp?.payurl ?? null}
+                orderId={payapp?.orderId ?? null}
+                onSuccess={() => form.finalizeAfterPayapp(() => router.back())}
+                onCancel={() => {/* 취소 안내는 모달이 자체 알림 처리 */}}
+                onDismiss={() => setPayapp(null)}
             />
 
             {/* ── 나가기 확인 모달 ── */}
