@@ -7,12 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { CommunityItem } from '@/services/community/types';
 import { Colors, Radius, flatCard } from '@/lib/theme';
 import { COMMUNITY_CATEGORY_LABELS, CommunityCategory } from '@/lib/communityCategory';
+import { getImageUrl } from '@/lib/lib';
 
 function isCommunityCategory(v: unknown): v is CommunityCategory {
   return v === 'notice' || v === 'news';
 }
-
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -31,8 +30,9 @@ interface Props {
 
 export function CommunityCard({ item, onPress }: Props) {
   const isAnon = !!item.is_anonymous;
-  const thumbUri = item.thumbnail && !isAnon ? `${IMAGE_PREFIX}${item.thumbnail}` : null;
-  const profileUri = item.profile_thumbnail && !isAnon ? `${IMAGE_PREFIX}${item.profile_thumbnail}` : null;
+  // 썸네일/프로필이 http로 시작하는 절대 URL이면 그대로, 상대 경로면 GCS 프리픽스를 붙인다.
+  const thumbUri = item.thumbnail && !isAnon ? getImageUrl(item.thumbnail) : null;
+  const profileUri = item.profile_thumbnail && !isAnon ? getImageUrl(item.profile_thumbnail) : null;
 
   return (
     <TouchableOpacity style={s.card} onPress={onPress} activeOpacity={0.85}>

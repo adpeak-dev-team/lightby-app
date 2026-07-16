@@ -1,5 +1,5 @@
 // 현장소통 게시글 카테고리 (웹 lib/communityCategory와 동일)
-// 관리자가 글 등록 시 지정. NULL/'' = 일반 게시글.
+// 관리자가 글 등록 시 지정. DB 저장값은 notice/news 뿐이고, 그 외(NULL 등)는 일반 게시글로 취급한다.
 
 export type CommunityCategory = 'notice' | 'news';
 

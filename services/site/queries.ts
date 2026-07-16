@@ -21,9 +21,11 @@ export function useGetLikeStatus(siteId?: number) {
 }
 
 export function useGetJobsByProduct(params: { product: 'PREMIUM' | 'TOP'; location?: string; search?: string }) {
+  const { data: me } = useGetMe();
   return useQuery<JobSummaryResponse[]>({
-    queryKey: ['jobs', params.product, params.location, params.search],
-    queryFn: () => getJobsByProduct(params),
+    // viewerId를 키에 포함 → 로그인/차단 상태 변화 시 재조회 (App Store 1.2 차단자 공고 숨김)
+    queryKey: ['jobs', params.product, params.location, params.search, me?.id],
+    queryFn: () => getJobsByProduct({ ...params, viewerId: me?.id }),
   });
 }
 
@@ -77,10 +79,12 @@ export function useGetMainStats() {
 }
 
 export function useGetFreeJobsInfinite(params: { search?: string; sort?: string; location?: string }) {
+  const { data: me } = useGetMe();
   return useInfiniteQuery<JobSummaryResponse[]>({
-    queryKey: ['jobs-free', params.search, params.sort, params.location],
+    // viewerId를 키에 포함 → 로그인/차단 상태 변화 시 재조회 (App Store 1.2 차단자 공고 숨김)
+    queryKey: ['jobs-free', params.search, params.sort, params.location, me?.id],
     queryFn: ({ pageParam }) =>
-      getJobsByProduct({ product: 'FREE', start: pageParam as number, limit: 20, ...params }),
+      getJobsByProduct({ product: 'FREE', start: pageParam as number, limit: 20, viewerId: me?.id, ...params }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       lastPage.length === 20 ? (lastPageParam as number) + 20 : undefined,

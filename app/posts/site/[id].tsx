@@ -17,6 +17,7 @@ import { useGetMe } from '@/services/auth/queries';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
 import { KakaoMap } from '@/components/common/KakaoMap';
+import ContentActionSheet from '@/components/community-post/ContentActionSheet';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -70,6 +71,7 @@ export default function SiteDetailPage() {
   const [currentImg, setCurrentImg] = useState(0);
   const [applyState, setApplyState] = useState<ApplyState>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showActionSheet, setShowActionSheet] = useState(false);
   const [sliderHeight, setSliderHeight] = useState(width * 0.75);
 
   useEffect(() => {
@@ -226,6 +228,12 @@ export default function SiteDetailPage() {
           <TouchableOpacity onPress={handleShare} hitSlop={8} style={s.navBtn}>
             <Ionicons name="share-outline" size={22} color="#0f172a" />
           </TouchableOpacity>
+          {/* 신고/차단 (App Store 1.2) — 비소유자에게만 노출 */}
+          {!isOwner && (
+            <TouchableOpacity onPress={() => setShowActionSheet(true)} hitSlop={8} style={s.navBtn}>
+              <Ionicons name="ellipsis-horizontal" size={22} color="#0f172a" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -530,6 +538,24 @@ export default function SiteDetailPage() {
           </View>
         </View>
       </Modal>
+
+      {/* 신고/차단 액션 시트 (App Store 1.2) */}
+      <ContentActionSheet
+        visible={showActionSheet}
+        onClose={() => setShowActionSheet(false)}
+        reporterId={me?.id}
+        targetUserId={job.user_id}
+        targetType="site"
+        targetId={job.id}
+        targetLabel="이 공고"
+        onBlocked={() => {
+          // 차단 시 목록에서 즉시 사라지도록 무효화 후 뒤로가기
+          qc.invalidateQueries({ queryKey: ['jobs'] });
+          qc.invalidateQueries({ queryKey: ['jobs-free'] });
+          qc.invalidateQueries({ queryKey: ['favorite-sites'] });
+          router.back();
+        }}
+      />
     </View>
   );
 }

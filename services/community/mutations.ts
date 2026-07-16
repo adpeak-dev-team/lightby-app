@@ -84,7 +84,7 @@ export function useUpdateCommunityPostImages() {
 export function useReportContent() {
   return useMutation({
     mutationFn: ({ reporterId, targetType, targetId, reason }:
-      { reporterId: number; targetType: 'board' | 'reply'; targetId: number; reason: string }) =>
+      { reporterId: number; targetType: 'board' | 'reply' | 'site'; targetId: number; reason: string }) =>
       reportContent(reporterId, targetType, targetId, reason),
   });
 }
@@ -95,7 +95,13 @@ export function useBlockUser() {
     mutationFn: ({ blockerId, blockedId }: { blockerId: number; blockedId: number }) =>
       blockUser(blockerId, blockedId),
     // 차단 즉시 피드/상세/댓글에서 해당 사용자 콘텐츠가 사라지도록 전체 무효화
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['community'] }),
+    // 커뮤니티 + 구인공고 피드 모두 (구인공고도 차단자 공고 숨김 대상 — App Store 1.2)
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['community'] });
+      qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['jobs-free'] });
+      qc.invalidateQueries({ queryKey: ['favorite-sites'] });
+    },
   });
 }
 

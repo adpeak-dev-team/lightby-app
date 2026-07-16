@@ -54,6 +54,7 @@ export default function AppleLoginPage() {
 
   // 이용약관 동의 (App Store 1.2)
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedAge, setAgreedAge] = useState(false);
 
   // 회원 탈퇴 시 Apple 토큰 revoke를 위해 서버에 전달할 authorizationCode (로그인/가입 호출에 사용)
   const authorizationCodeRef = useRef<string | undefined>(undefined);
@@ -229,6 +230,10 @@ export default function AppleLoginPage() {
       Alert.alert('알림', '휴대폰 인증을 완료해주세요.');
       return;
     }
+    if (!agreedAge) {
+      Alert.alert('알림', '만 18세 이상만 가입할 수 있습니다.');
+      return;
+    }
     if (!agreedTerms) {
       Alert.alert('알림', '이용약관 및 운영정책에 동의해주세요.');
       return;
@@ -371,12 +376,12 @@ export default function AppleLoginPage() {
           )}
 
           {/* 이용약관 동의 (App Store 1.2) */}
-          <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} />
+          <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} ageChecked={agreedAge} onAgeChange={setAgreedAge} />
 
           <TouchableOpacity
             style={[
               s.submitBtn,
-              (needsNickname && !isNicknameVerified) || (needsPhone && !isPhoneVerified) || !agreedTerms
+              (needsNickname && !isNicknameVerified) || (needsPhone && !isPhoneVerified) || !agreedTerms || !agreedAge
                 ? s.submitBtnDisabled : {},
             ]}
             onPress={handleSignUp}
@@ -384,7 +389,8 @@ export default function AppleLoginPage() {
               oauthSignUpMutate.isPending ||
               (needsNickname && !isNicknameVerified) ||
               (needsPhone && !isPhoneVerified) ||
-              !agreedTerms
+              !agreedTerms ||
+              !agreedAge
             }
           >
             <Text style={s.submitBtnText}>

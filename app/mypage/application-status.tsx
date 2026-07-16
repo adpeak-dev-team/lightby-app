@@ -29,6 +29,8 @@ function ApplicationCard({
   item, onCancel, isCancelling,
 }: { item: ApplicationItem; onCancel: (id: number) => void; isCancelling: boolean }) {
   const router = useRouter();
+  // 썸네일이 http로 시작하는 절대 URL이면 그대로, 상대 경로면 GCS 프리픽스를 붙인다.
+  // (기존엔 무조건 prefix를 붙여서 절대 URL인 경우 이중 프리픽스로 404가 났음)
   const imageUri = item.thumbnail ? getImageUrl(item.thumbnail) : null;
   const isRead = item.status === 'read';
   const date = new Date(item.created_at);

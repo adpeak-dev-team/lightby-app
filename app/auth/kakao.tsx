@@ -64,6 +64,7 @@ export default function KakaoLoginPage() {
 
   // 이용약관 동의 (App Store 1.2)
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedAge, setAgreedAge] = useState(false);
 
   const oauthSignInMutate = useOAuthKakaoSignIn();
   const oauthSignUpMutate = useOAuthSignUp();
@@ -214,6 +215,10 @@ export default function KakaoLoginPage() {
       Alert.alert('알림', '휴대폰 인증을 완료해주세요.');
       return;
     }
+    if (!agreedAge) {
+      Alert.alert('알림', '만 18세 이상만 가입할 수 있습니다.');
+      return;
+    }
     if (!agreedTerms) {
       Alert.alert('알림', '이용약관 및 운영정책에 동의해주세요.');
       return;
@@ -357,12 +362,12 @@ export default function KakaoLoginPage() {
           )}
 
           {/* 이용약관 동의 (App Store 1.2) */}
-          <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} />
+          <TermsAgreement checked={agreedTerms} onChange={setAgreedTerms} ageChecked={agreedAge} onAgeChange={setAgreedAge} />
 
           <TouchableOpacity
             style={[
               s.submitBtn,
-              (needsNickname && !isNicknameVerified) || (needsPhone && !isPhoneVerified) || !agreedTerms
+              (needsNickname && !isNicknameVerified) || (needsPhone && !isPhoneVerified) || !agreedTerms || !agreedAge
                 ? s.submitBtnDisabled : {},
             ]}
             onPress={handleSignUp}
@@ -370,7 +375,8 @@ export default function KakaoLoginPage() {
               oauthSignUpMutate.isPending ||
               (needsNickname && !isNicknameVerified) ||
               (needsPhone && !isPhoneVerified) ||
-              !agreedTerms
+              !agreedTerms ||
+              !agreedAge
             }
           >
             <Text style={s.submitBtnText}>
