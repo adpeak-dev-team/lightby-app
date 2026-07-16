@@ -13,9 +13,6 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
-// 인앱결제(IAP)는 부팅 시 초기화하지 않고 결제 시점에 지연 초기화한다(lib/iap.ts purchaseProduct 내부).
-// → 네이티브 모듈(react-native-iap/nitro)이 빌드 안 된 환경에서도 앱 부팅이 크래시하지 않는다.
-
 const queryClient = new QueryClient();
 
 // 웹(Pretendard)과 동일한 폰트를 앱 전역 기본값으로 적용.
@@ -97,6 +94,7 @@ export default function RootLayout() {
                 <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
+                <Stack.Screen name="mypage/notifications" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/withdraw" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/blocked" options={{ headerShown: false }} />
                 <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />

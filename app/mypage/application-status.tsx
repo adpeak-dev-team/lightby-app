@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
-  View, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator,
+  View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,7 +41,12 @@ function ApplicationCard({
       <View style={c.row}>
         <View style={c.thumbWrap}>
           {imageUri ? (
-            <Image source={{ uri: imageUri }} style={c.thumb} />
+            <Image
+              source={{ uri: imageUri }}
+              style={c.thumb}
+              contentFit="cover"
+              transition={200}
+            />
           ) : (
             <View style={[c.thumb, c.thumbPlaceholder]}>
               <Ionicons name="image-outline" size={24} color="#cbd5e1" />

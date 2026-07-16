@@ -1,25 +1,22 @@
 import { useState } from 'react';
 import {
-  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert,
+  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
-import { isIAPSupported, purchaseProduct, isUserCancelled, resolveProductId } from '@/lib/iap';
 
 export type ProductType = 'FREE' | 'TOP' | 'PREMIUM';
-// iOS 인앱결제 정보 (유료 등록 시 onConfirm으로 전달 → 서버가 JWS 서명 검증·기록)
-export type ApplePayment = { jws: string; purchase: any };
 
 interface Props {
     visible: boolean;
     onClose: () => void;
-    onConfirm: (product: ProductType, selectedIcons: number[], totalAmount: number, applePayment?: ApplePayment) => void;
+    onConfirm: (product: ProductType, selectedIcons: number[], totalAmount: number) => void;
     freebies?: boolean;
     isPending?: boolean;
 }
 
-// 오픈기념 50% 할인가 (표시용). 실제 청구가는 App Store Connect의 IAP 상품 가격으로 처리된다 — 콘솔에서 동일하게 맞춰야 함.
+// 오픈기념 50% 할인가 (표시용). 실제 청구가는 서버가 DB 가격표로 재확정한다 — 여기 값은 UI 참고용.
 const PREMIUM_PRICE = 27900;
 const TOP_PRICE = 13900;
 const ICON_PRICE = 2200;
@@ -27,25 +24,6 @@ const ICON_PRICE = 2200;
 export function ProductSelectModal({ visible, onClose, onConfirm, freebies = false, isPending = false }: Props) {
     const [selected, setSelected] = useState<ProductType>('FREE');
     const [selectedIcons, setSelectedIcons] = useState<number[]>([]);
-    const [paymentAlertVisible, setPaymentAlertVisible] = useState(false);
-    const [purchasing, setPurchasing] = useState(false);
-
-    // iOS 인앱결제: 상품 구매 → 영수증을 onConfirm(공고 등록)으로 전달.
-    // 서버가 createJobPost에서 Apple 검증 + 결제 기록(멱등성)하고, 성공 후 거래를 완료(소비) 처리한다.
-    const handlePaidConfirm = async () => {
-        const productId = resolveProductId(selected as 'PREMIUM' | 'TOP', selectedIcons.length);
-        setPurchasing(true);
-        try {
-            const { purchase, jws } = await purchaseProduct(productId);
-            onConfirm(selected, selectedIcons, totalAmount, { jws, purchase });
-        } catch (e: any) {
-            if (!isUserCancelled(e)) {
-                Alert.alert('결제 실패', e?.message ?? '결제에 실패했습니다. 잠시 후 다시 시도해 주세요.');
-            }
-        } finally {
-            setPurchasing(false);
-        }
-    };
 
     const handleSelect = (p: ProductType) => {
         setSelected(p);
@@ -64,8 +42,10 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
     const productName = selected === 'PREMIUM' ? '프리미엄' : selected === 'TOP' ? '지역 탑' : '무료 등록';
     const showIcons = selected !== 'FREE';
 
+    // 등록 버튼 텍스트 — 무료 흐름(FREE 또는 freebies로 총액 0)이면 '무료로 등록', 아니면 '결제하고 등록'
+    const isFreeFlow = selected === 'FREE' || totalAmount === 0;
+
     return (
-        <>
         <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
             <View style={s.overlay}>
                 <View style={s.card}>
@@ -106,9 +86,9 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                         <Text style={s.productBadgeText}>프리미엄</Text>
                                     </View>
                                     <View style={s.productPriceWrap}>
-                                        <Text style={s.productOriginalPrice}>132,000원</Text>
+                                        <Text style={s.productOriginalPrice}>55,800원</Text>
                                         <Text style={[s.productPrice, freebies && { color: '#3b82f6' }]}>
-                                            {freebies ? '0원 (무료)' : '66,000원'}
+                                            {freebies ? '0원 (무료)' : `${PREMIUM_PRICE.toLocaleString()}원`}
                                         </Text>
                                     </View>
                                 </View>
@@ -127,8 +107,8 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                         <Text style={s.productBadgeText}>지역 탑</Text>
                                     </View>
                                     <View style={s.productPriceWrap}>
-                                        <Text style={s.productOriginalPrice}>99,000원</Text>
-                                        <Text style={s.productPrice}>49,500원</Text>
+                                        <Text style={s.productOriginalPrice}>27,800원</Text>
+                                        <Text style={s.productPrice}>{TOP_PRICE.toLocaleString()}원</Text>
                                     </View>
                                 </View>
                                 <Text style={s.productDesc}>• 선택한 지역페이지 상단 랜덤 노출{'\n'}• 광고 기간 10일 제공</Text>
@@ -209,55 +189,24 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         </View>
                     </ScrollView>
 
-                    {/* 등록 버튼 */}
+                    {/* 등록 버튼 — 무료면 바로 등록, 유료면 PayApp 결제창 오픈(호출부에서 처리) */}
                     <View style={s.footer}>
                         <TouchableOpacity
-                            style={[s.confirmBtn, (isPending || purchasing) && { opacity: 0.6 }]}
-                            onPress={() => {
-                                const isPaid =
-                                    selected === 'TOP' ||
-                                    (selected === 'PREMIUM' && !freebies);
-                                if (isPaid) {
-                                    // iOS는 인앱결제, 그 외(Android/web)는 아직 준비중
-                                    if (isIAPSupported()) {
-                                        handlePaidConfirm();
-                                    } else {
-                                        setPaymentAlertVisible(true);
-                                    }
-                                    return;
-                                }
-                                onConfirm(selected, selectedIcons, freebies && selected === 'PREMIUM' ? 0 : totalAmount);
-                            }}
-                            disabled={isPending || purchasing}
+                            style={[s.confirmBtn, isPending && { opacity: 0.6 }]}
+                            onPress={() => onConfirm(selected, selectedIcons, totalAmount)}
+                            disabled={isPending}
                             activeOpacity={0.85}
                         >
-                            {(isPending || purchasing)
+                            {isPending
                                 ? <ActivityIndicator size="small" color="#fff" />
                                 : <Text style={s.confirmBtnText}>
-                                    {freebies || selected === 'FREE' ? '무료로 등록하기' : '등록하기'}
+                                    {isFreeFlow ? '무료로 등록하기' : '결제하고 등록하기'}
                                 </Text>}
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
         </Modal>
-
-        {/* 결제 모듈 준비중 모달 */}
-        <Modal visible={paymentAlertVisible} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setPaymentAlertVisible(false)}>
-            <View style={s.payOverlay}>
-                <View style={s.payCard}>
-                    <View style={s.payIconWrap}>
-                        <Ionicons name="construct-outline" size={36} color="#f59e0b" />
-                    </View>
-                    <Text style={s.payTitle}>결제 모듈 준비중입니다</Text>
-                    <Text style={s.paySub}>인앱 결제 기능은 현재 준비 중입니다.{'\n'}무료 등록을 이용해 주세요.</Text>
-                    <TouchableOpacity style={s.payBtn} onPress={() => setPaymentAlertVisible(false)} activeOpacity={0.85}>
-                        <Text style={s.payBtnText}>확인</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Modal>
-        </>
     );
 }
 
@@ -369,42 +318,4 @@ const s = StyleSheet.create({
         alignItems: 'center',
     },
     confirmBtnText: { fontSize: 18, fontWeight: '800', color: '#fff' },
-    payOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 40,
-    },
-    payCard: {
-        width: '100%',
-        backgroundColor: '#fff',
-        borderRadius: 24,
-        padding: 28,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 24,
-        elevation: 12,
-    },
-    payIconWrap: {
-        width: 68,
-        height: 68,
-        borderRadius: 34,
-        backgroundColor: '#fef3c7',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 16,
-    },
-    payTitle: { fontSize: 17, fontWeight: '700', color: '#0f172a', marginBottom: 10, textAlign: 'center' },
-    paySub: { fontSize: 13, color: '#64748b', textAlign: 'center', lineHeight: 20, marginBottom: 24 },
-    payBtn: {
-        width: '100%',
-        backgroundColor: '#f59e0b',
-        borderRadius: 14,
-        paddingVertical: 14,
-        alignItems: 'center',
-    },
-    payBtnText: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });

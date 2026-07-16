@@ -78,10 +78,11 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
       onPress={() => onPress?.(job)}
       activeOpacity={0.85}
     >
-      {/* 마감 D-day 배지 */}
+      {/* 마감 D-day 배지 — free는 상단 텍스트를 가리지 않도록 하단 아이콘 뱃지 행에 인라인으로 렌더 */}
       {(() => {
         const badge = getDeadlineBadge(job);
         if (!badge) return null;
+        if (variant === 'free') return null;
         return (
           <View style={[styles.ddayBadge, { backgroundColor: badge.c.bg }]}>
             <Text style={[styles.ddayText, { color: badge.c.text }]}>{badge.label}</Text>
@@ -134,21 +135,31 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
         </View>
       </View>
 
-      {/* 아이콘 뱃지 */}
-      {(job.icons?.length ?? 0) > 0 && (
-        <View style={styles.badges}>
-          {job.icons!.map((id) => {
-            const icon = ICON_LIST.find((i) => i.id === id);
-            if (!icon) return null;
-            const c = ICON_COLORS[icon.color] ?? ICON_COLORS.blue;
-            return (
-              <View key={id} style={[styles.badge, { backgroundColor: c.bg, borderColor: c.border }]}>
-                <Text style={[styles.badgeText, { color: c.text }]}>{icon.name}</Text>
+      {/* 아이콘 뱃지 — free variant는 D-day 배지도 여기 인라인으로 함께 렌더(상단 텍스트 가림 방지) */}
+      {(() => {
+        const freeBadge = variant === 'free' ? getDeadlineBadge(job) : null;
+        const hasIcons = (job.icons?.length ?? 0) > 0;
+        if (!hasIcons && !freeBadge) return null;
+        return (
+          <View style={styles.badges}>
+            {freeBadge && (
+              <View style={[styles.inlineDday, { backgroundColor: freeBadge.c.bg }]}>
+                <Text style={[styles.ddayText, { color: freeBadge.c.text }]}>{freeBadge.label}</Text>
               </View>
-            );
-          })}
-        </View>
-      )}
+            )}
+            {hasIcons && job.icons!.map((id) => {
+              const icon = ICON_LIST.find((i) => i.id === id);
+              if (!icon) return null;
+              const c = ICON_COLORS[icon.color] ?? ICON_COLORS.blue;
+              return (
+                <View key={id} style={[styles.badge, { backgroundColor: c.bg, borderColor: c.border }]}>
+                  <Text style={[styles.badgeText, { color: c.text }]}>{icon.name}</Text>
+                </View>
+              );
+            })}
+          </View>
+        );
+      })()}
     </TouchableOpacity>
   );
 }
@@ -289,5 +300,10 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 9,
     fontWeight: '700',
+  },
+  inlineDday: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
 });
