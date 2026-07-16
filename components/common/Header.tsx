@@ -7,13 +7,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { tokenStorage } from '@/api/apiClient';
-import { useLogout } from '@/services/auth/mutations';
+import { useGetUnreadCount } from '@/services/notifications/queries';
 import { Colors } from '@/lib/theme';
 
 export default function Header() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const logoutMutation = useLogout();
+  const { data: unreadCount = 0 } = useGetUnreadCount(isLoggedIn);
 
   useFocusEffect(
     useCallback(() => {
@@ -25,15 +25,6 @@ export default function Header() {
     }, [])
   );
 
-  const handleLogout = () => {
-    logoutMutation.mutate(undefined, {
-      onSettled: () => {
-        setIsLoggedIn(false);
-        router.replace('/auth/login');
-      },
-    });
-  };
-
   return (
     <View style={styles.header}>
       <Image
@@ -43,9 +34,18 @@ export default function Header() {
       />
 
       {isLoggedIn ? (
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={15} color={Colors.textMuted} />
-          <Text style={styles.logoutText}>로그아웃</Text>
+        <TouchableOpacity
+          style={styles.bellBtn}
+          onPress={() => router.push('/mypage/notifications')}
+          activeOpacity={0.7}
+          hitSlop={8}
+        >
+          <Ionicons name="notifications-outline" size={24} color={Colors.text} />
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.loginBtn} onPress={() => router.push('/auth/login')}>
@@ -95,18 +95,28 @@ const styles = StyleSheet.create({
     fontWeight: '800', // font-extrabold
     fontSize: 12, // text-xs
   },
-  logoutBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6, // gap-1.5
-    backgroundColor: Colors.bgGray, // bg-slate-100 (#f1f5f9)
-    paddingHorizontal: 12, // px-3
-    paddingVertical: 6, // py-1.5
-    borderRadius: 999,
+  bellBtn: {
+    padding: 4,
+    position: 'relative',
   },
-  logoutText: {
-    color: Colors.textMuted, // text-slate-400 (#94a3b8)
-    fontWeight: '700', // font-bold
-    fontSize: 12, // text-xs
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#ef4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '700',
+    lineHeight: 12,
   },
 });

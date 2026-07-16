@@ -171,9 +171,6 @@ export default function MyPage() {
               <Text style={s.profileSub}>계정 설정 관리 &gt;</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={handleLogout} style={s.logoutBtn} activeOpacity={0.7}>
-            <Ionicons name="log-out-outline" size={20} color="#94a3b8" />
-          </TouchableOpacity>
         </View>
 
         {/* 퀵 액션 */}
@@ -237,6 +234,12 @@ export default function MyPage() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* 로그아웃 (마이페이지 최하단) */}
+        <TouchableOpacity style={s.bottomLogout} onPress={handleLogout} activeOpacity={0.75}>
+          <Ionicons name="log-out-outline" size={18} color="#94a3b8" />
+          <Text style={s.bottomLogoutText}>로그아웃</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* 관심 설정 모달 */}
@@ -298,7 +301,13 @@ const s = StyleSheet.create({
   profileInfo: { flex: 1 },
   profileName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   profileSub: { fontSize: 14, color: '#94a3b8', marginTop: 3 },
-  logoutBtn: { padding: 4 },
+  bottomLogout: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#fff', borderRadius: 16, paddingVertical: 16, marginTop: 4,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+  },
+  bottomLogoutText: { fontSize: 15, fontWeight: '600', color: '#94a3b8' },
 
   /* 퀵 액션 */
   quickGrid: { flexDirection: 'row', gap: 10 },
