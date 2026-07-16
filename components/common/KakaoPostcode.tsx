@@ -13,25 +13,40 @@ const POSTCODE_HTML = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #wrap { width: 100%; height: 100%; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    /* 위젯을 뷰포트 전체로 확실히 채워 PC 레이아웃(고정폭)으로 깨지지 않게 함 */
+    #wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+    #wrap > * { width: 100% !important; height: 100% !important; }
   </style>
 </head>
 <body>
   <div id="wrap"></div>
-  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
-    new daum.Postcode({
-      oncomplete: function(data) {
-        var addr = data.roadAddress || data.jibunAddress || data.address;
-        window.ReactNativeWebView.postMessage(JSON.stringify({
-          type: 'POSTCODE_SELECTED',
-          address: addr
-        }));
-      }
-    }).embed(document.getElementById('wrap'));
+    function initPostcode() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          var addr = data.roadAddress || data.jibunAddress || data.address;
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'POSTCODE_SELECTED',
+            address: addr
+          }));
+        },
+        // 모바일: 위젯이 컨테이너(=화면) 전체를 채우도록 강제
+        width: '100%',
+        height: '100%',
+        maxSuggestItems: 5
+      }).embed(document.getElementById('wrap'), { autoClose: false });
+    }
+    // 스크립트/DOM 준비 후 임베드 (초기 크기 오측정으로 PC폭 렌더 방지)
+    if (document.readyState === 'complete') initPostcode();
+    else window.addEventListener('load', initPostcode);
   </script>
 </body>
 </html>`;
@@ -159,6 +174,9 @@ export function KakaoPostcode({ address, onSelect }: Props) {
                         javaScriptEnabled
                         domStorageEnabled
                         originWhitelist={['*']}
+                        // iOS: 자동 인셋으로 위젯이 밀려/잘려 보이는 것 방지
+                        automaticallyAdjustContentInsets={false}
+                        contentInsetAdjustmentBehavior="never"
                         style={{ flex: 1 }}
                     />
                 </SafeAreaView>

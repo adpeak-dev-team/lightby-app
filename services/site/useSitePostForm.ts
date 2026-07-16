@@ -57,10 +57,14 @@ export function useSitePostForm() {
     const [isPayappLoading, setIsPayappLoading] = useState(false);
 
     // 담당자 성함/연락처를 내 프로필에서 자동 입력 (사용자가 이미 입력했으면 유지)
+    // ⚠️ 미인증(OAuth) 사용자의 phone 은 'notauth_...' placeholder라 그대로 채우면
+    //    결제 시 PayApp에 쓰레기 번호가 나가 거절된다 → 휴대폰 형식일 때만 자동 입력.
     useEffect(() => {
         if (!userProfile) return;
         setManagerName((prev) => prev || userProfile.name || userProfile.nickname || '');
-        setManagerPhone((prev) => prev || userProfile.phone || '');
+        const profilePhone = userProfile.phone ?? '';
+        const isRealPhone = !profilePhone.startsWith('notauth_') && /^0\d{7,}$/.test(profilePhone.replace(/[^0-9]/g, ''));
+        setManagerPhone((prev) => prev || (isRealPhone ? profilePhone : ''));
     }, [userProfile]);
 
     // ── 나가기/성공 플래그 ──
