@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Carousel from 'react-native-reanimated-carousel';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Header from '@/components/common/Header';
 import MainStats from '@/components/main/MainStats';
@@ -192,6 +193,7 @@ type ListRow =
 
 export default function HomePage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { requireLogin, loginPrompt } = useRequireLogin('로그인 후 구인공고를 등록할 수 있습니다.');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortVal>('LATEST');
@@ -269,8 +271,9 @@ export default function HomePage() {
         ListFooterComponent={listFooter}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.6}
-        contentContainerStyle={s.listContent}
+        contentContainerStyle={[s.listContent, { paddingBottom: insets.bottom + 88 }]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" colors={['#3b82f6']} />
         }

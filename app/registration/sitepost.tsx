@@ -162,7 +162,7 @@ export default function SitePostPage() {
             </Modal>
 
             {/* ── 네비게이션 헤더 ── */}
-            <View style={[s.nav, { paddingTop: insets.top - 10 }]}>
+            <View style={s.nav}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
                     <Ionicons name="chevron-back" size={24} color="#0f172a" />
                 </TouchableOpacity>
@@ -297,6 +297,7 @@ const s = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: '#fff',
+        paddingTop: 10,
         paddingBottom: 10,
         paddingHorizontal: 16,
         borderBottomWidth: 1,

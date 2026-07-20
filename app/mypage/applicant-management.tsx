@@ -109,7 +109,7 @@ export default function ApplicantManagementPage() {
         data={isLoading ? [] : list}
         keyExtractor={(item) => String(item.idx)}
         renderItem={({ item }) => <ApplicantCard item={item} />}
-        contentContainerStyle={s.list}
+        contentContainerStyle={[s.list, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={s.statsGrid}>

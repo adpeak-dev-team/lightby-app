@@ -23,6 +23,8 @@ export interface Comment {
   is_withdrawn?: number | boolean;
   content: string;
   created_at: string;
+  /** soft delete 시각. 값이 있으면 "삭제된 댓글입니다"로 표시한다 (web 동일) */
+  deleted_at?: string | null;
 }
 
 export interface CreateCommunityPostPayload {

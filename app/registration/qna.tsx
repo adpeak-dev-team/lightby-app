@@ -10,11 +10,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { apiClient } from '@/api/apiClient';
 import { useCreateQnaPost } from '@/services/qna/mutations';
 import SortableImage from '@/components/common/SortableImage';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
 export default function QnaPostPage() {
   const router = useRouter();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const createMutation = useCreateQnaPost();
 
@@ -145,7 +147,7 @@ export default function QnaPostPage() {
       </Modal>
 
       {/* 헤더 */}
-      <View style={s.nav}>
+      <View style={s.nav} onLayout={onHeaderLayout}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
@@ -153,7 +155,7 @@ export default function QnaPostPage() {
         <View style={{ width: 40 }} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
         <ScrollView
           contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
           showsVerticalScrollIndicator={false}

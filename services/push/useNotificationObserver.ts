@@ -10,9 +10,20 @@ function routeFromData(
 ) {
     if (!data) return;
     const siteId = data.siteId;
+    const boardId = data.boardId;
 
     switch (data.type) {
-        // 즉시 발송 (인박스 미표시)
+        // 커뮤니티
+        case 'community_comment':      // 내 글에 새 댓글 → 해당 게시글
+            if (boardId != null) {
+                router.push({ pathname: '/posts/board/[id]', params: { id: String(boardId) } });
+            }
+            return;
+
+        // 지원 관련
+        case 'apply_complete':         // 지원 완료 → 내 지원현황
+            router.push('/mypage/application-status' as never);
+            return;
         case 'new_applicant':          // 신규 지원자 → 지원자관리
         case 'applicants_pending':     // 미확인 지원자 누적 → 지원자관리
             router.push('/mypage/applicant-management' as never);

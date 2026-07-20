@@ -89,6 +89,7 @@ export default function RootLayout() {
                 <Stack.Screen name="set-user-info/interest" options={{ headerShown: false }} />
                 <Stack.Screen name="set-user-info/profile" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/account" options={{ headerShown: false }} />
+                <Stack.Screen name="mypage/settings" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/talent" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/application-status" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />

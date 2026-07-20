@@ -82,7 +82,7 @@ export default function MapViewPage() {
   return (
     <View style={s.container}>
       {/* 헤더 (지도 위에 떠있는 형태) */}
-      <View style={[s.header, { paddingTop: insets.top - 10 }]}>
+      <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn} activeOpacity={0.8}>
           <Ionicons name="chevron-back" size={22} color="#0f172a" />
         </TouchableOpacity>
@@ -133,7 +133,7 @@ const s = StyleSheet.create({
   header: {
     position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 12, paddingBottom: 12,
+    paddingHorizontal: 12, paddingTop: 12, paddingBottom: 12,
     backgroundColor: 'rgba(255,255,255,0.96)',
     borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },

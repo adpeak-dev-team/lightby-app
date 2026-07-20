@@ -23,7 +23,8 @@ export default function TermsScreen() {
   const current = TABS.find((t) => t.key === active)!.doc;
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
+    // 상단 inset은 루트 SafeAreaView(edges=['top'])가 이미 처리한다 — 여기서 또 더하면 두 번 밀린다
+    <View style={s.container}>
       {/* 헤더 */}
       <View style={s.navbar}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={s.navBtn}>

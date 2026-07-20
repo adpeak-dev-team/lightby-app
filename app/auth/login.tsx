@@ -72,14 +72,14 @@ export default function LoginPage() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableOpacity
-        style={[s.closeBtn, { top: insets.top + 8 }]}
+        style={[s.closeBtn, { top: 8 }]}
         onPress={handleClose}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <Ionicons name="arrow-back" size={26} color="#334155" />
       </TouchableOpacity>
       <ScrollView
-        contentContainerStyle={[s.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={[s.container, { paddingTop: 24, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={s.logoWrap}>

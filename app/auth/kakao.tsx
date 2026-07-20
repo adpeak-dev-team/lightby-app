@@ -252,7 +252,7 @@ export default function KakaoLoginPage() {
   // 로딩 화면
   if (isLoading) {
     return (
-      <View style={[s.center, { paddingTop: insets.top }]}>
+      <View style={s.center}>
         <ActivityIndicator size="large" color="#FEE500" />
         <Text style={s.loadingText}>카카오 로그인 처리 중...</Text>
       </View>
@@ -264,7 +264,7 @@ export default function KakaoLoginPage() {
     return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
-          contentContainerStyle={[s.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 24 }]}
+          contentContainerStyle={[s.container, { paddingTop: 20, paddingBottom: insets.bottom + 24 }]}
           keyboardShouldPersistTaps="handled"
         >
           <View style={s.headerWrap}>

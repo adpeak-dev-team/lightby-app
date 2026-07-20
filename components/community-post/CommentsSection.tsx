@@ -12,6 +12,9 @@ type Reply = {
   user_id: number;
   content: string;
   is_withdrawn?: number | boolean;
+  // 서버는 soft delete(deleted_at)로 삭제 댓글도 내용까지 그대로 내려준다.
+  // 클라이언트가 "삭제된 댓글입니다"로 가려야 한다 (웹 동일).
+  deleted_at?: string | null;
 };
 
 type Props = {
@@ -25,7 +28,8 @@ type Props = {
 export default function CommentsSection({ replies, myId, postAuthorId, onDeleteReply, onReportReply }: Props) {
   return (
     <View style={s.section}>
-      <Text style={s.header}>댓글 {replies.length}개</Text>
+      {/* 삭제된 댓글은 개수에서 제외 (서버 comment_count와 동일 기준) */}
+      <Text style={s.header}>댓글 {replies.filter((r) => !r.deleted_at).length}개</Text>
 
       {replies.length === 0 ? (
         <Text style={s.empty}>아직 댓글이 없습니다.</Text>
@@ -42,7 +46,8 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
                 )}
                 <Text style={s.date}>{formatDate(reply.created_at)}</Text>
               </View>
-              {myId === reply.user_id ? (
+              {/* 삭제된 댓글에는 삭제/신고 액션을 노출하지 않는다 */}
+              {reply.deleted_at ? null : myId === reply.user_id ? (
                 <TouchableOpacity onPress={() => onDeleteReply(reply.id)} hitSlop={8}>
                   <Ionicons name="trash-outline" size={14} color="#cbd5e1" />
                 </TouchableOpacity>
@@ -55,7 +60,11 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
                 )
               )}
             </View>
-            <Text style={s.content}>{reply.content}</Text>
+            {reply.deleted_at ? (
+              <Text style={[s.content, s.deletedContent]}>삭제된 댓글입니다.</Text>
+            ) : (
+              <Text style={s.content}>{reply.content}</Text>
+            )}
           </View>
         ))
       )}
@@ -76,4 +85,5 @@ const s = StyleSheet.create({
   authorBadgeText: { fontSize: 11, fontWeight: '600', color: '#1d4ed8' },
   date: { fontSize: 12, color: '#94a3b8' },
   content: { fontSize: 14, color: '#475569', lineHeight: 23 },
+  deletedContent: { color: '#94a3b8', fontStyle: 'italic' },
 });

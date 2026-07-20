@@ -47,6 +47,7 @@ function JobPostList() {
   const router = useRouter();
   const qc = useQueryClient();
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetUserJobPostList();
+  const insets = useSafeAreaInsets();
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -88,7 +89,7 @@ function JobPostList() {
             </TouchableOpacity>
           </View>
         )}
-        contentContainerStyle={e.list}
+        contentContainerStyle={[e.list, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
         onEndReachedThreshold={0.5}
@@ -109,6 +110,7 @@ function BoardPostList() {
   const qc = useQueryClient();
   const { data: me } = useGetMe();
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetUserBoardPostList();
+  const insets = useSafeAreaInsets();
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -144,7 +146,7 @@ function BoardPostList() {
             </TouchableOpacity>
           </View>
         )}
-        contentContainerStyle={e.list}
+        contentContainerStyle={[e.list, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
         onEndReachedThreshold={0.5}

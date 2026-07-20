@@ -53,7 +53,8 @@ export default function FortunePage() {
   };
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
+    // 상단 inset은 루트 SafeAreaView(edges=['top'])가 이미 처리한다 — 여기서 또 더하면 두 번 밀린다
+    <View style={s.container}>
       {/* 헤더 */}
       <View style={s.header}>
         <TouchableOpacity
@@ -66,7 +67,7 @@ export default function FortunePage() {
         <Text style={s.headerTitle}>오늘의 운세</Text>
       </View>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
         {/* 1단계: 띠 선택 */}
         {!selected && (
           <>

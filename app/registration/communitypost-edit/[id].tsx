@@ -11,6 +11,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useGetCommunityPostById } from '@/services/community/queries';
 import { useUpdateCommunityPost, useUpdateCommunityPostImages } from '@/services/community/mutations';
 import SortableImage from '@/components/common/SortableImage';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
+
+// 서버(community.service.ts의 COMMUNITY_CONTENT_MAX)와 동일한 값을 유지할 것
+const CONTENT_MAX = 5000;
 
 export default function CommunityPostEditPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +22,7 @@ export default function CommunityPostEditPage() {
   const router = useRouter();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const { data: post, isLoading } = useGetCommunityPostById(postId);
   const updateMutation = useUpdateCommunityPost();
@@ -127,7 +132,7 @@ export default function CommunityPostEditPage() {
       </Modal>
 
       {/* 헤더 */}
-      <View style={s.nav}>
+      <View style={s.nav} onLayout={onHeaderLayout}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
@@ -135,7 +140,7 @@ export default function CommunityPostEditPage() {
         <View style={{ width: 40 }} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
         <ScrollView
           contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
           showsVerticalScrollIndicator={false}
@@ -178,7 +183,9 @@ export default function CommunityPostEditPage() {
               multiline
               numberOfLines={10}
               textAlignVertical="top"
+              maxLength={CONTENT_MAX}
             />
+            <Text style={s.counter}>{content.length}/{CONTENT_MAX}</Text>
           </View>
 
           {/* 이미지 저장 중 표시 */}
@@ -243,6 +250,7 @@ const s = StyleSheet.create({
     padding: 12, fontSize: 14, color: '#0f172a', minHeight: 200,
     backgroundColor: '#fff',
   },
+  counter: { fontSize: 12, color: '#94a3b8', textAlign: 'right', marginTop: 6 },
 
   imageSavingBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',

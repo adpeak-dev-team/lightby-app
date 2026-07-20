@@ -13,6 +13,10 @@
       "bundleIdentifier": "com.lightby.app",
       "buildNumber": "1",
       "usesAppleSignIn": true,
+      "associatedDomains": [
+        "applinks:lightby.co.kr",
+        "applinks:www.lightby.co.kr"
+      ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "프로필 및 게시글 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다.",
@@ -56,6 +60,17 @@
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan",
       "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "lightby.co.kr", "pathPrefix": "/posts" },
+            { "scheme": "https", "host": "www.lightby.co.kr", "pathPrefix": "/posts" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "versionCode": 6,
       "googleServicesFile": "./google-services.json",
       "package": "com.lightby.app"

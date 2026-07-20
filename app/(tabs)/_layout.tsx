@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,27 +11,34 @@ const INACTIVE_COLOR = '#94a3b8'; // text-slate-400 (웹과 동일)
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
+  // 키보드가 뜰 때 inset 변화로 screenOptions 객체가 매 렌더 새로 생성되면
+  // 탭바가 재계산되며 포커스된 TextInput의 포커스를 뺏는다. 하단 inset에만 의존시킨다.
+  const screenOptions = useMemo(
+    () => ({
+      headerShown: false,
+      tabBarButton: HapticTab,
+      tabBarActiveTintColor: ACTIVE_COLOR,
+      tabBarInactiveTintColor: INACTIVE_COLOR,
+      // 키보드가 올라오면 탭바를 숨겨 레이아웃 다툼을 없앤다.
+      tabBarHideOnKeyboard: true,
+      tabBarStyle: {
+        backgroundColor: '#fff',
+        borderTopColor: '#f1f5f9',
+        borderTopWidth: 1,
+        height: 52 + insets.bottom,
+        paddingBottom: insets.bottom,
+        paddingTop: 6,
+      },
+      tabBarLabelStyle: {
+        fontSize: 10,
+        fontWeight: '500' as const,
+      },
+    }),
+    [insets.bottom],
+  );
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarActiveTintColor: ACTIVE_COLOR,
-        tabBarInactiveTintColor: INACTIVE_COLOR,
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#f1f5f9',
-          borderTopWidth: 1,
-          height: 52 + insets.bottom,
-          paddingBottom: insets.bottom,
-          paddingTop: 6,
-        },
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-        },
-      }}
-    >
+    <Tabs screenOptions={screenOptions}>
       <Tabs.Screen
         name="index"
         options={{

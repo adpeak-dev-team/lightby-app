@@ -13,7 +13,8 @@ import { Colors } from '@/lib/theme';
 export default function Header() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { data: unreadCount = 0 } = useGetUnreadCount(isLoggedIn);
+  const { data: unread } = useGetUnreadCount(isLoggedIn);
+  const unreadCount = unread?.count ?? 0;
 
   useFocusEffect(
     useCallback(() => {

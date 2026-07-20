@@ -14,6 +14,7 @@ import { checkLikeStatus, incrementCommunityView } from '@/services/community/ap
 import { useGetMe } from '@/services/auth/queries';
 import { toast } from '@/hooks/use-toast';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { IMAGE_PREFIX } from '@/lib/constants';
 import { formatDate } from '@/lib/lib';
 import PostTopNav from '@/components/common/PostTopNav';
@@ -42,6 +43,9 @@ export default function BoardDetailPage() {
   const postId = parseInt(id);
   const router = useRouter();
   const { bottom: bottomInset } = useSafeAreaInsets();
+  // KeyboardAvoidingView가 헤더 아래에서 시작하므로, iOS에서는 그 위쪽 높이만큼
+  // offset을 주지 않으면 입력바가 키보드에 가려진다. 헤더 높이는 실측한다.
+  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const { data: me, isLoading: meLoading } = useGetMe();
   // viewerId(me.id) 전달 → 차단한 사용자의 글/댓글은 서버에서 걸러진다.
@@ -60,6 +64,8 @@ export default function BoardDetailPage() {
   const [commentText, setCommentText] = useState('');
   const [showUnlikeModal, setShowUnlikeModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  // 삭제 확인 대기 중인 댓글 id (웹과 동일하게 확인 모달을 거친다)
+  const [pendingDeleteReplyId, setPendingDeleteReplyId] = useState<number | null>(null);
 
   // 신고/차단 액션 시트 대상 (게시글 또는 특정 댓글)
   const [actionTarget, setActionTarget] = useState<
@@ -120,9 +126,23 @@ export default function BoardDetailPage() {
     );
   }, [commentText, me?.id]);
 
+  // 휴지통 클릭 → 확인 모달 오픈
   const handleDeleteReply = useCallback((replyId: number) => {
-    deleteReplyMutation.mutate(replyId);
+    setPendingDeleteReplyId(replyId);
   }, []);
+
+  // 모달에서 "삭제" 확정
+  const confirmDeleteReply = useCallback(() => {
+    if (pendingDeleteReplyId == null) return;
+    deleteReplyMutation.mutate(pendingDeleteReplyId, {
+      onSuccess: () => toast.info('댓글이 삭제되었습니다.'),
+      onError: (e: any) => {
+        console.error('[BoardDetail] 댓글 삭제 실패:', e?.response?.status, e?.response?.data);
+        toast.info(e?.response?.data?.message ?? '댓글 삭제에 실패했습니다.');
+      },
+      onSettled: () => setPendingDeleteReplyId(null),
+    });
+  }, [pendingDeleteReplyId, deleteReplyMutation]);
 
   // 댓글 신고/차단 시트 열기
   const handleReportReply = useCallback((replyId: number, replyUserId: number, isWithdrawn: boolean) => {
@@ -166,6 +186,7 @@ export default function BoardDetailPage() {
 
   return (
     <View style={s.container}>
+      <View onLayout={onHeaderLayout}>
       <PostTopNav
         title="게시글"
         onBack={() => router.back()}
@@ -180,8 +201,15 @@ export default function BoardDetailPage() {
           { icon: 'share-outline', onPress: handleShare },
         ]}
       />
+      </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior="padding"
+        // iOS는 KAV 위쪽(상단 inset + 헤더)만큼 보정해야 입력바가 키보드에 가려지지 않는다.
+        // Android는 windowSoftInputMode(pan)가 처리하므로 0.
+        keyboardVerticalOffset={keyboardVerticalOffset}
+      >
         <ScrollView style={s.scroll} showsVerticalScrollIndicator={false}>
           {/* 작성자 */}
           <View style={s.authorSection}>
@@ -257,7 +285,7 @@ export default function BoardDetailPage() {
       {/* 좋아요 취소 모달 */}
       <Modal visible={showUnlikeModal} transparent animationType="fade" onRequestClose={() => setShowUnlikeModal(false)}>
         <Pressable style={s.overlay} onPress={() => setShowUnlikeModal(false)} />
-        <View style={s.modal}>
+        <View style={[s.modal, { paddingBottom: bottomInset + 24 }]}>
           <Text style={s.modalTitle}>좋아요 취소</Text>
           <Text style={s.modalSub}>좋아요를 취소하시겠습니까?</Text>
           <View style={s.modalBtns}>
@@ -290,7 +318,7 @@ export default function BoardDetailPage() {
       {/* 게시글 삭제 모달 */}
       <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => setShowDeleteModal(false)}>
         <Pressable style={s.overlay} onPress={() => setShowDeleteModal(false)} />
-        <View style={s.modal}>
+        <View style={[s.modal, { paddingBottom: bottomInset + 24 }]}>
           <Text style={s.modalTitle}>게시글 삭제</Text>
           <Text style={s.modalSub}>삭제 후에는 복구가 불가능합니다.</Text>
           <View style={s.modalBtns}>
@@ -304,6 +332,34 @@ export default function BoardDetailPage() {
             >
               <Text style={s.modalBtnDangerText}>
                 {deletePostMutation.isPending ? '삭제 중...' : '삭제'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 댓글 삭제 모달 (웹 동일 문구) */}
+      <Modal
+        visible={pendingDeleteReplyId != null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPendingDeleteReplyId(null)}
+      >
+        <Pressable style={s.overlay} onPress={() => setPendingDeleteReplyId(null)} />
+        <View style={[s.modal, { paddingBottom: bottomInset + 24 }]}>
+          <Text style={s.modalTitle}>댓글 삭제</Text>
+          <Text style={s.modalSub}>정말로 이 댓글을 삭제하시겠습니까?{'\n'}이 작업은 되돌릴 수 없습니다.</Text>
+          <View style={s.modalBtns}>
+            <TouchableOpacity style={s.modalBtnSecondary} onPress={() => setPendingDeleteReplyId(null)}>
+              <Text style={s.modalBtnSecondaryText}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.modalBtnDanger}
+              onPress={confirmDeleteReply}
+              disabled={deleteReplyMutation.isPending}
+            >
+              <Text style={s.modalBtnDangerText}>
+                {deleteReplyMutation.isPending ? '삭제 중...' : '삭제'}
               </Text>
             </TouchableOpacity>
           </View>

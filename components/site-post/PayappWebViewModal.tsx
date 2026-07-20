@@ -5,7 +5,9 @@ import {
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView, type WebViewNavigation, type ShouldStartLoadRequest } from 'react-native-webview';
+import { WebView, type WebViewNavigation } from 'react-native-webview';
+// ShouldStartLoadRequest는 패키지 최상위로 re-export되지 않아 하위 경로에서 가져온다.
+import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { getPayappStatus } from '@/services/payapp/api';
 
 interface Props {

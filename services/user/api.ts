@@ -69,6 +69,30 @@ export async function uploadProfileImage(formData: FormData): Promise<{
   return data;
 }
 
+// ==================== 알림 수신 설정 ====================
+export interface NotificationSettings {
+  push_enabled: boolean;
+  marketing_push_enabled: boolean;
+}
+
+export async function getNotificationSettings(): Promise<NotificationSettings> {
+  const { data } = await apiClient.get('/user/notification-settings');
+  return data.data;
+}
+
+export async function updateNotificationSettings(
+  patch: Partial<NotificationSettings>,
+): Promise<NotificationSettings> {
+  const { data } = await apiClient.patch('/user/notification-settings', patch);
+  return data.data;
+}
+
+// 프로필 이미지 삭제 (기본 프로필로 되돌리기)
+export async function deleteProfileImage(): Promise<{ success: boolean; message: string }> {
+  const { data } = await apiClient.post('/user/delete-profile-image');
+  return data;
+}
+
 export async function getUserJobPostList(start = 0, limit = 20): Promise<UserJobPostItem[]> {
   const { data } = await apiClient.get<{ success: boolean; data: UserJobPostItem[] }>(
     `/user/post-list?tab=jobs&start=${start}&limit=${limit}`,

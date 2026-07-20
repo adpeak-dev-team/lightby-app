@@ -128,7 +128,7 @@ export default function SetUserInfoProfilePage() {
   return (
     <View style={s.container}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {/* 상단 헤더 */}
           <View style={s.heroSection}>
             <Text style={s.heroTitle}>프로필 완성하기</Text>
