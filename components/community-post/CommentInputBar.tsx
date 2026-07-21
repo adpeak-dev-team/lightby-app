@@ -18,11 +18,10 @@ export default function CommentInputBar({
 }: Props) {
   const canSubmit = isLoggedIn && value.trim().length > 0 && !isSubmitting;
 
-  // 키보드 표시 여부에 따라 paddingBottom을 토글하면, KeyboardAvoidingView 애니메이션과
-  // 어긋나 입력바가 올라갔다 다시 내려가며 가려지는 현상이 생긴다. 따라서 항상 동일한
-  // 하단 여백(홈 인디케이터 확보)을 유지해 충돌을 없앤다.
+  // 키보드가 올라오면 홈 인디케이터 영역이 키보드에 덮이므로 하단 여백이 필요 없다.
+  // (여백을 그대로 두면 입력바와 키보드 사이가 떠 보인다)
   return (
-    <View style={[s.bar, { paddingBottom: bottomInset + 12 }]}>
+    <View style={[s.bar, { paddingBottom: keyboardVisible ? 12 : bottomInset + 12 }]}>
       <TextInput
         style={s.input}
         value={value}

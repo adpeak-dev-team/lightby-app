@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, KeyboardAvoidingView, Modal, StyleSheet, Share, ActivityIndicator, Pressable,
+  View, ScrollView, TouchableOpacity, Modal, StyleSheet, Share, ActivityIndicator, Pressable, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -14,7 +14,7 @@ import { checkLikeStatus, incrementCommunityView } from '@/services/community/ap
 import { useGetMe } from '@/services/auth/queries';
 import { toast } from '@/hooks/use-toast';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
-import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
+import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
 import { IMAGE_PREFIX } from '@/lib/constants';
 import { formatDate } from '@/lib/lib';
 import PostTopNav from '@/components/common/PostTopNav';
@@ -43,9 +43,8 @@ export default function BoardDetailPage() {
   const postId = parseInt(id);
   const router = useRouter();
   const { bottom: bottomInset } = useSafeAreaInsets();
-  // KeyboardAvoidingView가 헤더 아래에서 시작하므로, iOS에서는 그 위쪽 높이만큼
-  // offset을 주지 않으면 입력바가 키보드에 가려진다. 헤더 높이는 실측한다.
-  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
+  // 키보드가 덮는 높이를 그대로 받아 입력바 아래 여백으로 쓴다.
+  const kbHeight = useKeyboardHeight();
 
   const { data: me, isLoading: meLoading } = useGetMe();
   // viewerId(me.id) 전달 → 차단한 사용자의 글/댓글은 서버에서 걸러진다.
@@ -201,13 +200,10 @@ export default function BoardDetailPage() {
         ]}
       />
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior="padding"
-        // iOS는 KAV 위쪽(상단 inset + 헤더)만큼 보정해야 입력바가 키보드에 가려지지 않는다.
-        // Android는 windowSoftInputMode(pan)가 처리하므로 0.
-        keyboardVerticalOffset={keyboardVerticalOffset}
-      >
+      {/* KeyboardAvoidingView 대신 키보드 높이만큼 직접 여백을 준다.
+          KAV의 keyboardVerticalOffset은 SafeAreaView·헤더 구성에 따라 보정값이
+          달라져 계속 어긋났다. 이 방식은 화면 구조와 무관하게 정확히 맞는다. */}
+      <View style={{ flex: 1, paddingBottom: Platform.OS === 'ios' ? kbHeight : 0 }}>
         <ScrollView style={s.scroll} showsVerticalScrollIndicator={false}>
           {/* 작성자 */}
           <View style={s.authorSection}>
@@ -278,7 +274,7 @@ export default function BoardDetailPage() {
           keyboardVisible={keyboardVisible}
           bottomInset={bottomInset}
         />
-      </KeyboardAvoidingView>
+      </View>
 
       {/* 좋아요 취소 모달 */}
       <Modal visible={showUnlikeModal} transparent animationType="fade" onRequestClose={() => setShowUnlikeModal(false)}>
