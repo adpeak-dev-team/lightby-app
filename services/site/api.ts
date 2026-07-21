@@ -137,7 +137,7 @@ export interface BannerItem {
 }
 
 export async function getBanners(): Promise<BannerItem[]> {
-  const { data } = await apiClient.get('/main/banners');
+  const { data } = await apiClient.get('/main/banners', { params: { platform: 'app' } });
   return data.data;
 }
 
