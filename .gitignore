@@ -45,3 +45,7 @@ app-example
 .env
 *.keystore
 local.properties
+# 빌드 산출물 (EAS 업로드 용량만 키우고 저장소에 있을 이유가 없다)
+*.aab
+*.apk
+*.ipa
