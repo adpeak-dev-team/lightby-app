@@ -181,14 +181,14 @@ export default function SiteDetailPage() {
   // ── 로딩 / 에러 ────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <View style={[s.centered, { paddingTop: insets.top }]}>
+      <View style={s.centered}>
         <ActivityIndicator size="large" color="#60a5fa" />
       </View>
     );
   }
   if (!job) {
     return (
-      <View style={[s.centered, { paddingTop: insets.top }]}>
+      <View style={s.centered}>
         <Text style={s.emptyText}>데이터를 불러올 수 없습니다.</Text>
       </View>
     );
@@ -506,7 +506,7 @@ export default function SiteDetailPage() {
       <Modal visible={!!applyContent} transparent animationType="fade" onRequestClose={() => setApplyState(null)}>
         <Pressable style={s.overlay} onPress={() => setApplyState(null)} />
         {applyContent && (
-          <View style={s.modal}>
+          <View style={[s.modal, { paddingBottom: insets.bottom + 24 }]}>
             <Text style={s.modalIcon}>{applyContent.icon}</Text>
             <Text style={s.modalTitle}>{applyContent.title}</Text>
             <Text style={s.modalSub}>{applyContent.desc}</Text>
@@ -520,7 +520,7 @@ export default function SiteDetailPage() {
       {/* 삭제 확인 모달 */}
       <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => setShowDeleteModal(false)}>
         <Pressable style={s.overlay} onPress={() => setShowDeleteModal(false)} />
-        <View style={s.modal}>
+        <View style={[s.modal, { paddingBottom: insets.bottom + 24 }]}>
           <Text style={s.modalIcon}>🗑️</Text>
           <Text style={s.modalTitle}>게시글 삭제</Text>
           <Text style={s.modalSub}>삭제 후에는 복구가 불가능합니다.</Text>

@@ -7,7 +7,8 @@ export function useMarkNotificationAsRead() {
     return useMutation({
         mutationFn: (id: number) => markAsRead(id),
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.list });
+            // 카테고리별로 키가 나뉘므로 접두사(all)로 한 번에 무효화한다
+            queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.all });
             queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.unreadCount });
         },
     });
@@ -18,7 +19,8 @@ export function useMarkAllNotificationsAsRead() {
     return useMutation({
         mutationFn: () => markAllAsRead(),
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.list });
+            // 카테고리별로 키가 나뉘므로 접두사(all)로 한 번에 무효화한다
+            queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.all });
             queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.unreadCount });
         },
     });

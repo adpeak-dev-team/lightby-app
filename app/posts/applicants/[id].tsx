@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetPostApplicants } from '@/services/site/queries';
 import { markApplyAsRead } from '@/services/site/api';
@@ -242,6 +243,7 @@ export default function ApplicantsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const qc = useQueryClient();
+  const insets = useSafeAreaInsets();
 
   const { data, isLoading } = useGetPostApplicants(id);
   const [localList, setLocalList] = useState<ApplicantProfile[]>([]);
@@ -296,7 +298,7 @@ export default function ApplicantsPage() {
           renderItem={({ item }) => (
             <ApplicantListItem applicant={item} onPress={() => handleOpen(item)} />
           )}
-          contentContainerStyle={s.listContent}
+          contentContainerStyle={[s.listContent, { paddingBottom: insets.bottom + 32 }]}
           showsVerticalScrollIndicator={false}
         />
       )}

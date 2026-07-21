@@ -75,10 +75,13 @@ export interface MainStats {
 export interface ApplicationItem {
   apply_id: number;
   site_idx: number;
-  subject: string;
+  /** 삭제된 공고면 null (서버에서 내려주지 않음) */
+  subject: string | null;
   thumbnail: string | null;
   status: 'read' | 'unread';
   created_at: string;
+  /** 공고주가 삭제한 공고 — 지원 이력은 남기되 공고보기는 막는다 */
+  is_deleted?: number | boolean;
 }
 
 export interface ApplicantItem {

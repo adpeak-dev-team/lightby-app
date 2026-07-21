@@ -42,7 +42,7 @@ export default function BlockedUsersPage() {
   };
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
+    <View style={s.container}>
       {/* 헤더 */}
       <View style={s.navbar}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={s.navBtn}>
@@ -60,7 +60,7 @@ export default function BlockedUsersPage() {
           <Text style={s.emptyText}>차단한 사용자가 없습니다.</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingVertical: 8 }}>
+        <ScrollView contentContainerStyle={{ paddingVertical: 8, paddingBottom: insets.bottom + 32 }}>
           <Text style={s.desc}>차단한 사용자의 게시글과 댓글은 표시되지 않습니다.</Text>
           {visible.map((u) => (
             <View key={u.user_id} style={s.row}>
@@ -83,7 +83,7 @@ export default function BlockedUsersPage() {
       {/* 차단 해제 확인 모달 */}
       <Modal visible={!!confirmTarget} transparent animationType="fade" onRequestClose={() => setConfirmTarget(null)}>
         <Pressable style={s.overlay} onPress={() => setConfirmTarget(null)} />
-        <View style={s.modal}>
+        <View style={[s.modal, { paddingBottom: insets.bottom + 24 }]}>
           <Text style={s.modalTitle}>차단 해제</Text>
           <Text style={s.modalSub}>
             {confirmTarget?.nickname ?? '이 사용자'}님을 차단 해제하시겠습니까?{'\n'}이 사용자의 게시글과 댓글이 다시 표시됩니다.

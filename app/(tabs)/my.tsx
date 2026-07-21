@@ -6,7 +6,7 @@ import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
 import Header from '@/components/common/Header';
@@ -30,10 +30,10 @@ type MenuItem = {
 
 const MENU_ITEMS: MenuItem[] = [
   {
-    icon: 'card',
+    icon: 'settings',
     iconBg: '#dbeafe', iconColor: '#3b82f6',
-    label: '프로필 관리',
-    route: '/mypage/talent',
+    label: '설정 관리',
+    route: '/mypage/settings',
   },
   {
     icon: 'paper-plane',
@@ -71,6 +71,7 @@ const MENU_ITEMS: MenuItem[] = [
 export default function MyPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [prefsVisible, setPrefsVisible] = useState(false);
 
@@ -92,7 +93,8 @@ export default function MyPage() {
   });
   const { data: jobPostings } = useGetMyJobPostings();
   const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
-  const { data: notifUnreadCount = 0 } = useGetUnreadCount(isLoggedIn === true);
+  const { data: notifUnread } = useGetUnreadCount(isLoggedIn === true);
+  const notifUnreadCount = notifUnread?.count ?? 0;
 
   const logoutMutation = useLogout();
 
@@ -146,7 +148,7 @@ export default function MyPage() {
     <View style={s.container}>
       <Header />
       <ScrollView
-        contentContainerStyle={s.scroll}
+        contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 88 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* 프로필 카드 */}
@@ -165,15 +167,12 @@ export default function MyPage() {
               {profileLoading ? '로딩 중...' : (profile?.nickname ?? '사용자')} 님
             </Text>
             <TouchableOpacity
-              onPress={() => router.push('/mypage/account' as never)}
+              onPress={() => router.push('/mypage/talent' as never)}
               activeOpacity={0.7}
             >
-              <Text style={s.profileSub}>계정 설정 관리 &gt;</Text>
+              <Text style={s.profileSub}>프로필 관리 &gt;</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={handleLogout} style={s.logoutBtn} activeOpacity={0.7}>
-            <Ionicons name="log-out-outline" size={20} color="#94a3b8" />
-          </TouchableOpacity>
         </View>
 
         {/* 퀵 액션 */}
@@ -237,6 +236,12 @@ export default function MyPage() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* 로그아웃 (마이페이지 최하단) */}
+        <TouchableOpacity style={s.bottomLogout} onPress={handleLogout} activeOpacity={0.75}>
+          <Ionicons name="log-out-outline" size={18} color="#94a3b8" />
+          <Text style={s.bottomLogoutText}>로그아웃</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* 관심 설정 모달 */}
@@ -298,7 +303,13 @@ const s = StyleSheet.create({
   profileInfo: { flex: 1 },
   profileName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   profileSub: { fontSize: 14, color: '#94a3b8', marginTop: 3 },
-  logoutBtn: { padding: 4 },
+  bottomLogout: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#fff', borderRadius: 16, paddingVertical: 16, marginTop: 4,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+  },
+  bottomLogoutText: { fontSize: 15, fontWeight: '600', color: '#94a3b8' },
 
   /* 퀵 액션 */
   quickGrid: { flexDirection: 'row', gap: 10 },

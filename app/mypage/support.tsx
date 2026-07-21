@@ -126,7 +126,7 @@ export default function SupportPage() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
         {/* 헤더 */}
         <View style={s.hero}>
           <Text style={s.heroTitle}>Customer Center</Text>
@@ -181,7 +181,7 @@ export default function SupportPage() {
       </ScrollView>
 
       {/* 문의하기 고정 버튼 */}
-      <View style={s.fab}>
+      <View style={[s.fab, { paddingBottom: insets.bottom + 16 }]}>
         <TouchableOpacity
           style={s.fabBtn}
           onPress={() => router.push('/registration/qna')}

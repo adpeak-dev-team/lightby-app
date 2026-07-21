@@ -11,11 +11,16 @@ import { apiClient } from '@/api/apiClient';
 import { useGetMe } from '@/services/auth/queries';
 import { useCreateCommunityPost } from '@/services/community/mutations';
 import SortableImage from '@/components/common/SortableImage';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
+
+// 서버(community.service.ts의 COMMUNITY_CONTENT_MAX)와 동일한 값을 유지할 것
+const CONTENT_MAX = 5000;
 
 export default function CommunityPostPage() {
   const router = useRouter();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const { data: me } = useGetMe();
   const createMutation = useCreateCommunityPost();
@@ -164,7 +169,7 @@ export default function CommunityPostPage() {
       </Modal>
 
       {/* 헤더 */}
-      <View style={s.nav}>
+      <View style={s.nav} onLayout={onHeaderLayout}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
@@ -175,6 +180,7 @@ export default function CommunityPostPage() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <ScrollView
           contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
@@ -234,7 +240,9 @@ export default function CommunityPostPage() {
               multiline
               numberOfLines={10}
               textAlignVertical="top"
+              maxLength={CONTENT_MAX}
             />
+            <Text style={s.counter}>{content.length}/{CONTENT_MAX}</Text>
           </View>
 
           {/* 안내 */}
@@ -313,6 +321,7 @@ const s = StyleSheet.create({
     padding: 12, fontSize: 14, color: '#0f172a', minHeight: 200,
     backgroundColor: '#fff',
   },
+  counter: { fontSize: 12, color: '#94a3b8', textAlign: 'right', marginTop: 6 },
 
   notice: {
     flexDirection: 'row', gap: 8, padding: 14, borderRadius: 12,

@@ -227,12 +227,8 @@ const s = StyleSheet.create({
   searchBarFocused: {
     borderColor: '#3b82f6', // border-primary-500
     backgroundColor: '#fff',
-    // shadow-xl
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    elevation: 8,
+    // NOTE: 포커스 시 elevation/shadow를 토글하면 안드로이드에서 네이티브 뷰가
+    // 재생성되며 자식 TextInput의 포커스가 즉시 풀린다. 테두리 색으로만 표현한다.
   },
   searchInput: {
     flex: 1,

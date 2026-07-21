@@ -1,10 +1,20 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { getFavoriteSites, getUserProfile, getUserPostCount, getUserJobPostList, getUserBoardPostList, getPreferences, PreferencesData } from './api';
+import { getFavoriteSites, getUserProfile, getUserPostCount, getUserJobPostList, getUserBoardPostList, getPreferences, PreferencesData, getNotificationSettings, NotificationSettings } from './api';
 import { FavoriteSiteItem, UserProfile, UserPostCount, UserJobPostItem, UserBoardPostItem } from './types';
 
 export const PREFERENCES_KEYS = {
   preferences: ['user-preferences'] as const,
 };
+
+export const NOTIFICATION_SETTINGS_KEY = ['user', 'notification-settings'] as const;
+
+export function useGetNotificationSettings(options?: { enabled?: boolean }) {
+  return useQuery<NotificationSettings>({
+    queryKey: NOTIFICATION_SETTINGS_KEY,
+    queryFn: getNotificationSettings,
+    ...options,
+  });
+}
 
 export function useGetPreferences(options?: { enabled?: boolean }) {
   return useQuery<PreferencesData>({

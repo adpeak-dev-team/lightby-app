@@ -1,13 +1,23 @@
 import { useCallback, useState } from 'react';
 import {
-  View, FlatList, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator,
+  View, FlatList, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetNotifications } from '@/services/notifications/queries';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useGetNotifications, useGetUnreadCount } from '@/services/notifications/queries';
 import { useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/services/notifications/mutations';
-import type { NotificationItem } from '@/services/notifications/types';
+import {
+  CATEGORY_LABELS, NOTIFICATION_CATEGORIES,
+  type NotificationCategory, type NotificationItem,
+} from '@/services/notifications/types';
+
+// 탭 목록 — '전체' + 4개 카테고리. undefined = 전체
+const TABS: { key: NotificationCategory | 'all'; label: string }[] = [
+  { key: 'all', label: '전체' },
+  ...NOTIFICATION_CATEGORIES.map((c) => ({ key: c, label: CATEGORY_LABELS[c] })),
+];
 
 // 알림 종류별 아이콘/색상
 function iconFor(type: string): { icon: keyof typeof Ionicons.glyphMap; bg: string; color: string } {
@@ -29,6 +39,17 @@ function iconFor(type: string): { icon: keyof typeof Ionicons.glyphMap; bg: stri
       return { icon: 'sparkles', bg: '#f3e8ff', color: '#7c3aed' };
     case 'profile_incomplete':
       return { icon: 'person-circle', bg: '#dbeafe', color: '#2563eb' };
+    case 'community_comment':
+      return { icon: 'chatbubble-ellipses', bg: '#e0e7ff', color: '#4f46e5' };
+    case 'apply_complete':
+      return { icon: 'paper-plane', bg: '#fef9c3', color: '#ca8a04' };
+    case 'new_applicant':
+    case 'applicants_pending':
+      return { icon: 'people', bg: '#dcfce7', color: '#16a34a' };
+    case 'profile_viewed':
+      return { icon: 'eye', bg: '#e0f2fe', color: '#0284c7' };
+    case 'site_liked_milestone':
+      return { icon: 'heart', bg: '#fee2e2', color: '#dc2626' };
     default:
       return { icon: 'notifications', bg: '#f1f5f9', color: '#64748b' };
   }
@@ -51,11 +72,14 @@ function timeAgo(iso: string): string {
 
 export default function NotificationsPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
+  const [tab, setTab] = useState<NotificationCategory | 'all'>('all');
 
+  const { data: unreadCounts } = useGetUnreadCount();
   const {
     data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage,
-  } = useGetNotifications();
+  } = useGetNotifications(true, tab === 'all' ? undefined : tab);
   const items: NotificationItem[] = data?.pages.flatMap((p) => p) ?? [];
 
   const markAsRead = useMarkNotificationAsRead();
@@ -68,8 +92,17 @@ export default function NotificationsPage() {
 
     // 라우팅은 [useNotificationObserver.ts routeFromData]와 일치시킨다.
     const siteId = n.data?.siteId;
+    const boardId = n.data?.boardId;
     switch (n.type) {
-      // 즉시 발송 (인박스엔 원래 안 남지만 방어적으로)
+      // 커뮤니티
+      case 'community_comment':
+        if (boardId) router.push({ pathname: '/posts/board/[id]', params: { id: String(boardId) } });
+        return;
+
+      // 지원 관련
+      case 'apply_complete':
+        router.push('/mypage/application-status' as never);
+        return;
       case 'new_applicant':
       case 'applicants_pending':
         router.push('/mypage/applicant-management' as never);
@@ -153,11 +186,56 @@ export default function NotificationsPage() {
         </TouchableOpacity>
       </View>
 
+      {/* 카테고리 탭 — 라벨 길이가 제각각이라 균등분할 대신 내용 크기 + 가로 스크롤 */}
+      <View style={s.tabBarWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.tabBar}
+          style={s.tabScroll}
+        >
+          {TABS.map(({ key, label }) => {
+            const active = tab === key;
+            const badge = key === 'all'
+              ? (unreadCounts?.count ?? 0)
+              : (unreadCounts?.byCategory?.[key] ?? 0);
+            return (
+              <TouchableOpacity
+                key={key}
+                style={[s.tab, active && s.tabActive]}
+                onPress={() => setTab(key)}
+                activeOpacity={0.85}
+              >
+                <Text style={[s.tabText, active && s.tabTextActive]}>{label}</Text>
+                {badge > 0 && (
+                  <View style={[s.tabBadge, active && s.tabBadgeActive]}>
+                    <Text style={[s.tabBadgeText, active && s.tabBadgeTextActive]}>
+                      {badge > 99 ? '99+' : badge}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* 알림 설정 바로가기 */}
+        <TouchableOpacity
+          style={s.settingsBtn}
+          onPress={() => router.push({ pathname: '/mypage/settings', params: { section: 'notifications' } } as never)}
+          activeOpacity={0.7}
+          hitSlop={8}
+          accessibilityLabel="알림 설정"
+        >
+          <Ionicons name="settings-outline" size={20} color="#64748b" />
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={items}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
-        contentContainerStyle={items.length === 0 ? s.emptyWrap : s.list}
+        contentContainerStyle={[items.length === 0 ? s.emptyWrap : s.list, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
@@ -196,6 +274,42 @@ const s = StyleSheet.create({
   navRight: { width: 60, alignItems: 'flex-end' },
   readAllText: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
   readAllTextDisabled: { color: '#cbd5e1' },
+
+  /* 카테고리 탭 — 목록과 같은 배경 위에 올려 경계가 생기지 않게 한다 */
+  tabBarWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    paddingTop: 14, paddingBottom: 4,
+  },
+  tabScroll: { flex: 1 },
+  tabBar: {
+    flexDirection: 'row', gap: 8,
+    paddingHorizontal: 16,
+  },
+  settingsBtn: {
+    width: 32, height: 32, borderRadius: 16,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#fff',
+    marginRight: 16,
+    // 탭 pill과 같은 흰 배경이라 목록 카드와 톤이 맞는다
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 3, elevation: 2,
+  },
+  tab: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 16, paddingVertical: 6,
+    borderRadius: 999, backgroundColor: '#fff',
+  },
+  tabActive: { backgroundColor: '#3b82f6' },
+  tabText: { fontSize: 14, fontWeight: '600', color: '#64748b' },
+  tabTextActive: { color: '#fff' },
+  tabBadge: {
+    minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 5,
+    alignItems: 'center', justifyContent: 'center', backgroundColor: '#ef4444',
+  },
+  tabBadgeActive: { backgroundColor: 'rgba(255,255,255,0.28)' },
+  tabBadgeText: { fontSize: 10, fontWeight: '800', color: '#fff' },
+  tabBadgeTextActive: { color: '#fff' },
 
   list: { padding: 12, gap: 8 },
   emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },

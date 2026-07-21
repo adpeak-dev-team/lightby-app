@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SortVal = 'DEFAULT' | 'HIGH_FEE' | 'LATEST' | 'VIEW_COUNT';
 
@@ -21,6 +22,7 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ search, onSearchChange, sort, onSortChange }: SearchBarProps) {
+  const insets = useSafeAreaInsets();
   const [localInput, setLocalInput] = useState(search);
   const [focused, setFocused] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
@@ -107,7 +109,7 @@ export default function SearchBar({ search, onSearchChange, sort, onSortChange }
       {/* 정렬 모달 */}
       <Modal visible={sortOpen} transparent animationType="none" onRequestClose={closeSheet}>
         <Pressable style={styles.overlay} onPress={closeSheet} />
-        <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
+        <Animated.View style={[styles.sheet, { paddingBottom: insets.bottom + 24, transform: [{ translateY }] }]}>
           <View style={styles.sheetHandle} {...panResponder.panHandlers} />
           <Text style={styles.sheetTitle}>정렬 옵션</Text>
           {SORT_OPTIONS.map((opt) => (
@@ -148,12 +150,8 @@ const styles = StyleSheet.create({
   barFocused: {
     borderColor: '#3b82f6', // border-primary-500
     backgroundColor: '#fff',
-    // shadow-xl
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    elevation: 8,
+    // NOTE: 포커스 시 elevation/shadow를 토글하면 안드로이드에서 네이티브 뷰가
+    // 재생성되며 자식 TextInput의 포커스가 즉시 풀린다. 테두리 색으로만 표현한다.
   },
   input: {
     flex: 1,

@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useGetMyApplications } from '@/services/site/queries';
 import { useCancelApplication } from '@/services/site/mutations';
@@ -33,6 +34,7 @@ function ApplicationCard({
   // (기존엔 무조건 prefix를 붙여서 절대 URL인 경우 이중 프리픽스로 404가 났음)
   const imageUri = item.thumbnail ? getImageUrl(item.thumbnail) : null;
   const isRead = item.status === 'read';
+  const isDeleted = !!item.is_deleted;
   const date = new Date(item.created_at);
   const dateStr = `${String(date.getFullYear()).slice(2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
@@ -56,7 +58,9 @@ function ApplicationCard({
         </View>
 
         <View style={c.content}>
-          <Text style={c.title} numberOfLines={2}>{item.subject}</Text>
+          <Text style={[c.title, isDeleted && c.titleDeleted]} numberOfLines={2}>
+            {isDeleted ? '삭제된 공고입니다.' : item.subject}
+          </Text>
           <View style={c.metaRow}><Text style={c.metaLabel}>지원일</Text><Text style={c.metaVal}>{dateStr}</Text></View>
           <View style={c.metaRow}><Text style={c.metaLabel}>열람</Text><Text style={[c.metaVal, isRead ? c.read : c.unread]}>{isRead ? '확인완료' : '미열람'}</Text></View>
           <View style={c.metaRow}><Text style={c.metaLabel}>상태</Text><Text style={[c.metaVal, c.applying]}>지원중</Text></View>
@@ -71,9 +75,11 @@ function ApplicationCard({
         >
           <Text style={c.cancelBtnText}>{isCancelling ? '취소 중...' : '지원취소'}</Text>
         </TouchableOpacity>
+        {/* 삭제된 공고는 상세로 갈 수 없으므로 버튼을 비활성화한다 */}
         <TouchableOpacity
-          style={c.viewBtn}
+          style={[c.viewBtn, isDeleted && c.btnDisabled]}
           onPress={() => router.push({ pathname: '/posts/site/[id]', params: { id: item.site_idx } })}
+          disabled={isDeleted}
         >
           <Text style={c.viewBtnText}>공고보기</Text>
         </TouchableOpacity>
@@ -84,6 +90,7 @@ function ApplicationCard({
 
 export default function ApplicationStatusPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data, isLoading } = useGetMyApplications();
   const { mutate: cancel, isPending: isCancelling, variables: cancellingId } = useCancelApplication();
   const list = data?.items ?? [];
@@ -113,7 +120,7 @@ export default function ApplicationStatusPage() {
               isCancelling={isCancelling && cancellingId === item.apply_id}
             />
           )}
-          contentContainerStyle={s.list}
+          contentContainerStyle={[s.list, { paddingBottom: insets.bottom + 32 }]}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text style={s.empty}>지원한 내역이 없습니다.</Text>}
         />
@@ -158,6 +165,7 @@ const c = StyleSheet.create({
   newBadgeText: { color: '#fff', fontSize: 9, fontWeight: '800' },
   content: { flex: 1, gap: 4 },
   title: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
+  titleDeleted: { color: '#94a3b8', fontStyle: 'italic', fontWeight: '500' },
   metaRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   metaLabel: { fontSize: 10, color: '#94a3b8', width: 32 },
   metaVal: { fontSize: 10, fontWeight: '600', color: '#334155' },

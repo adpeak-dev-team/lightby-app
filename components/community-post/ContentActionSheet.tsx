@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Modal, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useReportContent, useBlockUser } from '@/services/community/mutations';
 import { REPORT_REASONS } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
@@ -22,6 +23,7 @@ type Props = {
 export default function ContentActionSheet({
   visible, onClose, reporterId, targetUserId, targetType, targetId, targetLabel = '이 콘텐츠', targetWithdrawn, onBlocked,
 }: Props) {
+  const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<'menu' | 'report' | 'block'>('menu');
   const reportMutation = useReportContent();
   const blockMutation = useBlockUser();
@@ -69,7 +71,7 @@ export default function ContentActionSheet({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <Pressable style={s.overlay} onPress={close} />
-      <View style={s.sheet}>
+      <View style={[s.sheet, { paddingBottom: insets.bottom + 24 }]}>
         {/* 탈퇴한 회원: 신고/차단 불가 안내 */}
         {targetWithdrawn ? (
           <>

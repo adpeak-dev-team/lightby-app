@@ -10,8 +10,9 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useGetUserProfile } from '@/services/user/queries';
-import { useSaveTalentInfo, useUploadProfileImage } from '@/services/user/mutations';
+import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage } from '@/services/user/mutations';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -22,6 +23,7 @@ export default function TalentPage() {
   const { data: profile, isLoading, error } = useGetUserProfile();
   const saveMutation = useSaveTalentInfo();
   const uploadImageMutation = useUploadProfileImage();
+  const deleteImageMutation = useDeleteProfileImage();
 
   const [gender, setGender] = useState<Gender>(null);
   const [age, setAge] = useState('');
@@ -31,6 +33,7 @@ export default function TalentPage() {
   const keyboardVisible = useKeyboardVisible();
   const [successVisible, setSuccessVisible] = useState(false);
   const insets = useSafeAreaInsets();
+  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   useEffect(() => {
     if (!profile) return;
@@ -101,6 +104,25 @@ export default function TalentPage() {
     }
   };
 
+  // 프로필 사진 삭제 → 기본 프로필로
+  const handleDeleteProfileImage = () => {
+    Alert.alert('프로필 사진 삭제', '프로필 사진을 삭제하고 기본 프로필로 되돌릴까요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteImageMutation.mutateAsync();
+          } catch (err) {
+            console.error('[Profile] 이미지 삭제 실패:', err);
+            Alert.alert('오류', '프로필 사진 삭제에 실패했습니다.');
+          }
+        },
+      },
+    ]);
+  };
+
   const handleSubmit = () => {
     if (!gender || !age || !introduction) {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
@@ -142,7 +164,7 @@ export default function TalentPage() {
   return (
     <View style={s.container}>
       {/* 네비게이션 */}
-      <View style={s.nav}>
+      <View style={s.nav} onLayout={onHeaderLayout}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
@@ -150,9 +172,9 @@ export default function TalentPage() {
         <View style={{ width: 40 }} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
         <ScrollView
-          contentContainerStyle={[s.scroll, keyboardVisible && { paddingBottom: 50 }]}
+          contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }, keyboardVisible && { paddingBottom: 50 }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
@@ -160,7 +182,6 @@ export default function TalentPage() {
           <View style={s.heroSection}>
             <Text style={s.heroTitle}>프로필 완성하기</Text>
             <Text style={s.heroSub}>
-              시행사, 본부장님이 회원님을 기다리고 있어요!{'\n'}
               멋진 프로필로 <Text style={s.heroAccent}>좋은 현장</Text>의 제안을 받아보세요.
             </Text>
           </View>
@@ -188,8 +209,18 @@ export default function TalentPage() {
                 )}
               </TouchableOpacity>
             </View>
-            <Text style={s.avatarHint}>신뢰감을 줄 수 있는 깔끔한 사진을 권장해요!</Text>
-            <Text style={s.avatarSubHint}>카메라 버튼 클릭 후 이미지를 선택하면 프로필 이미지가 변경됩니다.</Text>
+            {!!avatarUri && (
+              <TouchableOpacity
+                onPress={handleDeleteProfileImage}
+                disabled={deleteImageMutation.isPending}
+                activeOpacity={0.7}
+                hitSlop={8}
+              >
+                <Text style={s.avatarDelete}>
+                  {deleteImageMutation.isPending ? '삭제 중...' : '기본 프로필로 되돌리기'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* 기본 정보 */}
@@ -379,8 +410,10 @@ const s = StyleSheet.create({
   },
   avatar: { width: 96, height: 96, borderRadius: 48 },
   avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  avatarHint: { fontSize: 14, color: '#94a3b8', marginTop: 4 },
-  avatarSubHint: { fontSize: 12, color: '#3b82f6' },
+  avatarDelete: {
+    fontSize: 12, color: '#94a3b8', marginTop: 10,
+    textDecorationLine: 'underline',
+  },
   cameraBtn: {
     position: 'absolute', bottom: 0, right: 0,
     width: 30, height: 30, borderRadius: 15,
