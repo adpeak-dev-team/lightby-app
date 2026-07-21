@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  FlatList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, Linking, useWindowDimensions, RefreshControl,
+  SectionList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, Linking, useWindowDimensions, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -188,6 +188,7 @@ const bn = StyleSheet.create({
 type SortVal = 'DEFAULT' | 'HIGH_FEE' | 'LATEST' | 'VIEW_COUNT';
 
 type ListRow =
+  | { _type: 'prelude'; id: string }
   | { _type: 'skeleton'; id: string }
   | (JobSummaryResponse & { _type: 'job' });
 
@@ -232,10 +233,17 @@ export default function HomePage() {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // 배너/통계는 스크롤에 따라 올라가고, 검색바+지역탭은 sticky 섹션 헤더로 상단에 고정된다.
   const listHeader = useMemo(() => (
     <View>
       <BannerCarousel />
       <MainStats />
+    </View>
+  ), []);
+
+  // sticky 대상 — SectionList의 섹션 헤더는 네이티브로 고정된다
+  const sectionHeader = useMemo(() => (
+    <View style={s.stickyHeader}>
       <SearchBar
         search={search}
         onSearchChange={setSearch}
@@ -243,18 +251,29 @@ export default function HomePage() {
         onSortChange={setSort}
       />
       <LocationTabs location={location} onLocationChange={setLocation} />
-      <Section type="premium" jobs={premiumJobs} isLoading={isPremiumLoading} hideOnEmpty onPressJob={handlePressJob} />
-      <Section type="top" jobs={topJobs} isLoading={isTopLoading} hideOnEmpty onPressJob={handlePressJob} />
-      <View style={s.sectionWrap}>
-        <SectionHeader type="free" />
-      </View>
     </View>
-  ), [search, sort, location, premiumJobs, isPremiumLoading, topJobs, isTopLoading, handlePressJob]);
+  ), [search, sort, location]);
+
+  // 프리미엄/지역TOP 캐러셀과 무료공고 헤더는 첫 번째 항목으로 넣어 함께 스크롤시킨다
+  const sections = useMemo(() => [{
+    data: [{ _type: 'prelude', id: 'prelude' } as ListRow, ...listData],
+  }], [listData]);
 
   const renderItem = useCallback(({ item }: { item: ListRow }) => {
+    if (item._type === 'prelude') {
+      return (
+        <View>
+          <Section type="premium" jobs={premiumJobs} isLoading={isPremiumLoading} hideOnEmpty onPressJob={handlePressJob} />
+          <Section type="top" jobs={topJobs} isLoading={isTopLoading} hideOnEmpty onPressJob={handlePressJob} />
+          <View style={s.sectionWrap}>
+            <SectionHeader type="free" />
+          </View>
+        </View>
+      );
+    }
     if (item._type === 'skeleton') return <View style={s.freeRow}><SkeletonCard /></View>;
     return <View style={s.freeRow}><JobCard job={toJobItem(item)} variant="free" onPress={handlePressJob} /></View>;
-  }, [handlePressJob]);
+  }, [handlePressJob, premiumJobs, isPremiumLoading, topJobs, isTopLoading]);
 
   const listFooter = isFetchingNextPage ? (
     <ActivityIndicator size="large" color="#60a5fa" style={{ paddingVertical: 20 }} />
@@ -263,10 +282,12 @@ export default function HomePage() {
   return (
     <View style={s.container}>
       <Header />
-      <FlatList
-        data={listData}
+      <SectionList
+        sections={sections}
         renderItem={renderItem}
-        keyExtractor={(item) => item._type === 'skeleton' ? item.id : String(item.id)}
+        renderSectionHeader={() => sectionHeader}
+        stickySectionHeadersEnabled
+        keyExtractor={(item) => (item._type === 'job' ? String(item.id) : item.id)}
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         onEndReached={handleEndReached}
@@ -293,6 +314,11 @@ const s = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 24,
+  },
+  // sticky 섹션 헤더 — 배경이 없으면 아래 콘텐츠가 비쳐 보인다
+  stickyHeader: {
+    backgroundColor: '#fff',
+    paddingBottom: 4,
   },
   freeRow: {
     paddingHorizontal: 16,
