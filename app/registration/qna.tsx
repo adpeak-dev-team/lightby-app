@@ -16,7 +16,7 @@ export default function QnaPostPage() {
   const router = useRouter();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const createMutation = useCreateQnaPost();
 
@@ -147,7 +147,7 @@ export default function QnaPostPage() {
       </Modal>
 
       {/* 헤더 */}
-      <View style={s.nav} onLayout={onHeaderLayout}>
+      <View style={s.nav}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>

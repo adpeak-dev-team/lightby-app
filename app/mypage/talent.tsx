@@ -33,7 +33,7 @@ export default function TalentPage() {
   const keyboardVisible = useKeyboardVisible();
   const [successVisible, setSuccessVisible] = useState(false);
   const insets = useSafeAreaInsets();
-  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   useEffect(() => {
     if (!profile) return;
@@ -164,7 +164,7 @@ export default function TalentPage() {
   return (
     <View style={s.container}>
       {/* 네비게이션 */}
-      <View style={s.nav} onLayout={onHeaderLayout}>
+      <View style={s.nav}>
         <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
           <Ionicons name="chevron-back" size={24} color="#0f172a" />
         </TouchableOpacity>
