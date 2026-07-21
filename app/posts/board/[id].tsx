@@ -45,7 +45,7 @@ export default function BoardDetailPage() {
   const { bottom: bottomInset } = useSafeAreaInsets();
   // KeyboardAvoidingView가 헤더 아래에서 시작하므로, iOS에서는 그 위쪽 높이만큼
   // offset을 주지 않으면 입력바가 키보드에 가려진다. 헤더 높이는 실측한다.
-  const { onHeaderLayout, keyboardVerticalOffset } = useHeaderKeyboardOffset();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const { data: me, isLoading: meLoading } = useGetMe();
   // viewerId(me.id) 전달 → 차단한 사용자의 글/댓글은 서버에서 걸러진다.
@@ -186,7 +186,6 @@ export default function BoardDetailPage() {
 
   return (
     <View style={s.container}>
-      <View onLayout={onHeaderLayout}>
       <PostTopNav
         title="게시글"
         onBack={() => router.back()}
@@ -201,7 +200,6 @@ export default function BoardDetailPage() {
           { icon: 'share-outline', onPress: handleShare },
         ]}
       />
-      </View>
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}

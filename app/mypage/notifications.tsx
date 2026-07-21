@@ -218,17 +218,6 @@ export default function NotificationsPage() {
             );
           })}
         </ScrollView>
-
-        {/* 알림 설정 바로가기 */}
-        <TouchableOpacity
-          style={s.settingsBtn}
-          onPress={() => router.push({ pathname: '/mypage/settings', params: { section: 'notifications' } } as never)}
-          activeOpacity={0.7}
-          hitSlop={8}
-          accessibilityLabel="알림 설정"
-        >
-          <Ionicons name="settings-outline" size={20} color="#64748b" />
-        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -258,6 +247,16 @@ export default function NotificationsPage() {
           ) : null
         }
       />
+
+      {/* 알림 설정 바로가기 — 우하단 고정 */}
+      <TouchableOpacity
+        style={[s.settingsFab, { bottom: insets.bottom + 20 }]}
+        onPress={() => router.push({ pathname: '/mypage/settings', params: { section: 'notifications' } } as never)}
+        activeOpacity={0.85}
+        accessibilityLabel="알림 설정"
+      >
+        <Ionicons name="settings-outline" size={22} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -277,23 +276,22 @@ const s = StyleSheet.create({
 
   /* 카테고리 탭 — 목록과 같은 배경 위에 올려 경계가 생기지 않게 한다 */
   tabBarWrap: {
-    flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#f1f5f9',
     paddingTop: 14, paddingBottom: 4,
   },
-  tabScroll: { flex: 1 },
+  tabScroll: { flexGrow: 0 },
   tabBar: {
     flexDirection: 'row', gap: 8,
     paddingHorizontal: 16,
   },
-  settingsBtn: {
-    width: 32, height: 32, borderRadius: 16,
+  // 알림 설정 바로가기 (우하단 플로팅)
+  settingsFab: {
+    position: 'absolute', right: 16,
+    width: 48, height: 48, borderRadius: 24,
     alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#fff',
-    marginRight: 16,
-    // 탭 pill과 같은 흰 배경이라 목록 카드와 톤이 맞는다
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06, shadowRadius: 3, elevation: 2,
+    backgroundColor: '#3b82f6',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18, shadowRadius: 8, elevation: 6,
   },
   tab: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
