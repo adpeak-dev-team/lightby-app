@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
-  View, FlatList, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator,
+  View, FlatList, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
@@ -186,31 +186,49 @@ export default function NotificationsPage() {
         </TouchableOpacity>
       </View>
 
-      {/* 카테고리 탭 */}
-      <View style={s.tabBar}>
-        {TABS.map(({ key, label }) => {
-          const active = tab === key;
-          const badge = key === 'all'
-            ? (unreadCounts?.count ?? 0)
-            : (unreadCounts?.byCategory?.[key] ?? 0);
-          return (
-            <TouchableOpacity
-              key={key}
-              style={[s.tab, active && s.tabActive]}
-              onPress={() => setTab(key)}
-              activeOpacity={0.8}
-            >
-              <Text style={[s.tabText, active && s.tabTextActive]}>{label}</Text>
-              {badge > 0 && (
-                <View style={[s.tabBadge, active && s.tabBadgeActive]}>
-                  <Text style={[s.tabBadgeText, active && s.tabBadgeTextActive]}>
-                    {badge > 99 ? '99+' : badge}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
+      {/* 카테고리 탭 — 라벨 길이가 제각각이라 균등분할 대신 내용 크기 + 가로 스크롤 */}
+      <View style={s.tabBarWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.tabBar}
+          style={s.tabScroll}
+        >
+          {TABS.map(({ key, label }) => {
+            const active = tab === key;
+            const badge = key === 'all'
+              ? (unreadCounts?.count ?? 0)
+              : (unreadCounts?.byCategory?.[key] ?? 0);
+            return (
+              <TouchableOpacity
+                key={key}
+                style={[s.tab, active && s.tabActive]}
+                onPress={() => setTab(key)}
+                activeOpacity={0.85}
+              >
+                <Text style={[s.tabText, active && s.tabTextActive]}>{label}</Text>
+                {badge > 0 && (
+                  <View style={[s.tabBadge, active && s.tabBadgeActive]}>
+                    <Text style={[s.tabBadgeText, active && s.tabBadgeTextActive]}>
+                      {badge > 99 ? '99+' : badge}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* 알림 설정 바로가기 */}
+        <TouchableOpacity
+          style={s.settingsBtn}
+          onPress={() => router.push({ pathname: '/mypage/settings', params: { section: 'notifications' } } as never)}
+          activeOpacity={0.7}
+          hitSlop={8}
+          accessibilityLabel="알림 설정"
+        >
+          <Ionicons name="settings-outline" size={20} color="#64748b" />
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -257,25 +275,40 @@ const s = StyleSheet.create({
   readAllText: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
   readAllTextDisabled: { color: '#cbd5e1' },
 
-  /* 카테고리 탭 */
+  /* 카테고리 탭 — 목록과 같은 배경 위에 올려 경계가 생기지 않게 한다 */
+  tabBarWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    paddingTop: 14, paddingBottom: 4,
+  },
+  tabScroll: { flex: 1 },
   tabBar: {
-    flexDirection: 'row', gap: 6,
-    backgroundColor: '#fff', paddingHorizontal: 12, paddingBottom: 10,
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
+    flexDirection: 'row', gap: 8,
+    paddingHorizontal: 16,
+  },
+  settingsBtn: {
+    width: 32, height: 32, borderRadius: 16,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#fff',
+    marginRight: 16,
+    // 탭 pill과 같은 흰 배경이라 목록 카드와 톤이 맞는다
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 3, elevation: 2,
   },
   tab: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
-    paddingVertical: 7, borderRadius: 999, backgroundColor: '#f1f5f9',
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 16, paddingVertical: 6,
+    borderRadius: 999, backgroundColor: '#fff',
   },
   tabActive: { backgroundColor: '#3b82f6' },
-  tabText: { fontSize: 12, fontWeight: '600', color: '#64748b' },
+  tabText: { fontSize: 14, fontWeight: '600', color: '#64748b' },
   tabTextActive: { color: '#fff' },
   tabBadge: {
-    minWidth: 16, height: 16, borderRadius: 8, paddingHorizontal: 4,
+    minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 5,
     alignItems: 'center', justifyContent: 'center', backgroundColor: '#ef4444',
   },
-  tabBadgeActive: { backgroundColor: 'rgba(255,255,255,0.35)' },
-  tabBadgeText: { fontSize: 9, fontWeight: '800', color: '#fff' },
+  tabBadgeActive: { backgroundColor: 'rgba(255,255,255,0.28)' },
+  tabBadgeText: { fontSize: 10, fontWeight: '800', color: '#fff' },
   tabBadgeTextActive: { color: '#fff' },
 
   list: { padding: 12, gap: 8 },

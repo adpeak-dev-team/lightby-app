@@ -41,7 +41,7 @@ export default function Header() {
           activeOpacity={0.7}
           hitSlop={8}
         >
-          <Ionicons name="notifications-outline" size={24} color={Colors.text} />
+          <Ionicons name="notifications" size={24} color="#94a3b8" />
           {unreadCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>

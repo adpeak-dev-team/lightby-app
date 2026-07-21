@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Switch,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -33,6 +33,12 @@ export default function SettingsPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { data: profile, isLoading, refetch } = useGetUserProfile();
+
+  // 알림 목록의 설정 아이콘에서 진입하면 알림 설정 섹션으로 바로 스크롤한다
+  const { section } = useLocalSearchParams<{ section?: string }>();
+  const scrollRef = useRef<ScrollView>(null);
+  const notiSectionY = useRef(0);
+  const didAutoScroll = useRef(false);
 
   const updateNicknameMutation = useUpdateNickname();
   const sendCodeMutation = useSendPhoneAuthCode();
@@ -152,6 +158,7 @@ export default function SettingsPage() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -344,13 +351,31 @@ export default function SettingsPage() {
         </TouchableOpacity>
 
         {/* ───────── 알림 설정 ───────── */}
-        <Text style={[s.sectionTitle, { marginTop: 24 }]}>알림 설정</Text>
+        <Text
+          style={[s.sectionTitle, { marginTop: 24 }]}
+          onLayout={(e) => {
+            notiSectionY.current = e.nativeEvent.layout.y;
+            // 레이아웃 확정 후 1회만 자동 스크롤
+            if (section === 'notifications' && !didAutoScroll.current) {
+              didAutoScroll.current = true;
+              scrollRef.current?.scrollTo({ y: Math.max(0, notiSectionY.current - 12), animated: true });
+            }
+          }}
+        >
+          알림 설정
+        </Text>
+
+        {/* 제목 바로 아래 보조 설명 */}
+        <Text style={s.hint}>
+          휴대폰 설정에서 알림을 꺼두시면 이 설정과 관계없이 알림이 오지 않습니다.
+        </Text>
 
         <View style={s.card}>
-          {NOTIFICATION_ITEMS.map(({ key, label, description }) => {
+          {NOTIFICATION_ITEMS.map(({ key, label, description }, idx) => {
             const value = notificationSettings?.[key] ?? false;
+            const isLast = idx === NOTIFICATION_ITEMS.length - 1;
             return (
-              <View key={key} style={[s.row, s.notiRow]}>
+              <View key={key} style={[s.row, s.notiRow, isLast && { borderBottomWidth: 0 }]}>
                 <View style={s.notiTextWrap}>
                   <Text style={s.notiLabel}>{label}</Text>
                   <Text style={s.notiDesc}>{description}</Text>
@@ -365,21 +390,10 @@ export default function SettingsPage() {
               </View>
             );
           })}
-
-          {/* 야간 알림 제한 (전역 고정) */}
-          <View style={[s.row, { borderBottomWidth: 0 }]}>
-            <Text style={s.notiLabel}>야간 알림 제한</Text>
-            <Text style={s.notiDesc}>
-              밤 9시부터 오전 8시까지는 알림을 보내지 않습니다. 이 설정은 변경할 수 없습니다.
-            </Text>
-          </View>
         </View>
 
         <Text style={s.footer}>
-          회원정보는 개인정보 처리방침에 따라 안전하게 보호되며,{'\n'}정보 변경 시 즉시 서비스에 반영됩니다.
-        </Text>
-        <Text style={s.footer}>
-          휴대폰 설정에서 알림을 꺼두신 경우{'\n'}이 설정과 관계없이 알림이 오지 않습니다.
+          회원정보는 개인정보처리방침에 따라 안전하게 보호됩니다.
         </Text>
 
         {/* 회원 탈퇴 */}
@@ -460,7 +474,9 @@ const s = StyleSheet.create({
   notiLabel: { fontSize: 14, fontWeight: '500', color: '#1e293b' },
   notiDesc: { fontSize: 12, color: '#94a3b8', marginTop: 2, lineHeight: 18 },
 
-  footer: { fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 16, lineHeight: 18 },
-  withdrawWrap: { alignItems: 'center', marginTop: 24 },
+  // 섹션 제목 바로 아래 보조 설명 (제목과 좌우 정렬을 맞춘다)
+  hint: { fontSize: 12, color: '#94a3b8', lineHeight: 18, marginTop: -2, marginBottom: 10, marginHorizontal: 4 },
+  footer: { fontSize: 12, color: '#cbd5e1', textAlign: 'center', marginTop: 28, lineHeight: 18 },
+  withdrawWrap: { alignItems: 'center', marginTop: 12 },
   withdrawText: { fontSize: 12, color: '#94a3b8', textDecorationLine: 'underline' },
 });
