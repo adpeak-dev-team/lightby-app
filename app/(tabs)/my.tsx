@@ -16,7 +16,6 @@ import { tokenStorage } from '@/api/apiClient';
 import { useLogout } from '@/services/auth/mutations';
 import { useGetUserProfile, useGetUserPostCount, USER_KEYS } from '@/services/user/queries';
 import { useGetMyJobPostings } from '@/services/site/queries';
-import { useGetUnreadCount } from '@/services/notifications/queries';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -46,12 +45,6 @@ const MENU_ITEMS: MenuItem[] = [
     iconBg: '#dcfce7', iconColor: '#22c55e',
     label: '지원자 관리',
     route: '/mypage/applicant-management',
-  },
-  {
-    icon: 'notifications',
-    iconBg: '#ede9fe', iconColor: '#7c3aed',
-    label: '알림 목록',
-    route: '/mypage/notifications',
   },
   {
     icon: 'help-circle',
@@ -93,8 +86,6 @@ export default function MyPage() {
   });
   const { data: jobPostings } = useGetMyJobPostings();
   const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
-  const { data: notifUnread } = useGetUnreadCount(isLoggedIn === true);
-  const notifUnreadCount = notifUnread?.count ?? 0;
 
   const logoutMutation = useLogout();
 
@@ -227,11 +218,6 @@ export default function MyPage() {
                   <Text style={s.newBadgeText}>new</Text>
                 </View>
               )}
-              {label === '알림 목록' && notifUnreadCount > 0 && (
-                <View style={s.countBadge}>
-                  <Text style={s.countBadgeText}>{notifUnreadCount > 99 ? '99+' : notifUnreadCount}</Text>
-                </View>
-              )}
               <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
             </TouchableOpacity>
           ))}
@@ -353,6 +339,7 @@ const s = StyleSheet.create({
     borderRadius: 10, marginRight: 4,
   },
   newBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  // (미사용) 알림 목록 메뉴 제거로 남은 스타일 — 다른 배지에서 재사용 가능
   countBadge: {
     backgroundColor: '#ef4444', minWidth: 20, height: 20, borderRadius: 10,
     paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', marginRight: 4,
