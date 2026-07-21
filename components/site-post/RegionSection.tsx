@@ -34,7 +34,7 @@ export function RegionSection({
 
     return (
         <View style={ss.section}>
-            <SectionHeader title="현장 주소 / 근무 지역" />
+            <SectionHeader title="현장 주소 / 근무 지역" required />
 
             <Label text="현장 주소" required />
             <KakaoPostcode address={address} onSelect={handleAddressSelect} />

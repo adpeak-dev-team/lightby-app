@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, StyleSheet, Share, ActivityIndicator, Modal, Pressable, Linking, useWindowDimensions, Image as RNImage,
+  View, ScrollView, TouchableOpacity, StyleSheet, Share, ActivityIndicator, Modal, Pressable, Linking, useWindowDimensions,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -18,6 +18,7 @@ import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
 import { KakaoMap } from '@/components/common/KakaoMap';
 import ContentActionSheet from '@/components/community-post/ContentActionSheet';
+import { ImageViewerModal } from '@/components/common/ImageViewerModal';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -64,6 +65,11 @@ export default function SiteDetailPage() {
   const { width } = useWindowDimensions();
   const qc = useQueryClient();
 
+  // 인라인 캐러셀은 4:3 고정. 예전엔 이미지 실제 비율대로 늘려서 화면 절반 이상을 차지했는데,
+  // 그러면 손가락이 캐러셀 위에 놓일 확률이 높아 세로 스크롤과 계속 부딪쳤다.
+  // 높이를 낮춰 '충돌이 일어날 면적' 자체를 줄이고, 원본은 탭해서 전체화면 뷰어로 본다.
+  const sliderHeight = Math.round(width * 0.75);
+
   const { data: job, isLoading } = useGetJobDetail(id);
   const { data: likeData, refetch: refetchLike } = useGetLikeStatus(job?.id);
   const { data: me } = useGetMe();
@@ -72,30 +78,7 @@ export default function SiteDetailPage() {
   const [applyState, setApplyState] = useState<ApplyState>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [sliderHeight, setSliderHeight] = useState(width * 0.75);
-
-  useEffect(() => {
-    if (!job?.imgs || !Array.isArray(job.imgs) || job.imgs.length === 0) return;
-    const uris = job.imgs.map(toImageUri);
-    let maxH = 0;
-    let settled = 0;
-    const total = uris.length;
-    uris.forEach((uri) => {
-      RNImage.getSize(
-        uri,
-        (w, h) => {
-          const scaled = (h / w) * width;
-          if (scaled > maxH) maxH = scaled;
-          settled++;
-          if (settled === total) setSliderHeight(Math.min(maxH, width * 1.5));
-        },
-        () => {
-          settled++;
-          if (settled === total && maxH > 0) setSliderHeight(Math.min(maxH, width * 1.5));
-        },
-      );
-    });
-  }, [job?.imgs, width]);
+  const [viewerVisible, setViewerVisible] = useState(false);
 
   const liked = likeData?.liked ?? false;
 
@@ -242,20 +225,41 @@ export default function SiteDetailPage() {
         {/* ── 이미지 갤러리 ── */}
         {images.length > 0 ? (
           <View>
+            {/* 힌트 배지를 캐러셀에만 겹치도록 별도 래퍼로 감싼다.
+                바깥 View 기준으로 두면 아래 도트 영역(흰 배경)에 가려져 잘린다. */}
+            <View style={s.carouselWrap}>
             <Carousel
               width={width}
               height={sliderHeight}
               data={images}
               loop={images.length > 1}
+              // 이미지가 1장이면 스와이프할 것이 없다 → 제스처 자체를 꺼서 스크롤을 방해하지 않게
+              enabled={images.length > 1}
               onSnapToItem={setCurrentImg}
+              // 캐러셀이 세로 드래그까지 먹어서 이미지 위에서는 페이지 스크롤이 막혔다.
+              // 가로로 12px 이상 움직여야 스와이프로 인정하고, 세로로 10px 넘게 움직이면
+              // 제스처를 실패시켜 부모 ScrollView가 스크롤을 가져가게 한다.
+              onConfigurePanGesture={(gesture) => {
+                gesture.activeOffsetX([-12, 12]);
+                gesture.failOffsetY([-10, 10]);
+              }}
               renderItem={({ item }) => (
-                <Image
-                  source={{ uri: item }}
-                  style={{ width, height: sliderHeight, backgroundColor: '#f1f5f9' }}
-                  contentFit="contain"
-                />
+                // 탭하면 전체화면 뷰어. 인라인은 4:3으로 잘라 보여주고(cover),
+                // 원본 전체는 뷰어에서 contain + 확대로 확인한다.
+                <TouchableOpacity activeOpacity={0.95} onPress={() => setViewerVisible(true)}>
+                  <Image
+                    source={{ uri: item }}
+                    style={{ width, height: sliderHeight, backgroundColor: '#f1f5f9' }}
+                    contentFit="cover"
+                  />
+                </TouchableOpacity>
               )}
             />
+              <View style={s.expandHint} pointerEvents="none">
+                <Ionicons name="expand-outline" size={13} color="#fff" />
+                <Text style={s.expandHintText}>탭하여 크게 보기</Text>
+              </View>
+            </View>
             {images.length > 1 && (
               <View style={s.dots}>
                 {images.map((_, i) => (
@@ -556,6 +560,14 @@ export default function SiteDetailPage() {
           router.back();
         }}
       />
+
+      {/* 전체화면 이미지 뷰어 — 여기서는 세로 스크롤 경쟁자가 없어 좌우 스와이프가 명확하다 */}
+      <ImageViewerModal
+        visible={viewerVisible}
+        images={images}
+        initialIndex={currentImg}
+        onClose={() => setViewerVisible(false)}
+      />
     </View>
   );
 }
@@ -581,6 +593,14 @@ const s = StyleSheet.create({
 
   // 이미지
   noImage: { height: 200, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
+  carouselWrap: { position: 'relative' },
+  expandHint: {
+    position: 'absolute', right: 12, bottom: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999,
+  },
+  expandHintText: { color: '#fff', fontSize: 11, fontWeight: '600' },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 5, paddingVertical: 8, backgroundColor: '#fff' },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#e2e8f0' },
   dotActive: { width: 16, backgroundColor: '#3b82f6' },

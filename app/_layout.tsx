@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Platform, Text, TextInput } from 'react-native';
+import { AppState, AppStateStatus, Platform, Text, TextInput } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -13,7 +13,23 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
-const queryClient = new QueryClient();
+import { queryClient } from '@/lib/queryClient';
+
+/**
+ * RN에는 브라우저의 window focus 이벤트가 없어 react-query의 refetchOnWindowFocus가
+ * 아무 때도 발동하지 않는다. AppState를 focusManager에 물려서
+ * "백그라운드 → 포그라운드 복귀" 시 stale 쿼리(알림 배지, 공고 목록 등)가 갱신되게 한다.
+ */
+function useAppStateFocus() {
+  useEffect(() => {
+    const onChange = (status: AppStateStatus) => {
+      if (Platform.OS === 'web') return;
+      focusManager.setFocused(status === 'active');
+    };
+    const sub = AppState.addEventListener('change', onChange);
+    return () => sub.remove();
+  }, []);
+}
 
 // 웹(Pretendard)과 동일한 폰트를 앱 전역 기본값으로 적용.
 // RN은 폰트가 상속되지 않으므로 Text/TextInput defaultProps에 한 번만 주입한다.
@@ -53,6 +69,7 @@ function useWebWordBreak() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   useWebWordBreak();
+  useAppStateFocus();
 
   const [fontsLoaded] = useFonts({
     Pretendard: require('../assets/fonts/PretendardVariable.ttf'),

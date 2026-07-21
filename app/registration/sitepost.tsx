@@ -107,6 +107,7 @@ export default function SitePostPage() {
                 onClose={() => setProductModalVisible(false)}
                 onConfirm={handleConfirmProduct}
                 freebies={Boolean(form.userProfile?.freebies) && (form.userProfile?.freebies_count ?? 0) < 2}
+                freebiesLeft={2 - (form.userProfile?.freebies_count ?? 0)}
                 isPending={form.isSubmitting}
             />
 
@@ -169,15 +170,19 @@ export default function SitePostPage() {
                 <Text style={s.navTitle}>구인 공고 등록</Text>
                 <View style={{ width: 40 }} />
             </View>
-            <View style={s.navSubRow}>
-                {Boolean(form.userProfile?.freebies) && (form.userProfile?.freebies_count ?? 0) < 2 && (
+            {/* 혜택 안내와 '이전 공고 불러오기'는 서로 다른 줄에 둔다
+                (한 줄에 넣으면 문구가 길어 버튼이 밀리고 줄바꿈이 생긴다) */}
+            {Boolean(form.userProfile?.freebies) && (form.userProfile?.freebies_count ?? 0) < 2 && (
+                <View style={s.freebiesRow}>
                     <View style={s.freebiesBadge}>
                         <Ionicons name="gift-outline" size={12} color="#f59e0b" />
                         <Text style={s.freebiesText}>
-                            프리미엄 무료 혜택 {2 - (form.userProfile?.freebies_count ?? 0)}회 가능합니다
+                            앱에서 공고 등록시 프리미엄 무료 혜택 {2 - (form.userProfile?.freebies_count ?? 0)}회 적용 됩니다!
                         </Text>
                     </View>
-                )}
+                </View>
+            )}
+            <View style={s.navSubRow}>
                 <TouchableOpacity
                     onPress={() => setPrevModalVisible(true)}
                     style={s.navPrevBtn}
@@ -328,14 +333,16 @@ const s = StyleSheet.create({
         borderColor: '#bfdbfe',
     },
     navPrevText: { fontSize: 14, fontWeight: '700', color: '#3b82f6' },
+    // 혜택 안내 — 배경 없는 주황 텍스트(앱 고유 스타일, 웹도 여기에 맞춘다)
+    freebiesRow: { backgroundColor: '#fff', paddingHorizontal: 16, paddingTop: 10 },
     freebiesBadge: {
-        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
     },
-    freebiesText: { fontSize: 12, fontWeight: '500', color: '#f59e0b' },
-    scroll: { paddingHorizontal: 16, paddingVertical: 8, gap: 24 },
+    freebiesText: { fontSize: 12, fontWeight: '500', color: '#f59e0b', flexShrink: 1 },
+    // 웹은 섹션 사이가 40px(gap-10)
+    scroll: { paddingHorizontal: 16, paddingVertical: 8, gap: 40 },
     // 평면형: 카드 그림자/배경 제거 (front처럼 여백으로만 구분)
     sectionCard: {},
     submitBtn: {

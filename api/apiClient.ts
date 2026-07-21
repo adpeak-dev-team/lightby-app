@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // web(브라우저)에서는 LAN IP로 백엔드에 도달할 수 없으므로 localhost를 사용.
 // 네이티브(기기/에뮬레이터)는 dev 머신을 가리키는 .env의 LAN IP를 그대로 사용.
-const BASE_URL =
+export const BASE_URL =
   Platform.OS === 'web'
     ? (process.env.EXPO_PUBLIC_API_URL_WEB ?? 'http://localhost:4000')
     : (process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.219.43:4000');

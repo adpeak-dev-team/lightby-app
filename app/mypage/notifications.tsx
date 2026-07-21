@@ -58,7 +58,11 @@ function iconFor(type: string): { icon: keyof typeof Ionicons.glyphMap; bg: stri
 function timeAgo(iso: string): string {
   const now = Date.now();
   const t = new Date(iso).getTime();
-  const diff = Math.max(0, now - t);
+  if (Number.isNaN(t)) return '';
+  const diff = now - t;
+  // 미래 시각(서버/DB 시간대 불일치, 기기 시계 오차)은 '방금'으로 표시.
+  // 예전엔 Math.max(0, ...)로 뭉개서 9시간 어긋난 값도 조용히 '방금'이 됐다.
+  if (diff < 0) return '방금';
   const min = Math.floor(diff / 60_000);
   if (min < 1) return '방금';
   if (min < 60) return `${min}분 전`;

@@ -9,7 +9,7 @@ interface Props {
 export function IndustrySection({ workIndustry, onToggle }: Props) {
     return (
         <View style={ss.section}>
-            <SectionHeader title="업종 분류" sub="여러 개 선택 가능" />
+            <SectionHeader title="업종 분류" sub="여러 개 선택 가능" required />
             <MultiChipGroup
                 options={INDUSTRIES}
                 selected={workIndustry}
