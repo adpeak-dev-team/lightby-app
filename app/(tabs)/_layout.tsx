@@ -11,6 +11,10 @@ const INACTIVE_COLOR = '#94a3b8'; // text-slate-400 (웹과 동일)
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
+  // insets.bottom 이 0 으로 오는 기기(제스처 힌트 숨김, edge-to-edge 미적용 등)에서는
+  // 라벨이 시스템 내비바에 그대로 맞닿아 보인다. 최소 여백을 보장한다.
+  const bottomInset = Math.max(insets.bottom, 8);
+
   // 키보드가 뜰 때 inset 변화로 screenOptions 객체가 매 렌더 새로 생성되면
   // 탭바가 재계산되며 포커스된 TextInput의 포커스를 뺏는다. 하단 inset에만 의존시킨다.
   const screenOptions = useMemo(
@@ -25,8 +29,8 @@ export default function TabLayout() {
         backgroundColor: '#fff',
         borderTopColor: '#f1f5f9',
         borderTopWidth: 1,
-        height: 52 + insets.bottom,
-        paddingBottom: insets.bottom,
+        height: 52 + bottomInset,
+        paddingBottom: bottomInset,
         paddingTop: 6,
       },
       tabBarLabelStyle: {
@@ -34,7 +38,7 @@ export default function TabLayout() {
         fontWeight: '500' as const,
       },
     }),
-    [insets.bottom],
+    [bottomInset],
   );
 
   return (

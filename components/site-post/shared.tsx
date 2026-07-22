@@ -47,11 +47,14 @@ const MEAL_OPTIONS = ['미제공', '조식', '중식', '석식', '간식'];
 
 // ─── 공용 UI 컴포넌트 ──────────────────────────────────────────────────────────
 
-export function SectionHeader({ title, sub }: { title: string; sub?: string }) {
+// 웹 SectionTitle과 동일: 파란 세로 막대 없이 제목 + 파란 필수 표시(*)만.
+export function SectionHeader({ title, sub, required }: { title: string; sub?: string; required?: boolean }) {
     return (
         <View style={ss.sectionHeaderRow}>
-            <View style={ss.sectionBar} />
-            <Text style={ss.sectionTitle}>{title}</Text>
+            <Text style={ss.sectionTitle}>
+                {title}
+                {required ? <Text style={ss.required}> *</Text> : null}
+            </Text>
             {sub ? <Text style={ss.sectionSub}>{sub}</Text> : null}
         </View>
     );
@@ -316,39 +319,40 @@ export const ss = StyleSheet.create({
         gap: 12,
     },
     sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-    sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#3b82f6' },
     sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1e293b' },
-    sectionSub: { fontSize: 12, color: '#94a3b8', marginLeft: 'auto' },
+    sectionSub: { fontSize: 12, color: '#64748b', marginLeft: 'auto' },
     label: { fontSize: 14, fontWeight: '500', color: '#334155', marginTop: 2 },
-    required: { color: '#f87171' },
+    // 웹은 필수 표시가 primary-500(파랑). 빨강이 아니다.
+    required: { color: '#3b82f6' },
     input: {
         borderWidth: 1,
         borderColor: '#e2e8f0',
         borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 13,
         fontSize: 14,
-        color: '#0f172a',
-        backgroundColor: '#f8fafc',
+        color: '#1e293b',
+        backgroundColor: '#fff',
     },
     chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     chip: {
         // 줄 너비를 꽉 채우도록: 기본 3칸(basis 30%) + 남는 공간을 균등 분배(flexGrow)
         flexGrow: 1,
         flexBasis: '30%',
-        paddingVertical: 10,
+        paddingVertical: 12,
         paddingHorizontal: 4,
-        borderRadius: 10,
-        borderWidth: 1.5,
+        borderRadius: 12,
+        borderWidth: 1,
         borderColor: '#e2e8f0',
         backgroundColor: '#fff',
         alignItems: 'center',
     },
-    chipActive: { backgroundColor: '#eff6ff', borderColor: '#3b82f6' },
-    chipText: { fontSize: 14, fontWeight: '500', color: '#64748b' },
-    chipTextActive: { color: '#3b82f6', fontWeight: '500' },
+    // 웹의 큰 그리드 버튼: 선택 시 배경/테두리만 바뀌고 글자색은 그대로 (작은 알약과 다른 점)
+    chipActive: { backgroundColor: '#dbeafe', borderColor: '#3b82f6' },
+    chipText: { fontSize: 14, fontWeight: '500', color: '#334155' },
+    chipTextActive: { color: '#334155', fontWeight: '500' },
     chipGreen: { borderColor: '#e2e8f0', backgroundColor: '#fff' },
-    chipGreenActive: { backgroundColor: '#16a34a', borderColor: '#16a34a' },
+    chipGreenActive: { backgroundColor: '#22c55e', borderColor: '#22c55e' },
     chipGreenTextActive: { color: '#fff', fontWeight: '700' },
 
     // 옵션 알약(작은 칩) — 성별/나이/경력/인원, 식사, 미제공/제공 등
@@ -363,11 +367,11 @@ export const ss = StyleSheet.create({
         backgroundColor: '#fff',
     },
     pillActive: { backgroundColor: '#dbeafe', borderColor: '#3b82f6' },
-    pillText: { fontSize: 12, fontWeight: '500', color: '#64748b' },
+    pillText: { fontSize: 12, fontWeight: '500', color: '#475569' },
     pillTextGreen: { fontSize: 14 },
     pillTextActive: { color: '#1d4ed8', fontWeight: '500' },
     // 수수료 형태(초록) 변형 — front의 green 칩
     pillGreenIdle: { borderColor: '#86efac' },
-    pillGreenActive: { backgroundColor: '#16a34a', borderColor: '#16a34a' },
+    pillGreenActive: { backgroundColor: '#22c55e', borderColor: '#22c55e' },
     pillGreenTextActive: { color: '#fff', fontWeight: '500' },
 });

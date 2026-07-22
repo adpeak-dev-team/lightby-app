@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // web(브라우저)에서는 LAN IP로 백엔드에 도달할 수 없으므로 localhost를 사용.
 // 네이티브(기기/에뮬레이터)는 dev 머신을 가리키는 .env의 LAN IP를 그대로 사용.
-const BASE_URL =
+export const BASE_URL =
   Platform.OS === 'web'
     ? (process.env.EXPO_PUBLIC_API_URL_WEB ?? 'http://localhost:4000')
     : (process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.219.43:4000');
@@ -135,6 +135,15 @@ apiClient.interceptors.response.use(
 
     try {
       const refreshToken = await tokenStorage.getRefresh();
+
+      // 리프레시 토큰이 아예 없으면 "세션 만료"가 아니라 처음부터 비로그인 상태다.
+      // 이때 로그인 화면으로 replace 하면 루트 스택의 (tabs)가 교체돼 돌아갈 곳이 사라지고,
+      // 안드로이드 시스템 back 이 앱을 종료시킨다. 호출부에 401을 그대로 돌려준다.
+      if (!refreshToken) {
+        processQueue(error);
+        return Promise.reject(error);
+      }
+
       const res = await axios.post(`${BASE_URL}/api/auth/token-check`, { refreshToken });
       const { accessToken, refreshToken: newRefreshToken } = res.data ?? {};
       if (accessToken) {

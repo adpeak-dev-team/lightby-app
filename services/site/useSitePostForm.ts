@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Alert } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/apiClient';
 import { getJobDetail, JobPostingPayload } from './api';
-import { useCreateJobPost } from './mutations';
+import { useCreateJobPost, invalidateJobLists } from './mutations';
 import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
 import { ProductType } from '@/components/site-post/ProductSelectModal';
@@ -52,6 +53,7 @@ export function useSitePostForm() {
 
     // ── API ──
     const { data: userProfile } = useGetUserProfile();
+    const qc = useQueryClient();
     const createMutation = useCreateJobPost();
     const [isLoadingPrev, setIsLoadingPrev] = useState(false);
     const [isPayappLoading, setIsPayappLoading] = useState(false);
@@ -213,7 +215,12 @@ export function useSitePostForm() {
                         Alert.alert('오류', res.message ?? '등록에 실패했습니다.');
                     }
                 },
-                onError: () => Alert.alert('오류', '공고 등록 중 오류가 발생했습니다.'),
+                // 서버가 보낸 사유(결제 정보 누락, 무료 혜택 소진 등)를 그대로 보여준다.
+                // 통짜 문구로 덮으면 사용자도 제보도 원인을 알 수 없다.
+                onError: (err: any) => Alert.alert(
+                    '오류',
+                    err?.response?.data?.message ?? '공고 등록 중 오류가 발생했습니다.',
+                ),
             });
             return;
         }
@@ -232,7 +239,10 @@ export function useSitePostForm() {
     };
 
     // PayApp 결제 확정 후 호출 — 서버 웹훅이 이미 공고를 만들었으므로 성공 처리만.
+    // 단, 이 경로는 createMutation을 타지 않으므로 목록 캐시 무효화를 직접 해줘야
+    // 결제로 등록한 공고가 메인에 바로 뜬다.
     const finalizeAfterPayapp = (onSuccess: () => void) => {
+        invalidateJobLists(qc);
         isSuccessRef.current = true;
         Alert.alert('결제 완료', '결제 및 공고 등록이 완료되었습니다.', [
             { text: '확인', onPress: onSuccess },

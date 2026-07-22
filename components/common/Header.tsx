@@ -8,13 +8,17 @@ import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { tokenStorage } from '@/api/apiClient';
 import { useGetUnreadCount } from '@/services/notifications/queries';
+import { useNotificationStream } from '@/services/notifications/useNotificationStream';
 import { Colors } from '@/lib/theme';
 
 export default function Header() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { data: unread } = useGetUnreadCount(isLoggedIn);
+  const { data: unread, refetch: refetchUnread } = useGetUnreadCount(isLoggedIn);
   const unreadCount = unread?.count ?? 0;
+
+  // 새 알림이 오면 폴링을 기다리지 않고 즉시 배지가 갱신된다
+  useNotificationStream(isLoggedIn);
 
   useFocusEffect(
     useCallback(() => {
@@ -22,8 +26,12 @@ export default function Header() {
       tokenStorage.get().then((token) => {
         if (active) setIsLoggedIn(!!token);
       });
+      // 알림함에서 읽고 돌아오거나, 다른 탭에서 알림을 받은 뒤 홈으로 돌아온 경우
+      // 종 아이콘을 누르지 않아도 배지가 맞도록 화면 복귀 시마다 재조회한다.
+      // (비로그인 상태에서 쏘면 401이므로 로그인 확인 후에만)
+      if (isLoggedIn) refetchUnread();
       return () => { active = false; };
-    }, [])
+    }, [isLoggedIn, refetchUnread])
   );
 
   return (

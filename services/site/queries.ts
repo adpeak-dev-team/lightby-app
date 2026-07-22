@@ -36,10 +36,13 @@ export function useGetMyApplications() {
   });
 }
 
-export function useGetMyJobPostings() {
+// ⚠️ 인증 필요 쿼리다. 비로그인 상태에서 호출하면 401 → apiClient 인터셉터가
+//    로그인 화면으로 보내버리므로, 호출부에서 반드시 enabled 로 막아야 한다.
+export function useGetMyJobPostings(options?: { enabled?: boolean }) {
   return useQuery<{ items: ApplicantItem[] }>({
     queryKey: ['my-job-postings'],
     queryFn: getMyJobPostings,
+    ...options,
   });
 }
 

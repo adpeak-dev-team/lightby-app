@@ -28,6 +28,12 @@ export function useGetUnreadCount(enabled = true) {
         queryKey: NOTIFICATION_KEYS.unreadCount,
         queryFn: getUnreadCount,
         enabled,
-        staleTime: 30_000,
+        // 배지는 "알림 아이콘을 눌러야 갱신"되면 안 된다 → 짧은 stale + 주기 폴링.
+        // 여기에 더해 (1) 포그라운드 복귀(focusManager, _layout) (2) 푸시 수신 시 무효화가 함께 걸린다.
+        staleTime: 5_000,
+        refetchInterval: enabled ? 15_000 : false,
+        // 화면에 안 보일 때(백그라운드)까지 때리지는 않는다
+        refetchIntervalInBackground: false,
+        refetchOnMount: 'always',
     });
 }

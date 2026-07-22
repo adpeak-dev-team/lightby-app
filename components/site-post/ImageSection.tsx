@@ -10,7 +10,7 @@ interface Props {
 export function ImageSection({ images, onChange }: Props) {
     return (
         <View style={ss.section}>
-            <SectionHeader title="현장 이미지" sub="최대 10장" />
+            <SectionHeader title="현장 이미지" sub="최대 10장" required />
             <SortableImage
                 folder="job-posting"
                 initialImages={images}

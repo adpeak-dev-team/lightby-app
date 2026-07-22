@@ -152,6 +152,11 @@ function BannerCarousel() {
         autoPlay={banners.length > 1}
         autoPlayInterval={5000}
         onSnapToItem={setCurrentIdx}
+        // 배너 위에서 세로 스크롤이 먹히도록 — 가로 이동만 스와이프로 인정한다
+        onConfigurePanGesture={(gesture) => {
+          gesture.activeOffsetX([-12, 12]);
+          gesture.failOffsetY([-10, 10]);
+        }}
         renderItem={({ item }) => (
           <TouchableOpacity
             activeOpacity={item.linkUrl ? 0.9 : 1}

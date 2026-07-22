@@ -84,7 +84,7 @@ export default function MyPage() {
   const { data: postCount } = useGetUserPostCount({
     enabled: isLoggedIn === true,
   });
-  const { data: jobPostings } = useGetMyJobPostings();
+  const { data: jobPostings } = useGetMyJobPostings({ enabled: isLoggedIn === true });
   const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
 
   const logoutMutation = useLogout();
@@ -205,7 +205,7 @@ export default function MyPage() {
           {MENU_ITEMS.map(({ icon, iconBg, iconColor, label, route }, idx) => (
             <TouchableOpacity
               key={label}
-              style={[s.menuItem, idx < MENU_ITEMS.length - 1 && s.menuItemBorder]}
+              style={s.menuItem}
               onPress={() => router.push(route as never)}
               activeOpacity={0.75}
             >
@@ -279,10 +279,7 @@ const s = StyleSheet.create({
   /* 프로필 카드 */
   profileCard: {
     backgroundColor: '#fff', borderRadius: 16, padding: 16,
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
-  },
+    flexDirection: 'row', alignItems: 'center', gap: 14,  },
   avatarWrap: { flexShrink: 0 },
   avatar: { width: 60, height: 60, borderRadius: 30 },
   avatarPlaceholder: { backgroundColor: '#e2e8f0', alignItems: 'center', justifyContent: 'center' },
@@ -291,19 +288,13 @@ const s = StyleSheet.create({
   profileSub: { fontSize: 14, color: '#94a3b8', marginTop: 3 },
   bottomLogout: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: '#fff', borderRadius: 16, paddingVertical: 16, marginTop: 4,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
-  },
+    backgroundColor: '#fff', borderRadius: 16, paddingVertical: 16, marginTop: 4,  },
   bottomLogoutText: { fontSize: 15, fontWeight: '600', color: '#94a3b8' },
 
   /* 퀵 액션 */
   quickGrid: { flexDirection: 'row', gap: 10 },
   quickCard: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
-  },
+    flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 16,  },
   quickIcon: {
     width: 42, height: 42, borderRadius: 21,
     alignItems: 'center', justifyContent: 'center', marginBottom: 10,
@@ -319,16 +310,12 @@ const s = StyleSheet.create({
 
   /* 메뉴 */
   menuCard: {
-    backgroundColor: '#fff', borderRadius: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
-    overflow: 'hidden',
+    backgroundColor: '#fff', borderRadius: 16,    overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingHorizontal: 16, paddingVertical: 14,
   },
-  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   menuIcon: {
     width: 36, height: 36, borderRadius: 10,
     alignItems: 'center', justifyContent: 'center',
@@ -351,7 +338,6 @@ const s = StyleSheet.create({
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingTop: 14, paddingBottom: 14,
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   modalTitle: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
 });

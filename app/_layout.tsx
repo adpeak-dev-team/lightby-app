@@ -1,19 +1,36 @@
 import { useEffect } from 'react';
-import { Platform, Text, TextInput } from 'react-native';
+import { AppState, AppStateStatus, Platform, Text, TextInput } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView, initialWindowMetrics } from 'react-native-safe-area-context';
+import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
-const queryClient = new QueryClient();
+import { queryClient } from '@/lib/queryClient';
+
+/**
+ * RN에는 브라우저의 window focus 이벤트가 없어 react-query의 refetchOnWindowFocus가
+ * 아무 때도 발동하지 않는다. AppState를 focusManager에 물려서
+ * "백그라운드 → 포그라운드 복귀" 시 stale 쿼리(알림 배지, 공고 목록 등)가 갱신되게 한다.
+ */
+function useAppStateFocus() {
+  useEffect(() => {
+    const onChange = (status: AppStateStatus) => {
+      if (Platform.OS === 'web') return;
+      focusManager.setFocused(status === 'active');
+    };
+    const sub = AppState.addEventListener('change', onChange);
+    return () => sub.remove();
+  }, []);
+}
 
 // 웹(Pretendard)과 동일한 폰트를 앱 전역 기본값으로 적용.
 // RN은 폰트가 상속되지 않으므로 Text/TextInput defaultProps에 한 번만 주입한다.
@@ -53,10 +70,31 @@ function useWebWordBreak() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   useWebWordBreak();
+  useAppStateFocus();
 
   const [fontsLoaded] = useFonts({
     Pretendard: require('../assets/fonts/PretendardVariable.ttf'),
   });
+
+  /**
+   * 안드로이드 키보드 회피(전역).
+   *
+   * edge-to-edge 에서는 windowSoftInputMode=adjustResize 여도 창이 실제로 줄지 않고
+   * IME 가 인셋으로만 들어온다. 그래서 ScrollView 는 자기가 키보드에 가려진 걸 모르고
+   * 포커스된 입력창으로 스크롤하지 않는다(공고 등록 폼 하단 입력창이 가려지던 원인).
+   * 루트에서 키보드 높이만큼 비워주면 모든 화면이 한 번에 해결된다.
+   *
+   * ⚠️ 안드로이드의 keyboardDidShow 는 내비게이션 바 인셋을 뺀 높이를 준다.
+   *    실제 키보드는 내비바 영역까지 덮으므로 그만큼 더해야 정확히 맞는다.
+   *    (insets 훅은 SafeAreaProvider 바깥이라 못 쓰고, 내비바 높이는 런타임에
+   *     바뀌지 않으므로 initialWindowMetrics 로 충분하다)
+   * iOS 는 각 화면이 이미 개별 처리하고 있어 건드리지 않는다.
+   */
+  const kbHeight = useKeyboardHeight();
+  const androidKeyboardPad =
+    Platform.OS === 'android' && kbHeight > 0
+      ? kbHeight + (initialWindowMetrics?.insets.bottom ?? 0)
+      : 0;
 
   // 부팅 시 한 번 푸시 권한 요청 & 토큰 서버 등록 (실패해도 throw 안 함)
   useEffect(() => {
@@ -75,7 +113,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+            <SafeAreaView style={{ flex: 1, paddingBottom: androidKeyboardPad }} edges={['top']}>
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="auth/login" options={{ headerShown: false }} />
@@ -98,11 +136,15 @@ export default function RootLayout() {
                 <Stack.Screen name="mypage/notifications" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/withdraw" options={{ headerShown: false }} />
                 <Stack.Screen name="mypage/blocked" options={{ headerShown: false }} />
-                <Stack.Screen name="registration/sitepost" options={{ headerShown: false }} />
-                <Stack.Screen name="registration/sitepost-edit/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="registration/qna" options={{ headerShown: false }} />
-                <Stack.Screen name="registration/communitypost" options={{ headerShown: false }} />
-                <Stack.Screen name="registration/communitypost-edit/[id]" options={{ headerShown: false }} />
+                {/* ⚠️ 아래 작성 화면들은 beforeRemove + e.preventDefault() 로 "나가시겠어요?"를 띄운다.
+                    iOS 스와이프 백 제스처는 네이티브가 화면을 먼저 없앤 뒤에야 pop 을 dispatch 하므로
+                    (native-stack 의 onDismissed) preventDefault 가 무의미해지고, 화면만 마운트된 채 남아
+                    확인 모달이 엉뚱한 화면 위로 떠버린다. 제스처를 꺼서 back 을 JS 주도로만 처리한다. */}
+                <Stack.Screen name="registration/sitepost" options={{ headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="registration/sitepost-edit/[id]" options={{ headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="registration/qna" options={{ headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="registration/communitypost" options={{ headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="registration/communitypost-edit/[id]" options={{ headerShown: false, gestureEnabled: false }} />
                 <Stack.Screen name="map-view" options={{ headerShown: false }} />
                 <Stack.Screen name="terms" options={{ headerShown: false }} />
                 <Stack.Screen name="fortune" options={{ headerShown: false }} />

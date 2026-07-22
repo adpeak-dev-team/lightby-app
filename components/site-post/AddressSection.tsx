@@ -9,7 +9,7 @@ interface Props {
 export function AddressSection({ address, onAddressChange }: Props) {
     return (
         <View style={ss.section}>
-            <SectionHeader title="현장 주소" />
+            <SectionHeader title="현장 주소" required />
             <Label text="주소" />
             <TextInput
                 style={ss.input}

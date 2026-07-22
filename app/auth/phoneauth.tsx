@@ -32,7 +32,8 @@ export default function PhoneAuthPage() {
   const [otpErr, setOtpErr] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const [timeLeft, setTimeLeft] = useState('03:00');
+  // 남은 시간은 숫자로 들고 표시할 때만 포맷한다 (임박 여부 판단에 문자열 파싱이 필요 없도록)
+  const [secondsLeft, setSecondsLeft] = useState(180);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sendOtpMutate = useSendOtp();
@@ -48,12 +49,12 @@ export default function PhoneAuthPage() {
 
   const startTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    setTimeLeft('03:00');
     let left = 180;
+    setSecondsLeft(left);
     timerRef.current = setInterval(() => {
       if (left <= 1) {
         clearInterval(timerRef.current!);
-        setTimeLeft('00:00');
+        setSecondsLeft(0);
         setOtpSent(false);
         setOtpCode('');
         setOtpErr('');
@@ -61,7 +62,7 @@ export default function PhoneAuthPage() {
         Alert.alert('인증 시간 만료', '인증 시간이 만료되었습니다. 다시 시도해주세요.');
       } else {
         left -= 1;
-        setTimeLeft(formatTime(left));
+        setSecondsLeft(left);
       }
     }, 1000);
   };
@@ -121,6 +122,18 @@ export default function PhoneAuthPage() {
           router.replace('/auth/login');
         },
         onError: (err: any) => {
+          // 409(이미 사용 중인 번호)는 이 번호로는 더 진행할 수 없다 →
+          // 인증 상태를 처음으로 되돌려 다른 번호를 입력하게 한다.
+          if (err?.response?.status === 409) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            setIsVerified(false);
+            setOtpSent(false);
+            setOtpCode('');
+            setOtpErr('');
+            setPhoneErr('이미 사용 중인 전화번호입니다. 다른 번호를 입력해주세요.');
+            Alert.alert('이미 사용 중인 전화번호입니다.', '다른 번호로 다시 인증해주세요.');
+            return;
+          }
           Alert.alert('오류', err.response?.data?.message ?? '인증 처리 중 오류가 발생했습니다.');
         },
       },
@@ -152,12 +165,22 @@ export default function PhoneAuthPage() {
               editable={!isVerified}
             />
             {!isVerified && (
+              // 발송 전에는 이게 유일한 액션이라 파란 채움, 발송 후엔 '인증 확인'에 주목도를 넘기고
+              // 재전송은 외곽선 보조 버튼으로 내린다.
               <TouchableOpacity
-                style={[s.subBtn, sendOtpMutate.isPending && s.subBtnDisabled]}
+                style={[
+                  s.subBtn,
+                  otpSent && s.subBtnOutline,
+                  sendOtpMutate.isPending && s.subBtnDisabled,
+                ]}
                 onPress={handleSendOtp}
                 disabled={sendOtpMutate.isPending}
               >
-                <Text style={s.subBtnText}>
+                <Text style={[
+                  s.subBtnText,
+                  otpSent && s.subBtnOutlineText,
+                  sendOtpMutate.isPending && s.subBtnDisabledText,
+                ]}>
                   {sendOtpMutate.isPending ? '발송 중...' : otpSent ? '재전송' : '인증번호 발송'}
                 </Text>
               </TouchableOpacity>
@@ -171,45 +194,56 @@ export default function PhoneAuthPage() {
           <View style={s.fieldWrap}>
             <View style={s.labelRow}>
               <Text style={s.label}>인증번호</Text>
-              <Text style={[s.timer, timeLeft === '00:00' && s.timerExpired]}>{timeLeft}</Text>
+              <View style={[s.timerWrap, secondsLeft <= 30 && s.timerWrapUrgent]}>
+                <Text style={[s.timer, secondsLeft <= 30 && s.timerUrgent]}>
+                  {formatTime(secondsLeft)}
+                </Text>
+              </View>
             </View>
             <TextInput
-              style={[s.input, otpErr ? s.inputErr : {}]}
+              style={[s.input, s.otpInput, otpErr ? s.inputErr : {}]}
               value={otpCode}
               onChangeText={(v) => { setOtpCode(v.replace(/\D/g, '').slice(0, 6)); setOtpErr(''); }}
-              placeholder="인증번호 6자리"
-              placeholderTextColor="#94a3b8"
+              placeholder="000000"
+              placeholderTextColor="#cbd5e1"
               keyboardType="number-pad"
               maxLength={6}
+              autoFocus
+              textContentType="oneTimeCode"
+              autoComplete="sms-otp"
             />
             {otpErr ? <Text style={s.errText}>{otpErr}</Text> : null}
             <TouchableOpacity
-              style={[s.btn, s.btnGreen, (verifyOtpMutate.isPending || otpCode.length !== 6) && s.btnDisabled]}
+              style={[s.btn, s.btnBlue, (verifyOtpMutate.isPending || otpCode.length !== 6) && s.btnDisabled]}
               onPress={handleVerifyOtp}
               disabled={verifyOtpMutate.isPending || otpCode.length !== 6}
             >
-              <Text style={s.btnText}>{verifyOtpMutate.isPending ? '확인 중...' : '인증 확인'}</Text>
+              <Text style={[s.btnText, (verifyOtpMutate.isPending || otpCode.length !== 6) && s.btnDisabledText]}>
+                {verifyOtpMutate.isPending ? '확인 중...' : '인증 확인'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {/* 인증 완료 상태 */}
+        {/* 인증 완료 상태 — 여기서만 최종 버튼이 등장한다.
+            예전엔 '인증 확인'과 '인증 완료'가 동시에, 둘 다 회색으로 떠서
+            어느 것을 눌러야 하는지 알 수 없었다. 단계당 액션은 하나만 보인다. */}
         {isVerified && (
-          <View style={s.successBox}>
-            <Text style={s.successText}>✓ 휴대폰 인증이 완료되었습니다.</Text>
-          </View>
+          <>
+            <View style={s.successBox}>
+              <Text style={s.successText}>✓ 휴대폰 인증이 완료되었습니다.</Text>
+            </View>
+            <TouchableOpacity
+              style={[s.btn, s.btnBlue, verifyPhoneAuthMutate.isPending && s.btnDisabled]}
+              onPress={handleSubmit}
+              disabled={verifyPhoneAuthMutate.isPending}
+            >
+              <Text style={[s.btnText, verifyPhoneAuthMutate.isPending && s.btnDisabledText]}>
+                {verifyPhoneAuthMutate.isPending ? '처리 중...' : '인증 완료'}
+              </Text>
+            </TouchableOpacity>
+          </>
         )}
-
-        {/* 최종 제출 버튼 */}
-        <TouchableOpacity
-          style={[s.btn, s.btnBlue, (!isVerified || verifyPhoneAuthMutate.isPending) && s.btnDisabled]}
-          onPress={handleSubmit}
-          disabled={!isVerified || verifyPhoneAuthMutate.isPending}
-        >
-          <Text style={s.btnText}>
-            {verifyPhoneAuthMutate.isPending ? '처리 중...' : '인증 완료'}
-          </Text>
-        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -231,19 +265,37 @@ const s = StyleSheet.create({
   },
   inputDone: { backgroundColor: '#f1f5f9', borderColor: '#e2e8f0' },
   inputErr: { borderColor: '#ef4444' },
+  // 인증번호는 6자리 숫자 하나만 넣는 칸이라 크게·가운데·자간을 벌려 입력 상태가 한눈에 보이게
+  otpInput: {
+    fontSize: 24, fontWeight: '700', textAlign: 'center',
+    letterSpacing: 8, paddingVertical: 14,
+  },
   subBtn: {
     backgroundColor: '#3b82f6', borderRadius: 12, paddingHorizontal: 14,
     alignItems: 'center', justifyContent: 'center', minWidth: 90,
+    borderWidth: 1.5, borderColor: '#3b82f6',
   },
-  subBtnDisabled: { backgroundColor: '#94a3b8' },
+  // 인증번호 발송 후: 주목도를 '인증 확인'에 넘기는 외곽선 버튼
+  subBtnOutline: { backgroundColor: '#fff', borderColor: '#cbd5e1' },
+  subBtnOutlineText: { color: '#475569' },
+  subBtnDisabled: { backgroundColor: '#e2e8f0', borderColor: '#e2e8f0' },
+  subBtnDisabledText: { color: '#94a3b8' },
   subBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  btn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
+  btn: { borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 10 },
   btnBlue: { backgroundColor: '#3b82f6' },
-  btnGreen: { backgroundColor: '#10b981', marginTop: 10 },
-  btnDisabled: { backgroundColor: '#94a3b8' },
+  // 비활성은 '연한 배경 + 흐린 글씨'로. 예전의 진한 회색(#94a3b8) + 흰 글씨는
+  // 눌리는 버튼처럼 보여서 사용자가 계속 탭하게 만들었다.
+  btnDisabled: { backgroundColor: '#e2e8f0' },
+  btnDisabledText: { color: '#94a3b8' },
   btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  timer: { fontSize: 14, fontWeight: '500', color: '#64748b' },
-  timerExpired: { color: '#ef4444' },
+  // 남은 시간 — 눈에 띄게 알약 배경, 30초 이하부터 빨강
+  timerWrap: {
+    backgroundColor: '#eff6ff', borderRadius: 999,
+    paddingHorizontal: 10, paddingVertical: 3,
+  },
+  timerWrapUrgent: { backgroundColor: '#fef2f2' },
+  timer: { fontSize: 13, fontWeight: '700', color: '#2563eb' },
+  timerUrgent: { color: '#ef4444' },
   errText: { fontSize: 14, color: '#ef4444', marginTop: 4 },
   successBox: {
     backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#86efac',

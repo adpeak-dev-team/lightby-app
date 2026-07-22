@@ -42,6 +42,14 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
       Alert.alert('알림', '근무지역은 최소 1개 이상 선택해야 합니다.');
       return;
     }
+    if (selectedIndustries.length === 0) {
+      Alert.alert('알림', '관심 업종은 최소 1개 이상 선택해야 합니다.');
+      return;
+    }
+    if (selectedRoles.length === 0) {
+      Alert.alert('알림', '관심 직종은 최소 1개 이상 선택해야 합니다.');
+      return;
+    }
     saveMutation.mutate(
       { industryCodes: selectedIndustries, roleCodes: selectedRoles, regionCodes: selectedRegions },
       {
@@ -70,7 +78,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
     >
       {/* 희망 근무 지역 */}
       <View style={s.section}>
-        <Text style={s.sectionTitle}>🌐 희망 근무 지역</Text>
+        <Text style={s.sectionTitle}>🌐 희망 근무 지역 <Text style={s.required}>*</Text></Text>
         <View style={s.regionGrid}>
           {regions.map((region) => {
             const selected = selectedRegions.includes(region);
@@ -91,7 +99,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
 
       {/* 관심 업종 */}
       <View style={s.section}>
-        <Text style={s.sectionTitle}>🗂️ 관심 업종</Text>
+        <Text style={s.sectionTitle}>🗂️ 관심 업종 <Text style={s.required}>*</Text></Text>
         <View style={s.industryGrid}>
           {industries.map((industry) => {
             const selected = selectedIndustries.includes(industry);
@@ -108,11 +116,12 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
             );
           })}
         </View>
+        <Text style={s.hint}>* 관심 업종은 최소 1개 이상 선택해야 합니다.</Text>
       </View>
 
       {/* 나의 역할 (직종) */}
       <View style={s.section}>
-        <Text style={s.sectionTitle}>🔒 나의 역할(직종)</Text>
+        <Text style={s.sectionTitle}>🔒 관심 직종 <Text style={s.required}>*</Text></Text>
         <View style={s.rolesWrap}>
           {roles.map((role) => {
             const selected = selectedRoles.includes(role);
@@ -128,6 +137,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
             );
           })}
         </View>
+        <Text style={s.hint}>* 관심 직종은 최소 1개 이상 선택해야 합니다.</Text>
       </View>
 
       <TouchableOpacity
@@ -152,6 +162,7 @@ const s = StyleSheet.create({
 
   section: { marginBottom: 36 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b', marginBottom: 14 },
+  required: { color: '#ef4444', fontWeight: '700' },
   hint: { fontSize: 12, color: '#94a3b8', marginTop: 8 },
 
   regionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

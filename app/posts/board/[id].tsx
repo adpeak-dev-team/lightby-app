@@ -202,7 +202,8 @@ export default function BoardDetailPage() {
 
       {/* KeyboardAvoidingView 대신 키보드 높이만큼 직접 여백을 준다.
           KAV의 keyboardVerticalOffset은 SafeAreaView·헤더 구성에 따라 보정값이
-          달라져 계속 어긋났다. 이 방식은 화면 구조와 무관하게 정확히 맞는다. */}
+          달라져 계속 어긋났다. 이 방식은 화면 구조와 무관하게 정확히 맞는다.
+          안드로이드는 루트 레이아웃(app/_layout.tsx)이 전역으로 처리하므로 여기선 iOS만. */}
       <View style={{ flex: 1, paddingBottom: Platform.OS === 'ios' ? kbHeight : 0 }}>
         <ScrollView style={s.scroll} showsVerticalScrollIndicator={false}>
           {/* 작성자 */}

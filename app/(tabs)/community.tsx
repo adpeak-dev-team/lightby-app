@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput, RefreshControl,
+  View, SectionList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -63,30 +63,28 @@ export default function CommunityPage() {
     try { await refetch(); } finally { setRefreshing(false); }
   }, [refetch]);
 
-  return (
-    <View style={s.container}>
-      <Header />
+  // 오늘의 영업운 — 목록과 함께 스크롤되어 위로 사라진다(고정 아님).
+  const listHeader = (
+    <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/fortune')} style={s.fortuneWrap}>
+      <LinearGradient
+        colors={['#e0f2fe', '#f0f9ff']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={s.fortuneBtn}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={s.fortuneTitle}>오늘의 영업운</Text>
+          <Text style={s.fortuneSub}>띠를 선택하고 오늘의 운세를 확인하세요</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+      </LinearGradient>
+    </TouchableOpacity>
+  );
 
-      {/* 카테고리 탭 (전체/공지/뉴스) + 검색창 */}
-      <View style={s.searchWrap}>
-        {/* 오늘의 영업운 진입 버튼 */}
-        <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/fortune')}>
-          <LinearGradient
-            colors={['#fdf2f8', '#fefce8']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={s.fortuneBtn}
-          >
-            <Text style={s.fortuneEmoji}>🔮</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.fortuneTitle}>오늘의 영업운</Text>
-              <Text style={s.fortuneSub}>띠를 선택하고 오늘의 운세를 확인하세요</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#64748b" />
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <View style={s.tabs}>
+  // 카테고리 탭 + 검색창 — 이쪽만 스크롤 시 상단에 고정된다
+  const sectionHeader = (
+    <View style={s.searchWrap}>
+      <View style={s.tabs}>
           {COMMUNITY_TABS.map((t) => {
             const active = tab === t.key;
             return (
@@ -123,24 +121,36 @@ export default function CommunityPage() {
             </TouchableOpacity>
           )}
         </View>
-        {!!search && (
-          <Text style={s.searchResult}>
-            <Text style={s.searchKeyword}>"{search}"</Text> 검색 결과 {posts.length}건
-          </Text>
-        )}
-      </View>
 
-      <FlatList
-        data={posts}
+      {!!search && (
+        <Text style={s.searchResult}>
+          <Text style={s.searchKeyword}>"{search}"</Text> 검색 결과 {posts.length}건
+        </Text>
+      )}
+    </View>
+  );
+
+  return (
+    <View style={s.container}>
+      <Header />
+
+      <SectionList
+        sections={[{ data: posts }]}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <CommunityCard
-            item={item}
-            onPress={() => requireLogin(() => router.push({ pathname: '/posts/board/[id]', params: { id: item.id } }))}
-          />
+          <View style={s.cardRow}>
+            <CommunityCard
+              item={item}
+              onPress={() => requireLogin(() => router.push({ pathname: '/posts/board/[id]', params: { id: item.id } }))}
+            />
+          </View>
         )}
+        ListHeaderComponent={listHeader}
+        renderSectionHeader={() => sectionHeader}
+        stickySectionHeadersEnabled
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         refreshControl={
@@ -179,18 +189,25 @@ const s = StyleSheet.create({
     paddingBottom: 10,
     gap: 8,
   },
-  // 오늘의 영업운 버튼 (핑크→옐로 그라데)
+  // 오늘의 영업운 버튼 — 블루 계열 파스텔(sky-100 → blue-200)의 평평한 배너.
+  // 원래는 거의 흰색(#fdf2f8→#fefce8)이라 배경에 묻혔다.
+  // 테두리·라운드·아이콘 배경 없이 그라데이션 색만으로 구분한다.
+  fortuneWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 2 },
   fortuneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    borderRadius: 12, // rounded-xl
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: 13,
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 26,
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  fortuneEmoji: { fontSize: 24 },
-  fortuneTitle: { fontSize: 14, fontWeight: '700', color: '#334155' },
-  fortuneSub: { fontSize: 12, color: '#64748b' },
+  fortuneTitle: { fontSize: 15, fontWeight: '600', color: '#1e293b' },
+  fortuneSub: { fontSize: 12, color: '#64748b', marginTop: 2 },
   // 카테고리 탭
   tabs: {
     flexDirection: 'row',
@@ -238,7 +255,10 @@ const s = StyleSheet.create({
   },
   searchResult: { fontSize: 12, color: '#94a3b8', paddingHorizontal: 2 },
   searchKeyword: { fontWeight: '600', color: '#334155' },
-  list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 96 },
+  // 좌우 여백은 카드(cardRow)와 헤더들이 각자 가진다.
+  // 컨테이너에 두면 안에 들어온 영업운/검색바에도 이중으로 먹는다.
+  list: { paddingBottom: 96 },
+  cardRow: { paddingHorizontal: 16 },
   empty: { textAlign: 'center', color: '#94a3b8', marginTop: 60, fontSize: 14 },
   endText: { textAlign: 'center', color: '#cbd5e1', fontSize: 12, paddingVertical: 16 },
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
@@ -35,15 +35,26 @@ export default function TalentPage() {
   const insets = useSafeAreaInsets();
   const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
+  // 서버 값으로 폼을 채우는 건 최초 1회만.
+  // ⚠️ 매번 동기화하면 이미지 업로드/삭제로 프로필이 재조회될 때
+  //    입력 중이던 자기소개·경력이 서버 값으로 되돌아간다.
+  const hydratedRef = useRef(false);
+
   useEffect(() => {
-    if (!profile) return;
-    setGender(profile.gender === 'male' ? '남자' : profile.gender === 'female' ? '여자' : null);
-    if (profile.birthday) {
-      const birthYear = new Date(profile.birthday).getFullYear();
-      setAge(String(new Date().getFullYear() - birthYear));
-    }
-    setIntroduction(profile.introduction ?? '');
-    setCareers(profile.careers ?? []);
+    if (!profile || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    const g: Gender = profile.gender === 'male' ? '남자' : profile.gender === 'female' ? '여자' : null;
+    const a = profile.birthday
+      ? String(new Date().getFullYear() - new Date(profile.birthday).getFullYear())
+      : '';
+    const intro = profile.introduction ?? '';
+    const cs = profile.careers ?? [];
+
+    setGender(g);
+    setAge(a);
+    setIntroduction(intro);
+    setCareers(cs);
   }, [profile]);
 
   const handleAddCareer = () => {
@@ -226,7 +237,6 @@ export default function TalentPage() {
           {/* 기본 정보 */}
           <View style={s.section}>
             <View style={s.sectionHeader}>
-              <View style={s.sectionBar} />
               <Text style={s.sectionTitle}>기본 정보</Text>
             </View>
 
@@ -272,7 +282,6 @@ export default function TalentPage() {
           {/* 주요 경력 */}
           <View style={s.section}>
             <View style={s.sectionHeader}>
-              <View style={s.sectionBar} />
               <Text style={s.sectionTitle}>주요 경력</Text>
             </View>
 
@@ -325,7 +334,6 @@ export default function TalentPage() {
           {/* 자기소개 */}
           <View style={s.section}>
             <View style={s.sectionHeader}>
-              <View style={s.sectionBar} />
               <Text style={s.sectionTitle}>자기소개 <Text style={s.required}>*</Text></Text>
             </View>
             <TextInput
@@ -340,11 +348,7 @@ export default function TalentPage() {
             />
           </View>
 
-          <View style={[{ paddingBottom: keyboardVisible ? 50 : 0 }]} />
-
-        </ScrollView>
-
-        <View style={[s.footer, { paddingBottom: keyboardVisible ? 100 : insets.bottom }]}>
+          {/* 제출 버튼 — 하단 고정이 아니라 내용 끝에 배치(웹과 동일) */}
           <TouchableOpacity
             style={[s.submitBtn, saveMutation.isPending && s.btnDisabled]}
             onPress={handleSubmit}
@@ -355,7 +359,10 @@ export default function TalentPage() {
               {saveMutation.isPending ? '저장 중...' : '인재 정보 등록하기 ⚡'}
             </Text>
           </TouchableOpacity>
-        </View>
+
+          <View style={[{ paddingBottom: keyboardVisible ? 50 : 0 }]} />
+
+        </ScrollView>
       </KeyboardAvoidingView>
 
       <Modal visible={successVisible} transparent animationType="fade" onRequestClose={() => setSuccessVisible(false)}>
@@ -384,25 +391,25 @@ export default function TalentPage() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
+  // 웹(mypage/talent)과 동일: 페이지 배경은 흰색, 섹션은 그림자 없이 여백으로만 구분한다
+  container: { flex: 1, backgroundColor: '#fff' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 10, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   navBack: { width: 40, alignItems: 'flex-start' },
   navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
 
-  scroll: { padding: 16, paddingBottom: 30, gap: 12 },
+  scroll: { padding: 16, paddingBottom: 30, gap: 16 },
 
-  heroSection: { paddingVertical: 20, alignItems: 'center' },
+  heroSection: { paddingTop: 32, paddingBottom: 16, alignItems: 'center' },
   heroTitle: { fontSize: 24, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
   heroSub: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 20 },
   heroAccent: { color: '#3b82f6', fontWeight: '600' },
 
-  avatarSection: { alignItems: 'center', gap: 6 },
+  avatarSection: { alignItems: 'center', gap: 20 },
   avatarWrap: {
     width: 96, height: 96, borderRadius: 48,
     backgroundColor: '#e2e8f0', alignItems: 'center', justifyContent: 'center',
@@ -411,28 +418,26 @@ const s = StyleSheet.create({
   avatar: { width: 96, height: 96, borderRadius: 48 },
   avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   avatarDelete: {
-    fontSize: 12, color: '#94a3b8', marginTop: 10,
+    fontSize: 12, color: '#94a3b8',
     textDecorationLine: 'underline',
   },
   cameraBtn: {
     position: 'absolute', bottom: 0, right: 0,
-    width: 30, height: 30, borderRadius: 15,
+    width: 32, height: 32, borderRadius: 16,
     backgroundColor: '#60a5fa', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: '#fff',
   },
 
+  // 좌우 패딩 없음 — 스크롤 컨테이너(scroll)의 16px만으로 여백을 잡는다
   section: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+    backgroundColor: '#fff', borderRadius: 16, paddingVertical: 20,
     gap: 16,
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sectionBar: { width: 4, height: 16, borderRadius: 2, backgroundColor: '#3b82f6' },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
 
-  field: { gap: 6 },
+  field: { gap: 8 },
   row: { flexDirection: 'row', gap: 12 },
-  label: { fontSize: 14, fontWeight: '400', color: '#334155' },
+  label: { fontSize: 14, fontWeight: '400', color: '#64748b' },
   required: { color: '#f87171' },
 
   readOnlyInput: {
@@ -448,11 +453,12 @@ const s = StyleSheet.create({
   },
 
   btnGroup: { flexDirection: 'row', gap: 8 },
+  // 웹: 비활성 bg-slate-100/border-slate-100, 활성 bg-white/border-primary-400
   choiceBtn: {
-    flex: 1, paddingVertical: 10, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e2e8f0', alignItems: 'center', backgroundColor: '#f8fafc',
+    flex: 1, paddingVertical: 12, borderRadius: 12,
+    borderWidth: 1, borderColor: '#f1f5f9', alignItems: 'center', backgroundColor: '#f1f5f9',
   },
-  choiceBtnActive: { borderColor: '#3b82f6', backgroundColor: '#fff' },
+  choiceBtnActive: { borderColor: '#60a5fa', backgroundColor: '#fff' },
   choiceText: { fontSize: 14, fontWeight: '500', color: '#94a3b8' },
   choiceTextActive: { color: '#3b82f6' },
 
@@ -471,7 +477,7 @@ const s = StyleSheet.create({
   careerList: { gap: 8 },
   careerItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: '#f8fafc', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10,
   },
   careerText: { flex: 1, fontSize: 14, color: '#334155' },
   removeBtn: { fontSize: 16, color: '#cbd5e1', marginLeft: 8 },
@@ -479,16 +485,11 @@ const s = StyleSheet.create({
 
   bioInput: {
     borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,
-    padding: 12, fontSize: 14, color: '#0f172a', minHeight: 140,
+    paddingHorizontal: 16, paddingVertical: 12, fontSize: 14, color: '#0f172a', minHeight: 140,
   },
 
-  footer: {
-    paddingHorizontal: 16, paddingTop: 10,
-    backgroundColor: '#f1f5f9',
-    borderTopWidth: 1, borderTopColor: '#e2e8f0',
-  },
   submitBtn: {
-    backgroundColor: '#60a5fa', borderRadius: 16, paddingVertical: 14,
+    backgroundColor: '#60a5fa', borderRadius: 16, paddingVertical: 16,
     alignItems: 'center',
   },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },

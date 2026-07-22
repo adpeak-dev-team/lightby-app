@@ -26,7 +26,7 @@ export function OccupationSection({
 }: Props) {
     return (
         <View style={ss.section}>
-            <SectionHeader title="직종 분류" sub="여러 개 선택 가능" />
+            <SectionHeader title="직종 분류" sub="여러 개 선택 가능" required />
             <MultiChipGroup
                 options={JOB_TYPES}
                 selected={workOccupation}

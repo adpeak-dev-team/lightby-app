@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { useRouter, useRootNavigationState } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 
+import { queryClient } from '@/lib/queryClient';
+import { NOTIFICATION_KEYS } from '@/services/notifications/queries';
+
 // 알림 payload(data)를 보고 화면 이동.
 // 라우팅 스펙은 [notifications.tsx handlePress]와 일치해야 한다 (동일한 알림을 인박스에서 눌러도, 푸시에서 눌러도 같은 곳으로).
 function routeFromData(
@@ -84,6 +87,16 @@ export function useNotificationObserver() {
     useEffect(() => {
         const sub = Notifications.addNotificationResponseReceivedListener((response) => {
             routeFromData(router, response.notification.request.content.data);
+        });
+        return () => sub.remove();
+    }, []);
+
+    // 포그라운드에서 푸시가 "도착"한 순간 배지/인박스를 갱신한다.
+    // (탭하지 않아도 헤더 종 아이콘의 숫자가 바로 올라가야 한다)
+    useEffect(() => {
+        const sub = Notifications.addNotificationReceivedListener(() => {
+            queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.unreadCount });
+            queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.all });
         });
         return () => sub.remove();
     }, []);
