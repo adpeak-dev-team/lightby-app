@@ -283,6 +283,9 @@ export default function SitePostEditPage() {
                 contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 30 }]}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
+                // iOS: 키보드가 뜨면 자동으로 인셋을 잡고 포커스된 입력창까지 스크롤한다.
+                // (안드로이드는 no-op — 루트 레이아웃이 전역으로 처리)
+                automaticallyAdjustKeyboardInsets
             >
                 {/* 이미지: 변경 즉시 DB 반영 */}
                 <ImageSection images={images} onChange={handleImagesChange} />

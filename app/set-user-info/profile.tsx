@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,6 +22,7 @@ type Gender = '남자' | '여자' | null;
 export default function SetUserInfoProfilePage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
   const { data: profile, isLoading, error } = useGetUserProfile();
   const saveMutation = useSaveTalentInfo();
   const uploadImageMutation = useUploadProfileImage();
@@ -127,7 +129,7 @@ export default function SetUserInfoProfilePage() {
 
   return (
     <View style={s.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
         <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {/* 상단 헤더 */}
           <View style={s.heroSection}>

@@ -5,6 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useCheckLoginId, useCheckNickname, useSendOtp, useVerifyOtp, useSignUp } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import * as Haptics from 'expo-haptics';
@@ -86,6 +87,7 @@ function Field({
 export default function RegisterPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const [form, setForm] = useState({
     loginId: '',
@@ -273,7 +275,8 @@ export default function RegisterPage() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: '#f8fafc' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <ScrollView
         contentContainerStyle={[

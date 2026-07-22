@@ -5,16 +5,19 @@ import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useSignIn } from '@/services/auth/mutations';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import { getPreferences } from '@/services/user/api';
 import { toast } from '@/hooks/use-toast';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export default function LoginPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
   const signInMutate = useSignIn();
 
   const [loginId, setLoginId] = useState('');
@@ -50,8 +53,9 @@ export default function LoginPage() {
           }
         },
         onError: (err: any) => {
-          // PhoneAuthRequiredException (401 + errorCode)
-          if (err.response?.data?.errorCode === 'PHONE_AUTH_REQUIRED') {
+          // PhoneAuthRequiredException (401 + errorCode). 서버는 열거형 이름이 아니라
+          // 코드값('10008')을 내려주므로 반드시 ERROR_CODES 로 비교해야 한다.
+          if (err.response?.data?.errorCode === ERROR_CODES.PHONE_AUTH_REQUIRED) {
             const userId = err.response.data.userId;
             router.push({ pathname: '/auth/phoneauth', params: { userId } });
             return;
@@ -70,7 +74,7 @@ export default function LoginPage() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
       <TouchableOpacity
         style={[s.closeBtn, { top: 8 }]}
         onPress={handleClose}

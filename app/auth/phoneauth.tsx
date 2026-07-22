@@ -5,6 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useSendOtp, useVerifyOtp, useVerifyPhoneAuth } from '@/services/auth/mutations';
 import { toast } from '@/hooks/use-toast';
 
@@ -23,6 +24,7 @@ const formatTime = (sec: number) => {
 export default function PhoneAuthPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
   const { userId: userIdParam } = useLocalSearchParams<{ userId: string }>();
   const userId = userIdParam ? parseInt(userIdParam) : null;
 
@@ -141,7 +143,7 @@ export default function PhoneAuthPage() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
       <ScrollView
         contentContainerStyle={[s.container, { paddingTop: 32, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"

@@ -9,7 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  * 그 결과 계산되는 패딩이 상단 inset만큼 부족해져 입력바가 키보드에 가려진다.
  * 따라서 보정값은 정확히 insets.top 이다. (헤더 높이를 더하면 반대로 과하게 밀린다)
  *
- * Android는 windowSoftInputMode(pan)가 처리하므로 0.
+ * Android는 0. (예전엔 windowSoftInputMode=pan 이 처리했고, 지금은 adjustResize +
+ * 루트 레이아웃(app/_layout.tsx)의 전역 키보드 여백이 처리한다)
  *
  * 사용법:
  *   const { keyboardVerticalOffset } = useHeaderKeyboardOffset();

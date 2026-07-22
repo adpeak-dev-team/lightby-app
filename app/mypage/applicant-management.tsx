@@ -2,6 +2,7 @@ import {
   View, FlatList, TouchableOpacity, StyleSheet, Image,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -136,7 +137,7 @@ export default function ApplicantManagementPage() {
         }
       />
 
-      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+      <BottomInsetFiller />
     </View>
   );
 }
