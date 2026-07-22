@@ -5,6 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { useState, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useFindPasswordSendOtp, useResetPassword } from '@/services/auth/mutations';
 import { toast } from '@/hooks/use-toast';
 
@@ -25,6 +26,7 @@ type Step = 'input' | 'otp' | 'newpwd';
 export default function FindPasswordPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const [step, setStep] = useState<Step>('input');
 
@@ -161,7 +163,7 @@ export default function FindPasswordPage() {
       : '새로운 비밀번호를 입력해주세요.';
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
       <ScrollView
         contentContainerStyle={[s.container, { paddingTop: 32, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"

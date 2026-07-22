@@ -2,6 +2,7 @@ import {
   View, StyleSheet, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -123,7 +124,7 @@ export default function MapViewPage() {
         </View>
       )}
 
-      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+      <BottomInsetFiller />
     </View>
   );
 }

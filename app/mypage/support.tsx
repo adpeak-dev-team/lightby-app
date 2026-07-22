@@ -3,6 +3,7 @@ import {
   View, ScrollView, TouchableOpacity, StyleSheet, Image, LayoutAnimation, Platform, UIManager,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -189,7 +190,7 @@ export default function SupportPage() {
         >
           <Text style={s.fabText}>✏️  문의하기</Text>
         </TouchableOpacity>
-        <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+        <BottomInsetFiller />
       </View>
     </View>
   );

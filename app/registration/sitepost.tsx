@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Keyboard, Platform } from 'react-native';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,7 +28,6 @@ export default function SitePostPage() {
 
     const form = useSitePostForm();
 
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [prevModalVisible, setPrevModalVisible] = useState(false);
     const [productModalVisible, setProductModalVisible] = useState(false);
     const [leaveModalVisible, setLeaveModalVisible] = useState(false);
@@ -71,13 +70,6 @@ export default function SitePostPage() {
         }
     };
 
-    // ── 키보드 감지 ──
-    useEffect(() => {
-        const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
-        const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
-        return () => { show.remove(); hide.remove(); };
-    }, []);
-
     const handleSubmit = () => {
         const error = form.validate();
         if (error) return Alert.alert('필수 입력', error);
@@ -95,7 +87,7 @@ export default function SitePostPage() {
 
     return (
         <View style={s.container}>
-            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: insets.bottom, backgroundColor: '#fff', zIndex: 10 }} />
+            <BottomInsetFiller style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10 }} />
             <PreviousPostingModal
                 visible={prevModalVisible}
                 onClose={() => setPrevModalVisible(false)}
@@ -200,6 +192,9 @@ export default function SitePostPage() {
                 contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 30 }]}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
+                // iOS: 키보드가 뜨면 자동으로 인셋을 잡고 포커스된 입력창까지 스크롤한다.
+                // (안드로이드는 no-op — 루트 레이아웃이 전역으로 처리)
+                automaticallyAdjustKeyboardInsets
             >
                 <View style={s.sectionCard}>
                     <ImageSection images={form.images} onChange={form.setImages} />
@@ -281,8 +276,6 @@ export default function SitePostPage() {
                     />
                 </View>
 
-                {/* 키보드 여유 공간. 안드로이드는 루트 레이아웃이 전역으로 키보드만큼 비우므로 iOS만. */}
-                <View style={{ height: Platform.OS === 'ios' && keyboardVisible ? 150 : 0 }} />
 
                 <TouchableOpacity
                     style={s.submitBtn}

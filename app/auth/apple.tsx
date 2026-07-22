@@ -5,6 +5,7 @@ import { Text } from '@/components/common/AppText';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { getOrCreateDeviceId } from '@/api/apiClient';
 import { useOAuthAppleSignIn, useOAuthSignUp, useCheckNickname, useSendOtp, useVerifyOtp } from '@/services/auth/mutations';
@@ -28,6 +29,7 @@ const formatTime = (sec: number) => {
 export default function AppleLoginPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -278,7 +280,7 @@ export default function AppleLoginPage() {
   // 추가 정보 입력 폼
   if (showForm) {
     return (
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
         <ScrollView
           contentContainerStyle={[s.container, { paddingTop: 20, paddingBottom: insets.bottom + 24 }]}
           keyboardShouldPersistTaps="handled"

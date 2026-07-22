@@ -3,6 +3,7 @@ import {
   View, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -283,7 +284,7 @@ export default function CommunityPostPage() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+      <BottomInsetFiller />
     </View>
   );
 }

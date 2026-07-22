@@ -3,6 +3,7 @@ import {
   View, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Modal, Alert,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
@@ -190,7 +191,7 @@ export default function PostPage() {
         {activeTab === 'jobs' ? <JobPostList /> : <BoardPostList />}
       </View>
 
-      <View style={{ height: insets.bottom, backgroundColor: '#fff' }} />
+      <BottomInsetFiller />
     </View>
   );
 }
