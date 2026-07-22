@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,6 +46,7 @@ export default function SitePostEditPage() {
     const router = useRouter();
     const navigation = useNavigation();
     const insets = useSafeAreaInsets();
+    const { keyboardVerticalOffset } = useHeaderKeyboardOffset();
 
     const { data: job, isLoading } = useGetJobDetail(id);
     const updateMutation = useUpdateJobPost();
@@ -279,13 +282,17 @@ export default function SitePostEditPage() {
                 <View style={{ width: 40 }} />
             </View>
 
+            {/* iOS 키보드 회피. automaticallyAdjustKeyboardInsets 는 이 화면 구조에서
+                전혀 동작하지 않아, 앱 전반에서 검증된 KAV + keyboardVerticalOffset 방식을 쓴다. */}
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                keyboardVerticalOffset={keyboardVerticalOffset}
+            >
             <ScrollView
                 contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 30 }]}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
-                // iOS: 키보드가 뜨면 자동으로 인셋을 잡고 포커스된 입력창까지 스크롤한다.
-                // (안드로이드는 no-op — 루트 레이아웃이 전역으로 처리)
-                automaticallyAdjustKeyboardInsets
             >
                 {/* 이미지: 변경 즉시 DB 반영 */}
                 <ImageSection images={images} onChange={handleImagesChange} />
@@ -372,6 +379,7 @@ export default function SitePostEditPage() {
                     </View>
                 )}
             </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }

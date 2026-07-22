@@ -13,7 +13,6 @@ import { useToggleLike, useCreateReply, useDeleteReply, useDeletePost } from '@/
 import { checkLikeStatus, incrementCommunityView } from '@/services/community/api';
 import { useGetMe } from '@/services/auth/queries';
 import { toast } from '@/hooks/use-toast';
-import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
 import { IMAGE_PREFIX } from '@/lib/constants';
 import { formatDate } from '@/lib/lib';
@@ -71,7 +70,11 @@ export default function BoardDetailPage() {
     { type: 'board' | 'reply'; id: number; userId?: number; label: string; withdrawn?: boolean } | null
   >(null);
 
-  const keyboardVisible = useKeyboardVisible();
+  // ⚠️ 키보드 관련 값은 반드시 하나의 신호에서 파생시킬 것.
+  // useKeyboardVisible 은 keyboardDidShow(애니메이션 후), useKeyboardHeight 는
+  // keyboardWillChangeFrame(애니메이션 전)이라 둘을 섞으면 그 사이 구간에
+  // 입력바가 홈 인디케이터 여백을 그대로 달고 있어 간격이 넓었다 좁아지며 깜빡인다.
+  const keyboardVisible = kbHeight > 0;
 
   useEffect(() => {
     if (postId > 0) incrementCommunityView(postId).catch(() => null);
