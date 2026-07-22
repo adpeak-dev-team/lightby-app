@@ -84,7 +84,7 @@ export default function MyPage() {
   const { data: postCount } = useGetUserPostCount({
     enabled: isLoggedIn === true,
   });
-  const { data: jobPostings } = useGetMyJobPostings();
+  const { data: jobPostings } = useGetMyJobPostings({ enabled: isLoggedIn === true });
   const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
 
   const logoutMutation = useLogout();

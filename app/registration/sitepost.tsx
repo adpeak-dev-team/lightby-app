@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, Platform } from 'react-native';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
 } from 'react-native';
@@ -281,7 +281,8 @@ export default function SitePostPage() {
                     />
                 </View>
 
-                <View style={{ height: keyboardVisible ? 150 : 0 }} />
+                {/* 키보드 여유 공간. 안드로이드는 루트 레이아웃이 전역으로 키보드만큼 비우므로 iOS만. */}
+                <View style={{ height: Platform.OS === 'ios' && keyboardVisible ? 150 : 0 }} />
 
                 <TouchableOpacity
                     style={s.submitBtn}

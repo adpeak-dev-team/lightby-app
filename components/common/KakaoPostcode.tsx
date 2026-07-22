@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { WebView } from 'react-native-webview';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 const REST_KEY = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY ?? '';
@@ -158,7 +158,8 @@ export function KakaoPostcode({ address, onSelect }: Props) {
                 statusBarTranslucent
                 onRequestClose={() => setPostcodeVisible(false)}
             >
-                <SafeAreaView style={s.postcodeModal}>
+                {/* Modal 내부에서는 SafeAreaView 가 인셋을 0 으로 잡는 경우가 있어(iOS) 훅 값을 직접 적용 */}
+                <View style={[s.postcodeModal, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
                     <View style={s.postcodeHeader}>
                         <TouchableOpacity onPress={() => setPostcodeVisible(false)} hitSlop={8}>
                             <Ionicons name="chevron-back" size={22} color="#0f172a" />
@@ -179,7 +180,7 @@ export function KakaoPostcode({ address, onSelect }: Props) {
                         contentInsetAdjustmentBehavior="never"
                         style={{ flex: 1 }}
                     />
-                </SafeAreaView>
+                </View>
             </Modal>
 
             {/* 주소 검색 실패 모달 */}

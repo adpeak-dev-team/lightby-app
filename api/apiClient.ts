@@ -135,6 +135,15 @@ apiClient.interceptors.response.use(
 
     try {
       const refreshToken = await tokenStorage.getRefresh();
+
+      // 리프레시 토큰이 아예 없으면 "세션 만료"가 아니라 처음부터 비로그인 상태다.
+      // 이때 로그인 화면으로 replace 하면 루트 스택의 (tabs)가 교체돼 돌아갈 곳이 사라지고,
+      // 안드로이드 시스템 back 이 앱을 종료시킨다. 호출부에 401을 그대로 돌려준다.
+      if (!refreshToken) {
+        processQueue(error);
+        return Promise.reject(error);
+      }
+
       const res = await axios.post(`${BASE_URL}/api/auth/token-check`, { refreshToken });
       const { accessToken, refreshToken: newRefreshToken } = res.data ?? {};
       if (accessToken) {

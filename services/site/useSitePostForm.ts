@@ -215,7 +215,12 @@ export function useSitePostForm() {
                         Alert.alert('오류', res.message ?? '등록에 실패했습니다.');
                     }
                 },
-                onError: () => Alert.alert('오류', '공고 등록 중 오류가 발생했습니다.'),
+                // 서버가 보낸 사유(결제 정보 누락, 무료 혜택 소진 등)를 그대로 보여준다.
+                // 통짜 문구로 덮으면 사용자도 제보도 원인을 알 수 없다.
+                onError: (err: any) => Alert.alert(
+                    '오류',
+                    err?.response?.data?.message ?? '공고 등록 중 오류가 발생했습니다.',
+                ),
             });
             return;
         }

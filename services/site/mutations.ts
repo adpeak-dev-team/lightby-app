@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 import { cancelApplication, deleteJobPost, createJobPost, updateJobPost, updateJobPostImages, JobPostingPayload } from './api';
+import { USER_KEYS } from '@/services/user/queries';
 
 /**
  * 공고가 새로 생기거나 사라졌을 때 영향을 받는 목록 캐시를 한 번에 무효화한다.
@@ -15,6 +16,10 @@ export function invalidateJobLists(qc: QueryClient) {
   qc.invalidateQueries({ queryKey: ['my-job-postings'] });
   qc.invalidateQueries({ queryKey: ['user-post-list'] });
   qc.invalidateQueries({ queryKey: ['user-post-count'] });
+  // ⚠️ 프리미엄 무료 혜택(freebies/freebies_count)은 서버가 등록 시점에 차감한다.
+  //    프로필 캐시(staleTime 5분)를 그대로 두면 소진 후에도 앱이 "무료 등록 가능"으로 판단해
+  //    결제 정보 없이 등록을 시도하고, 서버는 '결제 정보가 누락되었습니다'로 400을 낸다.
+  qc.invalidateQueries({ queryKey: USER_KEYS.profile });
 }
 
 export function useCancelApplication() {
