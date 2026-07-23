@@ -6,8 +6,7 @@ import { Text } from '@/components/common/AppText';
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
-const REST_KEY = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY ?? '';
+import { geocodeAddress } from '@/lib/geocode';
 
 const POSTCODE_HTML = `<!DOCTYPE html>
 <html>
@@ -51,27 +50,14 @@ const POSTCODE_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
-    try {
-        const res = await fetch(
-            `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
-            { headers: { Authorization: `KakaoAK ${REST_KEY}` } },
-        );
-        const json = await res.json();
-        const doc = json.documents?.[0];
-        if (!doc) return null;
-        return { lat: parseFloat(doc.y), lng: parseFloat(doc.x) };
-    } catch {
-        return null;
-    }
-}
-
 interface Props {
     address: string;
     onSelect: (address: string, lat: number, lng: number) => void;
+    /** 현재 주소에 유효한 좌표가 있는지. false면 주소가 그대로여도 지도 적용 버튼을 노출한다. */
+    hasCoords?: boolean;
 }
 
-export function KakaoPostcode({ address, onSelect }: Props) {
+export function KakaoPostcode({ address, onSelect, hasCoords = true }: Props) {
     const insets = useSafeAreaInsets();
     const [postcodeVisible, setPostcodeVisible] = useState(false);
     const [errorVisible, setErrorVisible] = useState(false);
@@ -82,7 +68,11 @@ export function KakaoPostcode({ address, onSelect }: Props) {
         setInputText(address);
     }, [address]);
 
-    const showApplyButton = inputText.trim() !== '' && inputText !== address;
+    // 지도가 주소와 아직 안 맞을 때만 노출하는 "적용" 버튼.
+    // - 주소를 직접 고쳤을 때(inputText !== address): 새 주소를 지도에 반영해야 함
+    // - 좌표가 없을 때(!hasCoords): 지도를 못 그리므로 재지오코딩 필요(지오코딩 실패 등 안전망)
+    // 이전 공고를 불러와 지도가 이미 주소대로 떠 있으면 적용할 게 없으므로 숨긴다.
+    const showApplyButton = inputText.trim() !== '' && (inputText !== address || !hasCoords);
 
     const handleMessage = (event: any) => {
         try {
@@ -94,7 +84,7 @@ export function KakaoPostcode({ address, onSelect }: Props) {
             setInputText(addr);
             setLoading(true);
 
-            geocode(addr)
+            geocodeAddress(addr)
                 .then((coords) => { onSelect(addr, coords?.lat ?? 0, coords?.lng ?? 0); })
                 .catch(() => { onSelect(addr, 0, 0); })
                 .finally(() => setLoading(false));
@@ -107,7 +97,7 @@ export function KakaoPostcode({ address, onSelect }: Props) {
         Keyboard.dismiss();
         setLoading(true);
         try {
-            const coords = await geocode(trimmed);
+            const coords = await geocodeAddress(trimmed);
             if (!coords) {
                 setErrorVisible(true);
                 return;

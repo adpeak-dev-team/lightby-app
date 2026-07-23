@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   View, TextInput,
 } from 'react-native';
@@ -23,22 +22,20 @@ export function RegionSection({
     latitude, longitude, onAddressSelect,
     workRegions, onRegionSelect,
 }: Props) {
-    const [showMap, setShowMap] = useState(false);
-
-    const handleAddressSelect = (addr: string, lat: number, lng: number) => {
-        if (addr) setShowMap(true);
-        onAddressSelect(addr, lat, lng);
-    };
-
-    const hasCoords = showMap && latitude !== null && longitude !== null && latitude !== 0;
+    // 지도 노출은 로컬 state가 아니라 address/좌표에서 파생시킨다.
+    // (이전 공고 불러오기·공고 수정처럼 주소가 폼 밖에서 채워지는 경로가 있어,
+    //  "주소 검색을 눌렀을 때만" 켜지는 state로는 지도가 뜨지 않는다)
+    const hasAddress = address.trim() !== '';
+    const hasCoords =
+        latitude !== null && longitude !== null && latitude !== 0 && longitude !== 0;
 
     return (
         <View style={ss.section}>
             <SectionHeader title="현장 주소 / 근무 지역" required />
 
             <Label text="현장 주소" required />
-            <KakaoPostcode address={address} onSelect={handleAddressSelect} />
-            {showMap && (
+            <KakaoPostcode address={address} hasCoords={hasCoords} onSelect={onAddressSelect} />
+            {hasAddress && (
                 hasCoords
                     ? <KakaoMap latitude={latitude!} longitude={longitude!} label={address} />
                     : <Text style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>

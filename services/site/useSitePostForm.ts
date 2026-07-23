@@ -8,6 +8,7 @@ import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
 import { ProductType } from '@/components/site-post/ProductSelectModal';
 import { requestPayapp } from '@/services/payapp/api';
+import { geocodeAddress } from '@/lib/geocode';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -94,12 +95,21 @@ export function useSitePostForm() {
             setSubject(d.subject ?? '');
             setIntro(d.point_content ?? '');
             setImages([]);
-            setAddress(d.address ?? '');
+            const loadedAddress = d.address ?? '';
+            setAddress(loadedAddress);
             setAddressDetail(d.address_detail ?? '');
             // DB의 위경도(DECIMAL)는 드라이버가 문자열("37.123")로 반환하므로 숫자로 변환.
             // typeof 'number' 검사만 하면 문자열이 전부 null이 되어 등록 시 400(@IsNumber 실패)이 난다.
-            setLatitude(toCoord(d.latitude));
-            setLongitude(toCoord(d.longitude));
+            let lat = toCoord(d.latitude);
+            let lng = toCoord(d.longitude);
+            // 좌표가 없는(예전) 공고는 지도가 안 뜨고 📍 텍스트만 남는다.
+            // 주소로 즉시 지오코딩해 좌표를 채워야 "지도만 표시" 결정대로 지도가 바로 뜬다.
+            if ((lat === null || lng === null || lat === 0 || lng === 0) && loadedAddress.trim()) {
+                const coords = await geocodeAddress(loadedAddress);
+                if (coords) { lat = coords.lat; lng = coords.lng; }
+            }
+            setLatitude(lat);
+            setLongitude(lng);
             setWorkRegions(Array.isArray(d.regions) ? (d.regions[0] ?? '') : '');
             setEnforcement(d.enforcement ?? '');
             setConstruction(d.construction ?? '');
@@ -124,8 +134,12 @@ export function useSitePostForm() {
             setBaseSalary(d.base_pay ?? '');
             setDetailContent(d.detail_content ?? '');
             setSiteUrl(d.site_url ?? '');
-        } catch {
-            Alert.alert('오류', '공고를 불러오는 중 오류가 발생했습니다.');
+        } catch (e: any) {
+            // 원인을 삼키면 기기에서 디버깅이 불가능하다 — 네트워크 실패 / 404 / 500 을 구분해 보여준다.
+            const status = e?.response?.status;
+            const detail = e?.response?.data?.message ?? e?.message ?? '알 수 없는 오류';
+            console.error('[loadPreviousPost] 실패:', { id: post.id, status, detail, url: e?.config?.url });
+            Alert.alert('오류', `공고를 불러오는 중 오류가 발생했습니다.\n(${status ?? '네트워크'}: ${detail})`);
         } finally {
             setIsLoadingPrev(false);
         }
