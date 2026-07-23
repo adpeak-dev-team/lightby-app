@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
+  View, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { KeyboardAwareScrollView } from '@/components/common/KeyboardAwareScroll';
 import { PreviousPostingModal } from '@/components/site-post/PreviousPostingModal';
 import { ProductSelectModal, ProductType } from '@/components/site-post/ProductSelectModal';
 import { PayappWebViewModal } from '@/components/site-post/PayappWebViewModal';
@@ -199,7 +200,7 @@ export default function SitePostPage() {
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 keyboardVerticalOffset={keyboardVerticalOffset}
             >
-            <ScrollView
+            <KeyboardAwareScrollView
                 contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 30 }]}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
@@ -292,7 +293,7 @@ export default function SitePostPage() {
                 >
                     <Text style={s.submitText}>공고 등록하기</Text>
                 </TouchableOpacity>
-            </ScrollView>
+            </KeyboardAwareScrollView>
             </KeyboardAvoidingView>
         </View>
     );

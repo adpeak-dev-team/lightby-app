@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image,
+  View, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { KeyboardAwareScrollView, KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 import { useRouter } from 'expo-router';
@@ -130,7 +131,7 @@ export default function SetUserInfoProfilePage() {
   return (
     <View style={s.container}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
-        <ScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {/* 상단 헤더 */}
           <View style={s.heroSection}>
             <Text style={s.heroTitle}>프로필 완성하기</Text>
@@ -264,7 +265,7 @@ export default function SetUserInfoProfilePage() {
               <View style={s.sectionBar} />
               <Text style={s.sectionTitle}>자기소개 <Text style={s.required}>*</Text></Text>
             </View>
-            <TextInput
+            <KeyboardAwareTextInput
               style={s.bioInput}
               value={introduction}
               onChangeText={setIntroduction}
@@ -292,7 +293,7 @@ export default function SetUserInfoProfilePage() {
           </TouchableOpacity>
 
           <View style={{ height: insets.bottom + 16 }} />
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
     </View>
   );

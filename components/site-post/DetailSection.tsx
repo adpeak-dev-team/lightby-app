@@ -2,6 +2,7 @@ import {
   View, TextInput, StyleSheet,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { SectionHeader, ss } from './shared';
 
 interface Props {
@@ -15,7 +16,7 @@ export function DetailSection({ detailContent, onDetailContentChange, siteUrl, o
     return (
         <View style={ss.section}>
             <SectionHeader title="상세 내용" />
-            <TextInput
+            <KeyboardAwareTextInput
                 style={s.bioInput}
                 value={detailContent}
                 onChangeText={onDetailContentChange}
