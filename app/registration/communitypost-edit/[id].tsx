@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, KeyboardAvoidingView, Platform,
+  View, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { KeyboardAwareScrollView, KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -141,7 +142,7 @@ export default function CommunityPostEditPage() {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
-        <ScrollView
+        <KeyboardAwareScrollView
           contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -174,7 +175,7 @@ export default function CommunityPostEditPage() {
           {/* 내용 */}
           <View style={s.section}>
             <Text style={s.label}>내용</Text>
-            <TextInput
+            <KeyboardAwareTextInput
               style={s.contentInput}
               value={content}
               onChangeText={setContent}
@@ -214,7 +215,7 @@ export default function CommunityPostEditPage() {
                 : <Text style={s.submitBtnText}>수정 완료</Text>}
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
     </View>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
+  View, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
@@ -14,6 +14,7 @@ import { useGetJobDetail } from '@/services/site/queries';
 import { useUpdateJobPost, useUpdateJobPostImages } from '@/services/site/mutations';
 import { FeeItem } from '@/services/site/types';
 import { geocodeAddress } from '@/lib/geocode';
+import { KeyboardAwareScrollView } from '@/components/common/KeyboardAwareScroll';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -300,7 +301,7 @@ export default function SitePostEditPage() {
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 keyboardVerticalOffset={keyboardVerticalOffset}
             >
-            <ScrollView
+            <KeyboardAwareScrollView
                 contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 30 }]}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
@@ -389,7 +390,7 @@ export default function SitePostEditPage() {
                         <Text style={s.imageSavingText}>이미지 저장 중...</Text>
                     </View>
                 )}
-            </ScrollView>
+            </KeyboardAwareScrollView>
             </KeyboardAvoidingView>
         </View>
     );

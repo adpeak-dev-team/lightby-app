@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
+  View, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { KeyboardAwareScrollView, KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -184,7 +185,7 @@ export default function TalentPage() {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
-        <ScrollView
+        <KeyboardAwareScrollView
           contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 32 }, keyboardVisible && { paddingBottom: 50 }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -336,7 +337,7 @@ export default function TalentPage() {
             <View style={s.sectionHeader}>
               <Text style={s.sectionTitle}>자기소개 <Text style={s.required}>*</Text></Text>
             </View>
-            <TextInput
+            <KeyboardAwareTextInput
               style={s.bioInput}
               value={introduction}
               onChangeText={setIntroduction}
@@ -362,7 +363,7 @@ export default function TalentPage() {
 
           <View style={[{ paddingBottom: keyboardVisible ? 50 : 0 }]} />
 
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
 
       <Modal visible={successVisible} transparent animationType="fade" onRequestClose={() => setSuccessVisible(false)}>

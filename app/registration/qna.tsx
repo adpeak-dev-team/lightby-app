@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, KeyboardAvoidingView, Platform, Keyboard,
+  View, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { KeyboardAwareScrollView, KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useNavigation } from 'expo-router';
@@ -157,7 +158,7 @@ export default function QnaPostPage() {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={keyboardVerticalOffset}>
-        <ScrollView
+        <KeyboardAwareScrollView
           contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -178,7 +179,7 @@ export default function QnaPostPage() {
             <Text style={s.label}>
               문의 내용 <Text style={s.charCount}>{content.length} / 1000</Text>
             </Text>
-            <TextInput
+            <KeyboardAwareTextInput
               style={s.contentInput}
               value={content}
               onChangeText={(t) => t.length <= 1000 && setContent(t)}
@@ -219,7 +220,7 @@ export default function QnaPostPage() {
                 : <Text style={s.submitBtnText}>문의 등록하기</Text>}
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
 
       <BottomInsetFiller />
