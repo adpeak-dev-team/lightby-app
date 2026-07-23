@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useGetJobDetail } from '@/services/site/queries';
 import { useUpdateJobPost, useUpdateJobPostImages } from '@/services/site/mutations';
 import { FeeItem } from '@/services/site/types';
+import { geocodeAddress } from '@/lib/geocode';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -101,11 +102,21 @@ export default function SitePostEditPage() {
             setSubject(job.subject ?? '');
             setIntro(job.point_content ?? '');
             setImages(imgs);
-            setAddress(job.address ?? '');
+            const loadedAddress = job.address ?? '';
+            setAddress(loadedAddress);
             setAddressDetail(job.address_detail ?? '');
             setResultAddress(job.result_address ?? '');
-            setLatitude(toCoord(job.latitude));
-            setLongitude(toCoord(job.longitude));
+            const lat = toCoord(job.latitude);
+            const lng = toCoord(job.longitude);
+            setLatitude(lat);
+            setLongitude(lng);
+            // 좌표가 없는(예전) 공고는 지도가 안 뜨고 📍 텍스트만 남는다.
+            // 주소로 즉시 지오코딩해 좌표를 채워야 "지도만 표시" 결정대로 지도가 바로 뜬다.
+            if ((lat === null || lng === null || lat === 0 || lng === 0) && loadedAddress.trim()) {
+                geocodeAddress(loadedAddress).then((coords) => {
+                    if (coords) { setLatitude(coords.lat); setLongitude(coords.lng); }
+                });
+            }
             setWorkRegions(regions[0] ?? '');
             setEnforcement(job.enforcement ?? '');
             setConstruction(job.construction ?? '');
