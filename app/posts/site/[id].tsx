@@ -493,7 +493,7 @@ export default function SiteDetailPage() {
       </ScrollView>
 
       {/* ── 하단 액션 바 ── */}
-      <View style={[s.actionBar, { paddingBottom: insets.bottom || 12 }]}>
+      <View style={[s.actionBar, { paddingBottom: (insets.bottom || 12) + 8 }]}>
         <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#60a5fa' }]} onPress={handleCall}>
           <Ionicons name="call-outline" size={16} color="#fff" />
           <Text style={s.actionBtnText}>전화하기</Text>
