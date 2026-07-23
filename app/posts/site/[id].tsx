@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import Carousel from 'react-native-reanimated-carousel';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -316,7 +317,12 @@ export default function SiteDetailPage() {
             {!!job.point_content && (
               <Text style={s.pointText}>{job.point_content}</Text>
             )}
-            <View style={s.titleAccentBar} />
+            <LinearGradient
+              colors={['#2563eb', '#93c5fd']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={s.titleAccentBar}
+            />
           </View>
         </View>
 
@@ -619,7 +625,7 @@ const s = StyleSheet.create({
   titleBlock: { gap: 8 },
   jobTitle: { fontSize: 30, fontWeight: '700', color: '#0f172a', lineHeight: 38 },
   pointText: { fontSize: 16, fontWeight: '400', color: '#64748b', lineHeight: 26 },
-  titleAccentBar: { marginTop: 16, height: 4, width: 96, borderRadius: 999, backgroundColor: '#2563eb' },
+  titleAccentBar: { marginTop: 24, height: 2, width: 200, borderRadius: 999 },
 
   // 섹션 / 카드
   section: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
