@@ -3,6 +3,7 @@ import {
   View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { regions, industries, roles } from '@/lib/constants';
 import { useGetPreferences } from '@/services/user/queries';
@@ -19,6 +20,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
+  const insets = useSafeAreaInsets();
   const { data: preferences, isLoading } = useGetPreferences();
   const saveMutation = useSavePreferences();
 
@@ -73,7 +75,7 @@ export default function PreferencesForm({ onComplete, buttonText = '저장' }: P
 
   return (
     <ScrollView
-      contentContainerStyle={s.scroll}
+      contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 40 }]}
       showsVerticalScrollIndicator={false}
     >
       {/* 희망 근무 지역 */}
