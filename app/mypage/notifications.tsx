@@ -281,7 +281,7 @@ const s = StyleSheet.create({
   /* 카테고리 탭 — 목록과 같은 배경 위에 올려 경계가 생기지 않게 한다 */
   tabBarWrap: {
     backgroundColor: '#f1f5f9',
-    paddingTop: 14, paddingBottom: 4,
+    paddingTop: 14, paddingBottom: 12,
   },
   tabScroll: { flexGrow: 0 },
   tabBar: {
@@ -313,7 +313,7 @@ const s = StyleSheet.create({
   tabBadgeText: { fontSize: 10, fontWeight: '800', color: '#fff' },
   tabBadgeTextActive: { color: '#fff' },
 
-  list: { padding: 12, gap: 8 },
+  list: { paddingHorizontal: 12, paddingTop: 0, gap: 8 },
   emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   empty: { alignItems: 'center', gap: 10 },
   emptyText: { fontSize: 14, color: '#94a3b8' },

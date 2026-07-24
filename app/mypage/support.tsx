@@ -3,7 +3,6 @@ import {
   View, ScrollView, TouchableOpacity, StyleSheet, Image, LayoutAnimation, Platform, UIManager,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
-import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -190,14 +189,13 @@ export default function SupportPage() {
         >
           <Text style={s.fabText}>✏️  문의하기</Text>
         </TouchableOpacity>
-        <BottomInsetFiller />
       </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f1f5f9' },
+  container: { flex: 1, backgroundColor: '#fff' },
   nav: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
@@ -210,7 +208,7 @@ const s = StyleSheet.create({
   heroTitle: { fontSize: 24, fontWeight: '800', color: '#0f172a', letterSpacing: -0.5 },
   heroSub: { fontSize: 14, color: '#94a3b8' },
   tabSwitch: {
-    flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 14,
+    flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 14,
     padding: 4, gap: 4, marginBottom: 16,
   },
   switchItem: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
@@ -230,15 +228,14 @@ const s = StyleSheet.create({
   fabBtn: {
     backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#2563eb', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
   fabText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });
 
 const a = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+    backgroundColor: '#fff', borderRadius: 16,
+    borderWidth: 1, borderColor: '#f1f5f9',
     overflow: 'hidden',
   },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
@@ -251,8 +248,8 @@ const a = StyleSheet.create({
 
 const c = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+    backgroundColor: '#fff', borderRadius: 16,
+    borderWidth: 1, borderColor: '#f1f5f9',
     overflow: 'hidden',
   },
   header: { flexDirection: 'row', alignItems: 'center', padding: 16 },
