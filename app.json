@@ -19,8 +19,7 @@
       ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "프로필 및 게시글 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다.",
-        "NSCameraUsageDescription": "게시글 이미지를 촬영하기 위해 카메라 접근 권한이 필요합니다.",
+        "NSPhotoLibraryUsageDescription": "분양 게시글 작성 및 프로필 사진 설정 시, 사진 보관함에서 이미지를 선택해 게시글이나 프로필에 첨부·업로드하기 위해 사용합니다.",
         "LSApplicationQueriesSchemes": [
           "kakaotalk",
           "kakaopay",
