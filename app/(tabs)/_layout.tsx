@@ -8,6 +8,11 @@ import { HapticTab } from '@/components/haptic-tab';
 const ACTIVE_COLOR = '#3b82f6'; // text-primary
 const INACTIVE_COLOR = '#94a3b8'; // text-slate-400 (웹과 동일)
 
+// 3버튼 내비바(삼성은 불투명 회색 스크림)는 정확히 insets.bottom 만큼을 덮는다.
+// paddingBottom 을 inset 과 똑같이 주면 라벨 바로 밑이 곧장 내비바라 "붙어 보이므로"
+// inset 위에 이 GAP 을 더 얹어 라벨과 내비바 사이 숨쉴 공간을 만든다(제스처/3버튼 공통).
+const TABBAR_GAP = 10;
+
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
@@ -29,8 +34,8 @@ export default function TabLayout() {
         backgroundColor: '#fff',
         borderTopColor: '#f1f5f9',
         borderTopWidth: 1,
-        height: 52 + bottomInset,
-        paddingBottom: bottomInset,
+        height: 52 + TABBAR_GAP + bottomInset,
+        paddingBottom: bottomInset + TABBAR_GAP,
         paddingTop: 6,
       },
       tabBarLabelStyle: {
