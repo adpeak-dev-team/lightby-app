@@ -75,17 +75,30 @@ export default function SitePostPage() {
     };
 
     const handleSubmit = () => {
+        console.log('[SitePost] 공고 등록하기 클릭됨');
         const error = form.validate();
+        console.log('[SitePost] validate 결과:', error ?? 'OK');
         if (error) return Alert.alert('필수 입력', error);
+        console.log('[SitePost] ProductSelectModal 오픈');
         setProductModalVisible(true);
     };
 
     const handleConfirmProduct = (product: ProductType, icons: number[], total: number) => {
+        console.log('[SitePost] handleConfirmProduct 호출:', { product, icons, total });
         form.confirmProduct(product, icons, total, {
-            onCloseModal: () => setProductModalVisible(false),
-            onSuccess: () => router.back(),
+            onCloseModal: () => {
+                console.log('[SitePost] onCloseModal');
+                setProductModalVisible(false);
+            },
+            onSuccess: () => {
+                console.log('[SitePost] onSuccess → router.back');
+                router.back();
+            },
             // 유료 상품 → PayApp WebView 오픈
-            onPayappRequired: (payurl, orderId) => setPayapp({ payurl, orderId }),
+            onPayappRequired: (payurl, orderId) => {
+                console.log('[SitePost] onPayappRequired:', { payurl, orderId });
+                setPayapp({ payurl, orderId });
+            },
         });
     };
 
