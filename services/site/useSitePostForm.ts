@@ -211,14 +211,18 @@ export function useSitePostForm() {
             onPayappRequired?: (payurl: string, orderId: string) => void;
         },
     ) => {
+        console.log('[SitePost] confirmProduct 진입:', { selectedProduct, totalAmount });
         const payload = buildPayload(selectedProduct, selectedIcons, totalAmount);
 
         // 무료(FREE) 또는 프리미엄 첫 회 무료 혜택으로 totalAmount가 0인 경우 → 바로 등록
         const isFreeFlow = selectedProduct === 'FREE' || totalAmount === 0;
+        console.log('[SitePost] isFreeFlow:', isFreeFlow);
 
         if (isFreeFlow) {
+            console.log('[SitePost] createMutation.mutate 호출');
             createMutation.mutate(payload, {
                 onSuccess: (res) => {
+                    console.log('[SitePost] createMutation onSuccess:', res);
                     if (res.success) {
                         isSuccessRef.current = true;
                         callbacks.onCloseModal();
@@ -230,22 +234,27 @@ export function useSitePostForm() {
                     }
                 },
                 // 서버가 보낸 사유(결제 정보 누락, 무료 혜택 소진 등)를 그대로 보여준다.
-                // 통짜 문구로 덮으면 사용자도 제보도 원인을 알 수 없다.
-                onError: (err: any) => Alert.alert(
-                    '오류',
-                    err?.response?.data?.message ?? '공고 등록 중 오류가 발생했습니다.',
-                ),
+                onError: (err: any) => {
+                    console.log('[SitePost] createMutation onError:', err?.response?.status, err?.response?.data, err?.message);
+                    Alert.alert(
+                        '오류',
+                        err?.response?.data?.message ?? '공고 등록 중 오류가 발생했습니다.',
+                    );
+                },
             });
             return;
         }
 
         // 유료 상품 → PayApp 결제 요청
+        console.log('[SitePost] requestPayapp 호출 시작');
         setIsPayappLoading(true);
         try {
             const { payurl, orderId } = await requestPayapp(payload);
+            console.log('[SitePost] requestPayapp 응답:', { payurl, orderId });
             callbacks.onCloseModal();
             callbacks.onPayappRequired?.(payurl, orderId);
         } catch (e: any) {
+            console.log('[SitePost] requestPayapp 실패:', e?.response?.status, e?.response?.data, e?.message);
             Alert.alert('결제 요청 실패', e?.response?.data?.message ?? e?.message ?? '결제 요청 중 오류가 발생했습니다.');
         } finally {
             setIsPayappLoading(false);

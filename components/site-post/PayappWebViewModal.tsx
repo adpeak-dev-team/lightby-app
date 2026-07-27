@@ -108,36 +108,113 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
     }
   };
 
+  // intent://HOST/PATH?query#Intent;scheme=xxx;package=yyy;...;end 형태를 파싱.
+  // React Native Linking은 Uri.parse()만 써서 intent:// 를 못 다룸 → 직접 파싱해 scheme://... 로 변환.
+  const parseIntentUrl = (intentUrl: string) => {
+    const m = intentUrl.match(/^intent:\/\/([\s\S]*?)#Intent;([\s\S]*?);end/i);
+    if (!m) return null;
+    const path = m[1];
+    const params: Record<string, string> = {};
+    for (const p of m[2].split(';')) {
+      const idx = p.indexOf('=');
+      if (idx <= 0) continue;
+      params[p.slice(0, idx)] = p.slice(idx + 1);
+    }
+    const scheme = params.scheme;
+    const pkg = params.package;
+    let fallback: string | undefined;
+    try {
+      fallback = params['S.browser_fallback_url'] ? decodeURIComponent(params['S.browser_fallback_url']) : undefined;
+    } catch { /* noop */ }
+    return {
+      targetUrl: scheme ? `${scheme}://${path}` : null,
+      packageName: pkg || null,
+      fallbackUrl: fallback || null,
+    };
+  };
+
+  // intent:// URL을 처리.
+  // 1) scheme://path 로 변환해 앱 실행 시도  2) 실패면 market://details?id=xxx  3) 그래도 실패면 browser_fallback_url
+  const openIntentUrl = async (url: string) => {
+    const parsed = parseIntentUrl(url);
+    console.log('[Payapp] parseIntentUrl:', parsed);
+    if (!parsed) {
+      Linking.openURL(url).catch((err) => console.log('[Payapp] raw intent openURL failed:', err?.message));
+      return;
+    }
+    const { targetUrl, packageName, fallbackUrl } = parsed;
+
+    // 1) scheme://path 로 앱 실행
+    if (targetUrl) {
+      try {
+        await Linking.openURL(targetUrl);
+        console.log('[Payapp] targetUrl 실행 성공:', targetUrl);
+        return;
+      } catch (err: any) {
+        console.log('[Payapp] targetUrl 실행 실패:', err?.message, targetUrl);
+      }
+    }
+
+    // 2) Play Store로 유도 (앱 미설치)
+    if (packageName && Platform.OS === 'android') {
+      try {
+        await Linking.openURL(`market://details?id=${packageName}`);
+        console.log('[Payapp] market 이동:', packageName);
+        return;
+      } catch (err: any) {
+        console.log('[Payapp] market 실행 실패:', err?.message);
+      }
+    }
+
+    // 3) 그래도 안 되면 browser_fallback_url
+    if (fallbackUrl) {
+      try {
+        await Linking.openURL(fallbackUrl);
+        console.log('[Payapp] fallbackUrl 이동:', fallbackUrl);
+        return;
+      } catch (err: any) {
+        console.log('[Payapp] fallbackUrl 실행 실패:', err?.message);
+      }
+    }
+
+    Alert.alert('앱 실행 실패', '결제에 필요한 앱을 열 수 없습니다.');
+  };
+
   // 카드사/은행/카톡페이 등 외부 앱 스킴을 인터셉트해 Linking으로 넘긴다.
   // WebView 자체는 http(s)만 로드하고, intent:// / kakao:// / ispmobile:// 등은 OS가 처리.
-  // (Android 기본 WebView는 이걸 못 열어 net::ERR_UNKNOWN_URL_SCHEME 를 냄)
   const handleShouldStartLoad = (req: ShouldStartLoadRequest): boolean => {
     const url = req.url;
     if (!url) return true;
+    console.log('[Payapp] shouldStartLoad:', url);
 
-    // 표준 웹 프로토콜 + about 은 WebView가 처리
-    if (/^(https?|about):/.test(url)) return true;
+    if (/^(https?|about|data|blob):/.test(url)) return true;
 
-    // Android intent:// URL: 우선 그대로 Linking에 넘기고, 실패하면 fallback URL 파싱 시도
     if (Platform.OS === 'android' && url.startsWith('intent://')) {
-      Linking.openURL(url).catch(() => {
-        // intent 스킴 안에 browser_fallback_url 이 있으면 그걸로 대체
-        const fallbackMatch = url.match(/S\.browser_fallback_url=([^;]+)/);
-        if (fallbackMatch?.[1]) {
-          try {
-            const fallback = decodeURIComponent(fallbackMatch[1]);
-            Linking.openURL(fallback).catch(() => { /* noop */ });
-          } catch { /* noop */ }
-        }
-      });
+      openIntentUrl(url);
       return false;
     }
 
-    // 그 외 커스텀 스킴 (kakao://, ispmobile://, kftc://, market:// 등) → OS로 위임
-    Linking.openURL(url).catch(() => {
+    Linking.openURL(url).catch((err) => {
+      console.log('[Payapp] scheme openURL failed:', err?.message, url);
       Alert.alert('앱 실행 실패', '결제에 필요한 앱을 열 수 없습니다. 설치 여부를 확인해 주세요.');
     });
     return false;
+  };
+
+  // Android에서 커스텀 스킴이 onShouldStartLoadWithRequest 를 안 거치고 바로 에러로 빠지는 케이스 폴백.
+  // ERR_UNKNOWN_URL_SCHEME(-10) 등이 발생하면 nativeEvent.url 을 꺼내 직접 Linking으로 위임.
+  const handleError = (event: { nativeEvent: { url?: string; description?: string; code?: number } }) => {
+    const { url, description, code } = event.nativeEvent;
+    console.log('[Payapp] WebView error:', code, description, url);
+    if (!url) return;
+    if (/^(https?|about|data|blob):/.test(url)) return; // 진짜 네트워크 에러
+    if (Platform.OS === 'android' && url.startsWith('intent://')) {
+      openIntentUrl(url);
+      return;
+    }
+    Linking.openURL(url).catch(() => {
+      Alert.alert('앱 실행 실패', '결제에 필요한 앱을 열 수 없습니다. 설치 여부를 확인해 주세요.');
+    });
   };
 
   const handleClose = () => {
@@ -169,6 +246,8 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
             source={{ uri: payurl }}
             onNavigationStateChange={handleNavChange}
             onShouldStartLoadWithRequest={handleShouldStartLoad}
+            onError={handleError}
+            onHttpError={(e) => console.log('[Payapp] http error:', e.nativeEvent.statusCode, e.nativeEvent.url)}
             startInLoadingState
             renderLoading={() => (
               <View style={s.loading}>
