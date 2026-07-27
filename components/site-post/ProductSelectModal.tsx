@@ -194,6 +194,14 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
 
                     {/* 등록 버튼 — 무료면 바로 등록, 유료면 PayApp 결제창 오픈(호출부에서 처리) */}
                     <View style={s.footer}>
+                        {/* 법인 결제 안내 — 유료 결제일 때만 */}
+                        {!isFreeFlow && (
+                            <View style={s.payNotice}>
+                                <Text style={s.payNoticeText}>
+                                    법인(사업자) 결제 시에는 법인카드가 지원되지 않으니, 계좌이체로 결제해 주세요.
+                                </Text>
+                            </View>
+                        )}
                         <TouchableOpacity
                             onPress={() => onConfirm(selected, selectedIcons, totalAmount)}
                             disabled={isPending}
@@ -328,6 +336,17 @@ const s = StyleSheet.create({
     summaryTotal: { fontSize: 20, fontWeight: '800', color: '#fff' },
     summaryTotalFree: { color: '#34d399' },
     footer: { paddingHorizontal: 20, paddingBottom: 20 },
+    // 법인 결제 안내 (앰버 톤 — 웹과 동일 메시지)
+    payNotice: {
+        backgroundColor: '#fffbeb',
+        borderWidth: 1,
+        borderColor: '#fde68a',
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        marginBottom: 12,
+    },
+    payNoticeText: { fontSize: 12, lineHeight: 18, color: '#b45309' },
     confirmBtn: {
         borderRadius: 16,
         height: 56,
