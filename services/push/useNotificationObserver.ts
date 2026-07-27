@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { InteractionManager } from 'react-native';
 import { useRouter, useRootNavigationState } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 
@@ -15,6 +16,7 @@ function routeFromData(
     const siteId = data.siteId;
     const boardId = data.boardId;
 
+    try {
     switch (data.type) {
         // 커뮤니티
         case 'community_comment':      // 내 글에 새 댓글 → 해당 게시글
@@ -54,9 +56,15 @@ function routeFromData(
             router.push('/mypage/talent' as never);
             return;
 
-        // inactive 등은 이동 없음
+        // inactive / install_promo / 앱이 모르는 신규 타입 등은 홈으로.
+        // (인박스 [notifications.tsx handlePress]의 default와 일치시킨다)
         default:
+            router.push('/' as never);
             return;
+    }
+    } catch {
+        // 라우팅 중 어떤 이유로든 실패해도 앱이 빈 화면에 갇히지 않도록 홈으로 폴백.
+        try { router.push('/' as never); } catch { /* noop */ }
     }
 }
 
@@ -70,16 +78,22 @@ export function useNotificationObserver() {
     const navReady = !!navState?.key;
 
     // 콜드 스타트: 앱이 종료된 상태에서 알림을 탭해 실행된 경우.
-    // 네비게이터가 준비된 뒤 1회 처리한다.
+    // navState.key 만 보고 바로 push 하면, anchor((tabs))의 첫 화면이 아직
+    // 페인트되기 전이라 "빈 스택 위로 push → 검은 화면"이 될 수 있다(안드로이드에서 특히).
+    // 첫 프레임/인터랙션이 끝난 뒤로 이동을 미뤄 탭 화면이 확실히 마운트된 상태에서 push 한다.
     useEffect(() => {
         if (!navReady) return;
         let mounted = true;
-        Notifications.getLastNotificationResponseAsync().then((response) => {
-            if (!mounted || !response) return;
-            routeFromData(router, response.notification.request.content.data);
+        const task = InteractionManager.runAfterInteractions(() => {
+            if (!mounted) return;
+            Notifications.getLastNotificationResponseAsync().then((response) => {
+                if (!mounted || !response) return;
+                routeFromData(router, response.notification.request.content.data);
+            });
         });
         return () => {
             mounted = false;
+            task.cancel();
         };
     }, [navReady]);
 
