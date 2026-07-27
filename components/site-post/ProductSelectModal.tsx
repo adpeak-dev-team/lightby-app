@@ -198,7 +198,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         {!isFreeFlow && (
                             <View style={s.payNotice}>
                                 <Text style={s.payNoticeText}>
-                                    법인(사업자) 결제 시에는 법인카드가 지원되지 않으니, 계좌이체로 결제해 주세요.
+                                    결제 시 법인카드가 지원되지 않으니, 계좌이체로 결제해 주세요.
                                 </Text>
                             </View>
                         )}
