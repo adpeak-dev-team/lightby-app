@@ -54,6 +54,8 @@ export interface JobPostDetail {
 export interface JobSummaryResponse {
   id: number;
   thumbnail: string | null;
+  /** 원본 이미지(imgs[0]) — 큰 카드(프리미엄/지역TOP)는 썸네일 대신 이걸 쓴다 */
+  image: string | null;
   point_content: string | null;
   title: string;
   feeType: string | null;

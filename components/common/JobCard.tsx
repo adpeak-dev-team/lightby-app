@@ -5,11 +5,13 @@ import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS, industries as INDUSTRY_LIST } from '@/lib/constants';
-import { getImageUrl, getOriginalImageUrl } from '@/lib/lib';
+import { getImageUrl } from '@/lib/lib';
 
 export interface JobItem {
   id: number;
   thumbnail: string;
+  /** 원본 이미지(imgs[0]). 큰 카드는 썸네일 대신 이걸 쓴다. 목록 API가 안 주면 null */
+  image?: string | null;
   point: string;
   title: string;
   feeType: string;
@@ -64,9 +66,11 @@ function buildTags(job: JobItem): { label: string; c: { bg: string; text: string
 
 export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   const vertical = variant === 'premium';
+  // 프리미엄·지역TOP은 큰 영역에 그려져 작은 썸네일을 쓰면 확대되며 뭉개진다.
+  // 목록 API가 원본(imgs[0])을 함께 주므로 그걸 쓰고, 없으면 썸네일로 폴백.
   const useOriginal = variant === 'premium' || variant === 'top';
-  const raw = job.thumbnail ? getImageUrl(job.thumbnail) : null;
-  const imageUri = useOriginal ? getOriginalImageUrl(raw) : raw;
+  const thumbUri = job.thumbnail ? getImageUrl(job.thumbnail) : null;
+  const imageUri = useOriginal ? (job.image ? getImageUrl(job.image) : thumbUri) : thumbUri;
 
   // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
   const thumbWrapStyle =
