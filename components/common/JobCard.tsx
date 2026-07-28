@@ -66,11 +66,9 @@ function buildTags(job: JobItem): { label: string; c: { bg: string; text: string
 
 export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   const vertical = variant === 'premium';
-  // 프리미엄·지역TOP은 큰 영역에 그려져 작은 썸네일을 쓰면 확대되며 뭉개진다.
-  // 목록 API가 원본(imgs[0])을 함께 주므로 그걸 쓰고, 없으면 썸네일로 폴백.
-  const useOriginal = variant === 'premium' || variant === 'top';
-  const thumbUri = job.thumbnail ? getImageUrl(job.thumbnail) : null;
-  const imageUri = useOriginal ? (job.image ? getImageUrl(job.image) : thumbUri) : thumbUri;
+  // 카드는 크기와 무관하게 원본(imgs[0])을 쓴다 — 썸네일은 100×100이라 어느 크기에서도 뭉개진다.
+  // 목록 API가 image를 안 주는 경우(구버전 응답)에만 썸네일로 폴백.
+  const imageUri = job.image ? getImageUrl(job.image) : (job.thumbnail ? getImageUrl(job.thumbnail) : null);
 
   // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
   const thumbWrapStyle =
