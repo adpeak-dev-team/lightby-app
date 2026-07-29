@@ -21,6 +21,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "분양 게시글 작성 및 프로필 사진 설정 시, 사진 보관함에서 이미지를 선택해 게시글이나 프로필에 첨부·업로드하기 위해 사용합니다.",
         "LSApplicationQueriesSchemes": [
+          "itms-apps",
           "kakaotalk",
           "kakaopay",
           "kftc-bankpay",

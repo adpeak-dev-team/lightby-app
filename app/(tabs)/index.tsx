@@ -27,6 +27,7 @@ function toJobItem(job: JobSummaryResponse): JobItem {
   return {
     id: job.id,
     thumbnail: job.thumbnail ?? '',
+    image: job.image ?? null,
     point: job.point_content ?? '',
     title: job.title,
     feeType: job.feeType ?? '',

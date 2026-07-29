@@ -12,6 +12,7 @@ import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
+import { ForceUpdateGate } from '@/components/ForceUpdateGate';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
 import { queryClient } from '@/lib/queryClient';
@@ -152,6 +153,8 @@ export default function RootLayout() {
               </Stack>
               <StatusBar style="auto" />
               <Toast />
+              {/* 강제 업데이트 게이트 — 구버전이면 차단(Android=Play 임베디드, iOS=모달→App Store) */}
+              <ForceUpdateGate />
             </SafeAreaView>
           </ThemeProvider>
         </QueryClientProvider>

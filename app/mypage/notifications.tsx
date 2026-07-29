@@ -125,9 +125,16 @@ export default function NotificationsPage() {
         router.push('/(tabs)/favorite' as never);
         return;
       case 'deadline_owner':
-      case 'deadline_owner_group':
-        router.push('/mypage/post' as never);
+      case 'deadline_owner_group': {
+        // 담당자로 받은 공고는 내 글 관리에 없으므로 해당 공고로 보낸다
+        const id = siteId ?? n.data?.sampleSiteId;
+        if (id != null) {
+          router.push({ pathname: '/posts/site/[id]', params: { id: String(id) } });
+        } else {
+          router.push('/mypage/post' as never);
+        }
         return;
+      }
       case 'profile_incomplete':
         router.push('/mypage/talent' as never);
         return;

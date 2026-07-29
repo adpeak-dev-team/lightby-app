@@ -5,11 +5,13 @@ import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS, industries as INDUSTRY_LIST } from '@/lib/constants';
-import { getImageUrl, getOriginalImageUrl } from '@/lib/lib';
+import { getImageUrl } from '@/lib/lib';
 
 export interface JobItem {
   id: number;
   thumbnail: string;
+  /** 원본 이미지(imgs[0]). 큰 카드는 썸네일 대신 이걸 쓴다. 목록 API가 안 주면 null */
+  image?: string | null;
   point: string;
   title: string;
   feeType: string;
@@ -64,9 +66,9 @@ function buildTags(job: JobItem): { label: string; c: { bg: string; text: string
 
 export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   const vertical = variant === 'premium';
-  const useOriginal = variant === 'premium' || variant === 'top';
-  const raw = job.thumbnail ? getImageUrl(job.thumbnail) : null;
-  const imageUri = useOriginal ? getOriginalImageUrl(raw) : raw;
+  // 카드는 크기와 무관하게 원본(imgs[0])을 쓴다 — 썸네일은 100×100이라 어느 크기에서도 뭉개진다.
+  // 목록 API가 image를 안 주는 경우(구버전 응답)에만 썸네일로 폴백.
+  const imageUri = job.image ? getImageUrl(job.image) : (job.thumbnail ? getImageUrl(job.thumbnail) : null);
 
   // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
   const thumbWrapStyle =

@@ -1,6 +1,8 @@
 export interface FavoriteSiteItem {
   id: number;
   thumbnail: string;
+  /** 원본 이미지(imgs[0]) — 카드는 썸네일 대신 이걸 쓴다 */
+  image: string | null;
   point: string;
   title: string;
   feeType: string;
