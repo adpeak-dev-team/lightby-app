@@ -61,19 +61,6 @@ module.exports = function withPaymentQueries(config) {
   return withAndroidManifest(config, (cfg) => {
     const manifest = cfg.modResults.manifest;
 
-    // QUERY_ALL_PACKAGES 권한 추가 — 결제앱 종류가 많고 자주 바뀌어서 화이트리스트가 실질적으로 불가.
-    if (!Array.isArray(manifest['uses-permission'])) manifest['uses-permission'] = [];
-    const hasPerm = manifest['uses-permission'].some(
-      (p) => p?.$?.['android:name'] === 'android.permission.QUERY_ALL_PACKAGES',
-    );
-    if (!hasPerm) {
-      manifest['uses-permission'].push({
-        $: {
-          'android:name': 'android.permission.QUERY_ALL_PACKAGES',
-          'tools:ignore': 'QueryAllPackagesPermission',
-        },
-      });
-    }
 
     if (!Array.isArray(manifest.queries)) manifest.queries = [{}];
     const queries = manifest.queries[0];
