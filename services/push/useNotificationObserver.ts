@@ -49,8 +49,15 @@ function routeFromData(
             router.push('/(tabs)/favorite' as never);
             return;
         case 'deadline_owner':
-        case 'deadline_owner_group':   // 등록 공고 마감 임박 → 내 글 관리
-            router.push('/mypage/post' as never);
+        case 'deadline_owner_group':   // 마감 임박 → 해당 공고 (담당자로 받은 경우 내 글 관리엔 없다)
+            {
+                const id = siteId ?? data.sampleSiteId;
+                if (id != null) {
+                    router.push({ pathname: '/posts/site/[id]', params: { id: String(id) } });
+                } else {
+                    router.push('/mypage/post' as never);
+                }
+            }
             return;
         case 'profile_incomplete':     // 프로필 미완성 → 프로필 편집
             router.push('/mypage/talent' as never);
