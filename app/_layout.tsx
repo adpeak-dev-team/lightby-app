@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Updates from 'expo-updates';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -126,6 +127,24 @@ export default function RootLayout() {
   // 부팅 시 한 번 푸시 권한 요청 & 토큰 서버 등록 (실패해도 throw 안 함)
   useEffect(() => {
     registerForPushNotifications();
+  }, []);
+
+  // OTA 업데이트 수동 체크 — 앱 시작 5초 후 백그라운드로.
+  // app.json 의 checkAutomatically:"ON_ERROR_RECOVERY" 설정과 짝을 이룬다.
+  // (기본 자동 체크는 첫 실행 시 OTA 서버 연결 지연으로 스플래시가 최대 10초 멈추는 문제가 있어 껐다.
+  //  대신 여기서 지연 실행으로 백그라운드 업데이트를 유지한다.)
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const t = setTimeout(async () => {
+      try {
+        const res = await Updates.checkForUpdateAsync();
+        if (res.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch { /* 네트워크 실패 등은 조용히 무시 — 다음 실행에서 다시 시도됨 */ }
+    }, 5000);
+    return () => clearTimeout(t);
   }, []);
 
   // 푸시 알림 탭 → 해당 공고로 이동
