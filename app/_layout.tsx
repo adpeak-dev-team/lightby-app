@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppState, AppStateStatus, Platform, Text, TextInput } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider, focusManager } from '@tanstack/react-query';
@@ -84,10 +84,23 @@ export default function RootLayout() {
     Pretendard: require('../assets/fonts/PretendardVariable.ttf'),
   });
 
+  // 폰트 결과가 아예 안 오는 최악의 경우(디바이스별 useFonts 버그 등)에도
+  // 첫 실행이 스플래시에서 무한 대기하지 않도록 강제 진행 플래그.
+  const [forceReady, setForceReady] = useState(false);
+
   // 폰트가 준비되거나 실패하면 스플래시 명시적으로 내림.
   // 실패 시에도 진행해야 시스템 폰트로라도 앱이 뜬다(멈춤 방지).
+  // 5초 안에 어떤 결과도 안 오면 강제로 진행 — 이 이상 대기하면 사용자가 앱을 종료해버림.
   useEffect(() => {
-    if (fontsLoaded || fontsError) SplashScreen.hideAsync().catch(() => { });
+    if (fontsLoaded || fontsError) {
+      SplashScreen.hideAsync().catch(() => { });
+      return;
+    }
+    const t = setTimeout(() => {
+      setForceReady(true);
+      SplashScreen.hideAsync().catch(() => { });
+    }, 5000);
+    return () => clearTimeout(t);
   }, [fontsLoaded, fontsError]);
 
   /**
@@ -119,8 +132,8 @@ export default function RootLayout() {
   useNotificationObserver();
 
   // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지).
-  // 실패 시엔 시스템 폰트로 진행(스플래시 무한 대기 방지).
-  if (!fontsLoaded && !fontsError) return null;
+  // 실패/타임아웃 시엔 시스템 폰트로 진행(스플래시 무한 대기 방지).
+  if (!fontsLoaded && !fontsError && !forceReady) return null;
   if (fontsLoaded) applyPretendardDefault();
 
   return (
