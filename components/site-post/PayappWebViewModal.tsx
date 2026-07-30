@@ -30,26 +30,28 @@ const GRACE_LIMIT = 8;      // returnurl 복귀 후 웹훅 대기 약 16초
 
 export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCancel, onDismiss }: Props) {
   const insets = useSafeAreaInsets();
-  const [returned, setReturned] = useState(false); // returnurl 진입 여부
+  const [returned, setReturned] = useState(false); // returnurl 진입 여부 (grace 유예 계산용)
   const [polling, setPolling] = useState(false);
   const finishedRef = useRef(false);
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const ticksRef = useRef(0);
   const graceRef = useRef(0);
 
-  // 모달 새로 열릴 때 상태 초기화
+  // 모달이 열리는 즉시 폴링 시작 — 웹뷰 내부 X(=PayApp HTML의 닫기 버튼)로 return URL 을 건너뛰는
+  // 케이스가 있어서, return URL 도달 여부와 무관하게 서버 상태를 계속 확인한다.
+  // (기존엔 return URL 도달해야 폴링이 켜져 결제 유실이 발생했음)
   useEffect(() => {
-    if (visible) {
+    if (visible && orderId) {
       finishedRef.current = false;
       ticksRef.current = 0;
       graceRef.current = 0;
       setReturned(false);
-      setPolling(false);
+      startPolling();
     } else {
       stopPolling();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+  }, [visible, orderId]);
 
   const stopPolling = () => {
     if (pollTimerRef.current) {
@@ -98,13 +100,10 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
 
   const handleNavChange = (nav: WebViewNavigation) => {
     if (!nav?.url) return;
-    // returnurl 진입 감지 → 폴링 시작.
-    // 결제 취소/뒤로가기로 returnurl 안 거치고 종료하는 케이스는 사용자가 X 버튼을 눌러 취소하는 흐름으로 대응.
-    if (nav.url.includes(RETURN_URL_MARKER)) {
-      if (!returned) {
-        setReturned(true);
-        startPolling();
-      }
+    // returnurl 진입 감지 → grace 유예 카운트 시작 트리거.
+    // (폴링 자체는 모달 오픈 시점부터 이미 돌고 있으므로 여기서 startPolling 호출은 불필요)
+    if (nav.url.includes(RETURN_URL_MARKER) && !returned) {
+      setReturned(true);
     }
   };
 
@@ -217,14 +216,27 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
     });
   };
 
-  const handleClose = () => {
-    if (returned && polling) {
-      // 결제 완료 후 폴링 중이면 그냥 창만 닫지 않고 취소 처리
+  const handleClose = async () => {
+    if (!orderId) {
       finish('cancelled');
       return;
     }
-    // 결제 시작도 안 했으면 그냥 취소
-    finish('cancelled');
+    // A: 웹뷰 내부 X 로 return URL 을 건너뛰거나, 폴링 tick 사이에 X 를 눌러도
+    //    결제가 유실되지 않도록 항상 서버 최종 상태를 조회한 뒤 결정한다.
+    setReturned(true); // "결제 확인 중" 오버레이가 뜨도록 트리거
+    try {
+      const s = await getPayappStatus(orderId);
+      if (s.status === 'paid') return finish('paid');
+      if (s.status === 'cancelled' || s.status === 'expired') return finish('cancelled');
+      // pending — 웹훅이 아직 서버에 안 온 상태. 사용자에게 안내 후 취소 처리.
+      Alert.alert(
+        '결제 확인 지연',
+        '결제 확인이 지연되고 있습니다. 결제가 완료됐다면 잠시 후 "내 공고"에서 확인해 주세요.',
+        [{ text: '확인', onPress: () => finish('cancelled') }],
+      );
+    } catch {
+      finish('cancelled');
+    }
   };
 
   if (!visible || !payurl) return null;
@@ -264,8 +276,10 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
             setSupportMultipleWindows={false}
           />
 
-          {/* 폴링 오버레이 — returnurl 진입 후 결제 확정 대기 */}
-          {polling && (
+          {/* 폴링 오버레이 — returnurl 진입(또는 X 누른 후 최종 조회) 시점에만 표시.
+              폴링 자체는 모달 오픈 시점부터 돌지만, 이 시점에 오버레이를 띄우면
+              사용자가 결제창을 볼 수 없다. returned = true 이후에만 노출한다. */}
+          {polling && returned && (
             <View style={s.overlay}>
               <ActivityIndicator size="large" color="#10b981" />
               <Text style={s.overlayText}>결제 확인 중입니다...</Text>

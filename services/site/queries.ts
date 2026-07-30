@@ -1,7 +1,18 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, getPopups, getMainStats, BannerItem, PopupItem } from './api';
+import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, getPopups, getMainStats, getSitePricing, BannerItem, PopupItem, SitePricing } from './api';
 import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary, MainStats } from './types';
 import { useGetMe } from '@/services/auth/queries';
+
+// 관리자 결제관리(DB)에서 가격을 바꾸면 앱 재진입 시 바로 반영되게 항상 최신 조회.
+export const SITE_PRICING_QUERY_KEY = ['site-pricing'] as const;
+export function useSitePricing() {
+  return useQuery<SitePricing>({
+    queryKey: SITE_PRICING_QUERY_KEY,
+    queryFn: getSitePricing,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+}
 
 export function useGetJobDetail(id: string) {
   return useQuery<JobPostDetail>({

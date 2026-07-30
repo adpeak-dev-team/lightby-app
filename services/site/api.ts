@@ -6,6 +6,35 @@ export async function getJobDetail(id: string): Promise<JobPostDetail> {
   return data.data;
 }
 
+// 공개 가격표 (상품/아이콘) — 관리자 결제관리(DB)에서 관리되는 값을 그대로 노출.
+// 앱은 app_* 필드를, 웹은 original_price/discount_*/web_price 를 사용한다.
+export interface PricingProduct {
+  code: string;
+  name: string;
+  original_price: number;
+  discount_rate: number;
+  discount_text: string | null;
+  web_price: number;
+  app_original_price: number;
+  app_discount_rate: number;
+  app_discount_text: string | null;
+  app_price: number;
+}
+export interface PricingIcon {
+  id: number;
+  name: string;
+  color: string;
+  price: number;
+}
+export interface SitePricing {
+  products: PricingProduct[];
+  icons: PricingIcon[];
+}
+export async function getSitePricing(): Promise<SitePricing> {
+  const { data } = await apiClient.get<{ success: boolean; data: SitePricing }>('/site/pricing');
+  return data.data;
+}
+
 export async function incrementSiteView(id: string): Promise<void> {
   await apiClient.post(`/detail/view/${id}`);
 }
