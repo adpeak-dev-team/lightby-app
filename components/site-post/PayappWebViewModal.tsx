@@ -28,12 +28,18 @@ const POLL_INTERVAL_MS = 2000;
 const MAX_TICKS = 150;      // 총 상한 약 5분
 const GRACE_LIMIT = 8;      // returnurl 복귀 후 웹훅 대기 약 16초
 
+// returnurl 도달 직후 X 버튼을 잠시 잠근다 — 결제완료 페이지에서 실수로 X 누르는 걸 방지
+// (웹훅/폴링이 성공 감지할 시간을 확보). 이 시간이 지나도 X를 누르면 서버 최종 상태를 재확인한다.
+const X_LOCK_MS = 3000;
+
 export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCancel, onDismiss }: Props) {
   const insets = useSafeAreaInsets();
   const [returned, setReturned] = useState(false); // returnurl 진입 여부
   const [polling, setPolling] = useState(false);
+  const [xLocked, setXLocked] = useState(false);    // return 직후 X 버튼 잠금
   const finishedRef = useRef(false);
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const xLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ticksRef = useRef(0);
   const graceRef = useRef(0);
 
@@ -45,6 +51,7 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
       graceRef.current = 0;
       setReturned(false);
       setPolling(false);
+      setXLocked(false);
     } else {
       stopPolling();
     }
@@ -56,7 +63,12 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
       clearInterval(pollTimerRef.current);
       pollTimerRef.current = null;
     }
+    if (xLockTimerRef.current) {
+      clearTimeout(xLockTimerRef.current);
+      xLockTimerRef.current = null;
+    }
     setPolling(false);
+    setXLocked(false);
   };
 
   const finish = (result: 'paid' | 'cancelled' | 'timeout') => {
@@ -104,6 +116,10 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
       if (!returned) {
         setReturned(true);
         startPolling();
+        // C: X 버튼 잠깐 잠금 → 결제완료 페이지에서 실수로 X 누르는 걸 방지.
+        //    이 사이에 폴링이 성공을 감지하면 자연스럽게 성공 처리되어 모달이 닫힌다.
+        setXLocked(true);
+        xLockTimerRef.current = setTimeout(() => setXLocked(false), X_LOCK_MS);
       }
     }
   };
@@ -217,14 +233,28 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
     });
   };
 
-  const handleClose = () => {
-    if (returned && polling) {
-      // 결제 완료 후 폴링 중이면 그냥 창만 닫지 않고 취소 처리
+  const handleClose = async () => {
+    // 웹뷰가 returnurl 에 도달 안 했으면 = 결제 시도 전 or 도중. 즉시 취소.
+    if (!returned || !orderId) {
       finish('cancelled');
       return;
     }
-    // 결제 시작도 안 했으면 그냥 취소
-    finish('cancelled');
+    // A: returnurl 도달 후 X = 결제가 서버에 이미 확정됐을 가능성이 높다.
+    //    폴링 tick 을 기다리지 말고 여기서 즉시 최종 상태를 조회해 결제 유실을 막는다.
+    setPolling(true); // "결제 확인 중입니다..." 오버레이 재사용
+    try {
+      const s = await getPayappStatus(orderId);
+      if (s.status === 'paid') return finish('paid');
+      if (s.status === 'cancelled' || s.status === 'expired') return finish('cancelled');
+      // pending — 웹훅이 아직 서버에 안 온 상태. 사용자에게 안내 후 취소 처리.
+      Alert.alert(
+        '결제 확인 지연',
+        '결제 확인이 지연되고 있습니다. 결제가 완료됐다면 잠시 후 "내 공고"에서 확인해 주세요.',
+        [{ text: '확인', onPress: () => finish('cancelled') }],
+      );
+    } catch {
+      finish('cancelled');
+    }
   };
 
   if (!visible || !payurl) return null;
@@ -235,8 +265,13 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
         {/* 헤더 */}
         <View style={s.header}>
           <Text style={s.title}>결제 진행</Text>
-          <TouchableOpacity onPress={handleClose} hitSlop={10} style={s.closeBtn}>
-            <Ionicons name="close" size={26} color="#334155" />
+          <TouchableOpacity
+            onPress={handleClose}
+            hitSlop={10}
+            style={s.closeBtn}
+            disabled={xLocked}
+          >
+            <Ionicons name="close" size={26} color={xLocked ? '#cbd5e1' : '#334155'} />
           </TouchableOpacity>
         </View>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
@@ -6,6 +6,7 @@ import { Text } from '@/components/common/AppText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
+import { useSitePricing } from '@/services/site/queries';
 
 export type ProductType = 'FREE' | 'TOP' | 'PREMIUM';
 
@@ -19,14 +20,35 @@ interface Props {
     isPending?: boolean;
 }
 
-// 오픈기념 50% 할인가 (표시용). 실제 청구가는 서버가 DB 가격표로 재확정한다 — 여기 값은 UI 참고용.
-const PREMIUM_PRICE = 27900;
-const TOP_PRICE = 13900;
-const ICON_PRICE = 2200;
+// 서버(관리자 결제관리) 응답 실패 시 폴백 — 실제 표시가는 useSitePricing 응답을 우선한다.
+const FALLBACK_APP_PRICE: Record<'premium' | 'top', number> = { premium: 27900, top: 13900 };
+const FALLBACK_APP_ORIGINAL: Record<'premium' | 'top', number> = { premium: 55800, top: 27800 };
+const FALLBACK_ICON_PRICE = 2200;
 
 export function ProductSelectModal({ visible, onClose, onConfirm, freebies = false, freebiesLeft = 2, isPending = false }: Props) {
     const [selected, setSelected] = useState<ProductType>('FREE');
     const [selectedIcons, setSelectedIcons] = useState<number[]>([]);
+
+    // 관리자 결제관리(DB) 값 — 실패 시 폴백. 앱은 app_* 필드를 사용.
+    const { data: pricing } = useSitePricing();
+    const premium = pricing?.products?.find((p) => p.code === 'premium');
+    const top = pricing?.products?.find((p) => p.code === 'top');
+    const PREMIUM_PRICE = premium?.app_price ?? FALLBACK_APP_PRICE.premium;
+    const TOP_PRICE = top?.app_price ?? FALLBACK_APP_PRICE.top;
+    const PREMIUM_ORIGINAL = premium?.app_original_price || FALLBACK_APP_ORIGINAL.premium;
+    const TOP_ORIGINAL = top?.app_original_price || FALLBACK_APP_ORIGINAL.top;
+    const PREMIUM_DISCOUNT_TEXT = premium?.app_discount_text?.trim() || null;
+    const TOP_DISCOUNT_TEXT = top?.app_discount_text?.trim() || null;
+    // 취소선(정가)은 할인율 > 0 이고 원금액이 판매가보다 클 때만 노출.
+    const showPremiumOriginal = (premium?.app_discount_rate ?? 50) > 0 && PREMIUM_ORIGINAL > PREMIUM_PRICE;
+    const showTopOriginal = (top?.app_discount_rate ?? 50) > 0 && TOP_ORIGINAL > TOP_PRICE;
+
+    // 선택 가능한 아이콘 목록 (DB 우선). 앱은 웹과 동일한 개당 가격 사용.
+    const iconList = useMemo(
+        () => pricing?.icons?.length ? pricing.icons : ICON_LIST.map((i) => ({ ...i, price: FALLBACK_ICON_PRICE })),
+        [pricing],
+    );
+    const iconPriceOf = (id: number) => iconList.find((i) => i.id === id)?.price ?? FALLBACK_ICON_PRICE;
 
     const handleSelect = (p: ProductType) => {
         setSelected(p);
@@ -40,7 +62,8 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
     const basePrice = selected === 'PREMIUM'
         ? (freebies ? 0 : PREMIUM_PRICE)
         : selected === 'TOP' ? TOP_PRICE : 0;
-    const totalAmount = basePrice + selectedIcons.length * ICON_PRICE;
+    const iconsTotal = selectedIcons.reduce((sum, id) => sum + iconPriceOf(id), 0);
+    const totalAmount = basePrice + iconsTotal;
 
     const productName = selected === 'PREMIUM' ? '프리미엄' : selected === 'TOP' ? '지역 탑' : '무료 등록';
     const showIcons = selected !== 'FREE';
@@ -77,15 +100,19 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                         <View style={[s.productBadge, { backgroundColor: '#10b981' }]}>
                                             <Text style={s.productBadgeText}>프리미엄</Text>
                                         </View>
-                                        {/* 웹의 discount_text 칩 — 무료 혜택이 남아있으면 잔여 횟수를, 아니면 오픈기념 할인율 */}
-                                        <View style={s.discountChip}>
-                                            <Text style={s.discountChipText}>
-                                                {freebies ? `무료 ${freebiesLeft}회 가능` : '오픈 기념 50% 할인'}
-                                            </Text>
-                                        </View>
+                                        {/* 무료 혜택이 남아있으면 잔여 횟수를, 아니면 관리자 결제관리(app_discount_text)를 우선 노출 */}
+                                        {(freebies || PREMIUM_DISCOUNT_TEXT) && (
+                                            <View style={s.discountChip}>
+                                                <Text style={s.discountChipText}>
+                                                    {freebies ? `무료 ${freebiesLeft}회 가능` : PREMIUM_DISCOUNT_TEXT}
+                                                </Text>
+                                            </View>
+                                        )}
                                     </View>
                                     <View style={s.productPriceWrap}>
-                                        <Text style={s.productOriginalPrice}>55,800원</Text>
+                                        {!freebies && showPremiumOriginal && (
+                                            <Text style={s.productOriginalPrice}>{PREMIUM_ORIGINAL.toLocaleString()}원</Text>
+                                        )}
                                         <Text style={[s.productPrice, freebies && { color: '#3b82f6' }]}>
                                             {freebies ? '0원 (무료)' : `${PREMIUM_PRICE.toLocaleString()}원`}
                                         </Text>
@@ -105,12 +132,16 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                         <View style={[s.productBadge, { backgroundColor: '#3b82f6' }]}>
                                             <Text style={s.productBadgeText}>지역 탑</Text>
                                         </View>
-                                        <View style={s.discountChip}>
-                                            <Text style={s.discountChipText}>오픈 기념 50% 할인</Text>
-                                        </View>
+                                        {TOP_DISCOUNT_TEXT && (
+                                            <View style={s.discountChip}>
+                                                <Text style={s.discountChipText}>{TOP_DISCOUNT_TEXT}</Text>
+                                            </View>
+                                        )}
                                     </View>
                                     <View style={s.productPriceWrap}>
-                                        <Text style={s.productOriginalPrice}>27,800원</Text>
+                                        {showTopOriginal && (
+                                            <Text style={s.productOriginalPrice}>{TOP_ORIGINAL.toLocaleString()}원</Text>
+                                        )}
                                         <Text style={s.productPrice}>{TOP_PRICE.toLocaleString()}원</Text>
                                     </View>
                                 </View>
@@ -139,11 +170,11 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         {showIcons ? (
                             <View style={s.iconSection}>
                                 <View style={s.iconHeader}>
-                                    <Text style={s.iconTitle}>포인트 아이콘 <Text style={s.iconSub}>(개당 2,200원)</Text></Text>
+                                    <Text style={s.iconTitle}>포인트 아이콘 <Text style={s.iconSub}>(개당 {FALLBACK_ICON_PRICE.toLocaleString()}원~)</Text></Text>
                                     <Text style={s.iconLimit}>1개 선택 가능</Text>
                                 </View>
                                 <View style={s.iconGrid}>
-                                    {ICON_LIST.map((icon) => {
+                                    {iconList.map((icon) => {
                                         const c = ICON_COLORS[icon.color] ?? { bg: '#f1f5f9', border: '#e2e8f0', text: '#64748b' };
                                         const isSelected = selectedIcons.includes(icon.id);
                                         return (
@@ -174,11 +205,11 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                 <Text style={s.summaryValue}>{productName}  {basePrice.toLocaleString()}원</Text>
                             </View>
                             {selectedIcons.map((id) => {
-                                const icon = ICON_LIST.find((i) => i.id === id);
+                                const icon = iconList.find((i) => i.id === id);
                                 return (
                                     <View key={id} style={s.summaryRow}>
                                         <Text style={s.summaryLabel}>아이콘: {icon?.name}</Text>
-                                        <Text style={s.summaryValue}>{ICON_PRICE.toLocaleString()}원</Text>
+                                        <Text style={s.summaryValue}>{iconPriceOf(id).toLocaleString()}원</Text>
                                     </View>
                                 );
                             })}

@@ -5,10 +5,17 @@ import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView, initialWindowMetrics } from 'react-native-safe-area-context';
 import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
+
+// 최초 설치 후 첫 실행에서 스플래시가 안 내려가는 문제 대응.
+// MainActivity 의 SplashScreenManager.registerOnActivity 는 "루트 뷰가 실제로 그려질 때" auto-hide 하는데
+// 폰트 로딩 중 root 가 null 을 리턴하는 순간 트리거를 놓쳐 무한 대기가 됨.
+// 모듈 로드 즉시 auto-hide 를 차단하고, 폰트 로드 완료(or 실패) 시 명시적으로 hide 한다.
+SplashScreen.preventAutoHideAsync().catch(() => { });
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
@@ -73,9 +80,15 @@ export default function RootLayout() {
   useWebWordBreak();
   useAppStateFocus();
 
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontsError] = useFonts({
     Pretendard: require('../assets/fonts/PretendardVariable.ttf'),
   });
+
+  // 폰트가 준비되거나 실패하면 스플래시 명시적으로 내림.
+  // 실패 시에도 진행해야 시스템 폰트로라도 앱이 뜬다(멈춤 방지).
+  useEffect(() => {
+    if (fontsLoaded || fontsError) SplashScreen.hideAsync().catch(() => { });
+  }, [fontsLoaded, fontsError]);
 
   /**
    * 안드로이드 키보드 회피(전역).
@@ -105,9 +118,10 @@ export default function RootLayout() {
   // 푸시 알림 탭 → 해당 공고로 이동
   useNotificationObserver();
 
-  // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지)
-  if (!fontsLoaded) return null;
-  applyPretendardDefault();
+  // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지).
+  // 실패 시엔 시스템 폰트로 진행(스플래시 무한 대기 방지).
+  if (!fontsLoaded && !fontsError) return null;
+  if (fontsLoaded) applyPretendardDefault();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
