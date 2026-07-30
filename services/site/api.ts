@@ -170,6 +170,22 @@ export async function getBanners(): Promise<BannerItem[]> {
   return data.data;
 }
 
+export interface PopupItem {
+  id: number;
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
+  /** 하단 "오늘 하루 보지 않기" 버튼 노출 */
+  dismissToday: boolean;
+  /** 하단 "다시 보지 않기" 버튼 노출 (둘 다 false면 닫기 버튼만) */
+  dismissNever: boolean;
+}
+
+export async function getPopups(): Promise<PopupItem[]> {
+  const { data } = await apiClient.get('/main/popups', { params: { platform: 'app' } });
+  return data.data;
+}
+
 export async function getMainStats(): Promise<MainStats> {
   const { data } = await apiClient.get('/main/stats');
   return data.data;

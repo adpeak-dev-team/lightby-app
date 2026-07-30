@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Header from '@/components/common/Header';
 import MainStats from '@/components/main/MainStats';
+import MainPopup from '@/components/main/MainPopup';
 import SearchBar from '@/components/main/SearchBar';
 import LocationTabs from '@/components/main/LocationTabs';
 import { JobCard, JobItem } from '@/components/common/JobCard';
@@ -309,6 +310,9 @@ export default function HomePage() {
       {/* 구인 등록 FAB */}
       <Fab label="구인등록" icon="create" onPress={() => requireLogin(() => router.push('/registration/sitepost'))} />
       {loginPrompt}
+
+      {/* 관리자 등록 메인 팝업 */}
+      <MainPopup />
     </View>
   );
 }

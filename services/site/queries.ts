@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, getMainStats, getSitePricing, BannerItem, SitePricing } from './api';
+import { getJobsByProduct, getJobDetail, getLikeStatus, getMyApplications, getMyJobPostings, getPostApplicants, getMyRecentPosts, getBanners, getPopups, getMainStats, getSitePricing, BannerItem, PopupItem, SitePricing } from './api';
 import { JobSummaryResponse, JobPostDetail, ApplicationItem, ApplicantItem, ApplicantProfile, MyPostSummary, MainStats } from './types';
 import { useGetMe } from '@/services/auth/queries';
 
@@ -79,6 +79,14 @@ export function useGetBanners() {
   return useQuery<BannerItem[]>({
     queryKey: ['banners'],
     queryFn: getBanners,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useGetPopups() {
+  return useQuery<PopupItem[]>({
+    queryKey: ['popups'],
+    queryFn: getPopups,
     staleTime: 1000 * 60 * 5,
   });
 }
