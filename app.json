@@ -122,7 +122,8 @@
           "defaultChannel": "default"
         }
       ],
-      "./plugins/withPaymentQueries.js"
+      "./plugins/withPaymentQueries.js",
+      "./plugins/withStripPlayStoreIntentExtras.js"
     ],
     "experiments": {
       "typedRoutes": true,
