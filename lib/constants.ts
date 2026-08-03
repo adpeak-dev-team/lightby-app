@@ -53,3 +53,9 @@ export const ICON_COLORS: Record<string, { bg: string; text: string; border: str
   pink:   { bg: '#fce7f3', text: '#db2777', border: '#fbcfe8' },
   teal:   { bg: '#ccfbf1', text: '#0d9488', border: '#99f6e4' },
 };
+
+/** 고객센터 카카오톡 채널 */
+export const KAKAO_CHANNEL_ID = '_iqxkWn';
+
+/** 1:1 채팅 상담 연결 (로그인/SDK 불필요, 공개 URL) */
+export const KAKAO_CHANNEL_CHAT_URL = `http://pf.kakao.com/${KAKAO_CHANNEL_ID}/chat`;
