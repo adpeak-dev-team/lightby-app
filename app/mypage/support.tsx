@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, StyleSheet, Image, LayoutAnimation, Platform, UIManager,
+  View, ScrollView, TouchableOpacity, StyleSheet, Image, LayoutAnimation, Platform, UIManager, Linking,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGetFaqs, useGetMyQnaPosts } from '@/services/qna/queries';
+import { KAKAO_CHANNEL_CHAT_URL } from '@/lib/constants';
 
 const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
@@ -180,8 +181,15 @@ export default function SupportPage() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* 문의하기 고정 버튼 */}
+      {/* 문의 고정 버튼 — 즉시 상담(카카오톡) / 접수형 문의(1:1) */}
       <View style={[s.fab, { paddingBottom: insets.bottom + 16 }]}>
+        <TouchableOpacity
+          style={[s.fabBtn, s.fabBtnKakao]}
+          onPress={() => Linking.openURL(KAKAO_CHANNEL_CHAT_URL)}
+          activeOpacity={0.85}
+        >
+          <Text style={[s.fabText, s.fabTextKakao]}>💬  카카오톡 상담</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={s.fabBtn}
           onPress={() => router.push('/registration/qna')}
@@ -224,12 +232,17 @@ const s = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9',
     padding: 16,
+    flexDirection: 'row', gap: 10,
   },
   fabBtn: {
+    flex: 1,
     backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 16,
     alignItems: 'center',
   },
+  // 카카오 브랜드 컬러 — 노란 배경에는 흰 글씨가 안 보여 진한 갈색 계열을 쓴다.
+  fabBtnKakao: { backgroundColor: '#FEE500' },
   fabText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  fabTextKakao: { color: '#191600' },
 });
 
 const a = StyleSheet.create({
