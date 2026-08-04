@@ -38,7 +38,7 @@ export default function MainStats() {
   return (
     <View style={s.wrap}>
       <StatCard icon="business-outline" label="신규 현장" value={data?.newSiteCount ?? 0} suffix="곳" />
-      <StatCard icon="eye-outline" label="실시간 방문자" value={data?.todayVisitors ?? 0} suffix="명" live />
+      <StatCard icon="eye-outline" label="오늘 방문자" value={data?.todayVisitors ?? 0} suffix="명" live />
     </View>
   );
 }
