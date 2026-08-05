@@ -20,6 +20,7 @@ SplashScreen.preventAutoHideAsync().catch(() => { });
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
+import VisitTracker from '@/components/common/VisitTracker';
 import { ForceUpdateGate } from '@/components/ForceUpdateGate';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
@@ -199,6 +200,8 @@ export default function RootLayout() {
               </Stack>
               <StatusBar style="auto" />
               <Toast />
+              {/* 앱 방문 기록 — 하루 1회, 관리자 방문자 통계의 안드로이드/iOS 집계용 */}
+              <VisitTracker />
               {/* 강제 업데이트 게이트 — 구버전이면 차단(Android=Play 임베디드, iOS=모달→App Store) */}
               <ForceUpdateGate />
             </SafeAreaView>
