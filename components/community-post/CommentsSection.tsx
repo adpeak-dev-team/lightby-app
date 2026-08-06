@@ -11,6 +11,8 @@ type Reply = {
   created_at: string;
   user_id: number;
   content: string;
+  /** 1이면 작성자 닉네임 대신 '익명'으로 표시 */
+  is_anonymous?: number | boolean;
   is_withdrawn?: number | boolean;
   // 서버는 soft delete(deleted_at)로 삭제 댓글도 내용까지 그대로 내려준다.
   // 클라이언트가 "삭제된 댓글입니다"로 가려야 한다 (웹 동일).
@@ -21,11 +23,13 @@ type Props = {
   replies: Reply[];
   myId?: number;
   postAuthorId?: number;
+  /** 게시글이 익명으로 작성됐는지 — 글쓴이 댓글 이름 표기에 쓴다 (웹 동일) */
+  postIsAnonymous?: number | boolean;
   onDeleteReply: (id: number) => void;
   onReportReply?: (id: number, userId: number, isWithdrawn: boolean) => void;
 };
 
-export default function CommentsSection({ replies, myId, postAuthorId, onDeleteReply, onReportReply }: Props) {
+export default function CommentsSection({ replies, myId, postAuthorId, postIsAnonymous, onDeleteReply, onReportReply }: Props) {
   return (
     <View style={s.section}>
       {/* 삭제된 댓글은 개수에서 제외 (서버 comment_count와 동일 기준) */}
@@ -34,12 +38,26 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
       {replies.length === 0 ? (
         <Text style={s.empty}>아직 댓글이 없습니다.</Text>
       ) : (
-        replies.map((reply) => (
+        replies.map((reply) => {
+          const isAnonymousComment = !!reply.is_anonymous;
+          const isPostAuthor = postAuthorId != null && reply.user_id === postAuthorId;
+          // 익명 댓글이거나, 익명 게시글의 글쓴이 댓글이면 '익명' (웹 동일)
+          const displayName =
+            isAnonymousComment || (isPostAuthor && postIsAnonymous)
+              ? '익명'
+              : reply.is_withdrawn
+                ? '탈퇴한 회원'
+                : reply.author_name;
+          // 익명 댓글에는 '글쓴이' 배지를 달지 않는다 —
+          // 실명 게시글에서 글쓴이가 익명으로 달았을 때 배지가 신원을 노출하기 때문.
+          const showAuthorBadge = isPostAuthor && !isAnonymousComment && !reply.is_withdrawn;
+
+          return (
           <View key={reply.id} style={s.item}>
             <View style={s.itemHeader}>
               <View style={s.meta}>
-                <Text style={s.author}>{reply.is_withdrawn ? '탈퇴한 회원' : reply.author_name}</Text>
-                {postAuthorId != null && reply.user_id === postAuthorId && !reply.is_withdrawn && (
+                <Text style={s.author}>{displayName}</Text>
+                {showAuthorBadge && (
                   <View style={s.authorBadge}>
                     <Text style={s.authorBadgeText}>글쓴이</Text>
                   </View>
@@ -66,7 +84,8 @@ export default function CommentsSection({ replies, myId, postAuthorId, onDeleteR
               <Text style={s.content}>{reply.content}</Text>
             )}
           </View>
-        ))
+          );
+        })
       )}
       <View style={{ height: 16 }} />
     </View>

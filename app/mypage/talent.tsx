@@ -11,7 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useGetUserProfile } from '@/services/user/queries';
-import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage } from '@/services/user/mutations';
+import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage, useUpdateNickname } from '@/services/user/mutations';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
@@ -25,7 +25,9 @@ export default function TalentPage() {
   const saveMutation = useSaveTalentInfo();
   const uploadImageMutation = useUploadProfileImage();
   const deleteImageMutation = useDeleteProfileImage();
+  const updateNicknameMutation = useUpdateNickname();
 
+  const [nickname, setNickname] = useState('');
   const [gender, setGender] = useState<Gender>(null);
   const [age, setAge] = useState('');
   const [introduction, setIntroduction] = useState('');
@@ -52,6 +54,7 @@ export default function TalentPage() {
     const intro = profile.introduction ?? '';
     const cs = profile.careers ?? [];
 
+    setNickname(profile.nickname ?? '');
     setGender(g);
     setAge(a);
     setIntroduction(intro);
@@ -135,7 +138,15 @@ export default function TalentPage() {
     ]);
   };
 
-  const handleSubmit = () => {
+  // 닉네임 변경과 인재 정보 저장이 순차로 일어나므로 둘 다 진행 중으로 본다.
+  const isSaving = saveMutation.isPending || updateNicknameMutation.isPending;
+
+  const handleSubmit = async () => {
+    const trimmedNickname = nickname.trim();
+    if (!trimmedNickname) {
+      Alert.alert('오류', '닉네임을 입력해주세요.');
+      return;
+    }
     if (!gender || !age || !introduction) {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
       return;
@@ -145,6 +156,18 @@ export default function TalentPage() {
       Alert.alert('오류', '나이를 올바르게 입력해 주세요.');
       return;
     }
+
+    // 닉네임이 바뀐 경우에만 별도 API 호출. 중복 등으로 실패하면 여기서 멈춘다
+    // (인재 정보만 저장되고 닉네임은 안 바뀐 어긋난 상태를 만들지 않기 위함).
+    if (trimmedNickname !== (profile?.nickname ?? '')) {
+      try {
+        await updateNicknameMutation.mutateAsync(trimmedNickname);
+      } catch (e: any) {
+        Alert.alert('오류', e.response?.data?.message || '닉네임 변경에 실패했습니다.');
+        return;
+      }
+    }
+
     const birthYear = new Date().getFullYear() - ageNum;
     saveMutation.mutate(
       { gender, birthday: `${birthYear}-01-01`, introduction, careers },
@@ -241,11 +264,25 @@ export default function TalentPage() {
               <Text style={s.sectionTitle}>기본 정보</Text>
             </View>
 
+            {/* 이름 — 가입 시 확정되며 변경 불가 */}
             <View style={s.field}>
               <Text style={s.label}>이름</Text>
               <View style={s.readOnlyInput}>
-                <Text style={s.readOnlyText}>{profile?.nickname ?? '-'}</Text>
+                <Text style={s.readOnlyText}>{profile?.name ?? '-'}</Text>
               </View>
+            </View>
+
+            {/* 닉네임 — 커뮤니티 등에 노출되는 표시명. 저장 시 함께 반영된다. */}
+            <View style={s.field}>
+              <Text style={s.label}>닉네임 <Text style={s.required}>*</Text></Text>
+              <TextInput
+                style={s.input}
+                value={nickname}
+                onChangeText={setNickname}
+                placeholder="닉네임을 입력해주세요."
+                placeholderTextColor="#94a3b8"
+                maxLength={20}
+              />
             </View>
 
             <View style={s.row}>
@@ -351,13 +388,13 @@ export default function TalentPage() {
 
           {/* 제출 버튼 — 하단 고정이 아니라 내용 끝에 배치(웹과 동일) */}
           <TouchableOpacity
-            style={[s.submitBtn, saveMutation.isPending && s.btnDisabled]}
+            style={[s.submitBtn, isSaving && s.btnDisabled]}
             onPress={handleSubmit}
-            disabled={saveMutation.isPending}
+            disabled={isSaving}
             activeOpacity={0.85}
           >
             <Text style={s.submitText}>
-              {saveMutation.isPending ? '저장 중...' : '인재 정보 등록하기 ⚡'}
+              {isSaving ? '저장 중...' : '인재 정보 등록하기 ⚡'}
             </Text>
           </TouchableOpacity>
 
@@ -441,11 +478,10 @@ const s = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '400', color: '#64748b' },
   required: { color: '#f87171' },
 
-  readOnlyInput: {
-    backgroundColor: '#f8fafc', borderRadius: 12, padding: 12,
-    borderWidth: 1, borderColor: '#e2e8f0',
-  },
-  readOnlyText: { fontSize: 14, color: '#64748b' },
+  // 이름은 변경 불가 — 배경/테두리를 없애 입력창·선택 버튼과 구분되게 텍스트로만 보여준다.
+  // (배경이 있으면 비활성 성별 버튼(#f1f5f9)과 색이 겹쳐 눌리는 요소로 오인된다)
+  readOnlyInput: { paddingVertical: 10 },
+  readOnlyText: { fontSize: 14, color: '#475569' },
 
   input: {
     borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,

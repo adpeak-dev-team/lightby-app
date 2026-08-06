@@ -35,6 +35,20 @@ export default function LoginPage() {
       { loginId, password, deviceId },
       {
         onSuccess: async (data) => {
+          // 탈퇴 유예 기간(14일) 내 계정 → 토큰 대신 복구 정보가 온다. 복구 선택 화면으로.
+          if (data.isWithdrawnUser && data.userId && data.recoveryToken) {
+            router.push({
+              pathname: '/auth/recover',
+              params: {
+                userId: String(data.userId),
+                recoveryToken: data.recoveryToken,
+                deletedAt: data.deletedAt ?? '',
+                expiresAt: data.expiresAt ?? '',
+                source: 'local',
+              },
+            });
+            return;
+          }
           if (data.needsPhoneAuth) {
             router.push({ pathname: '/auth/phoneauth', params: { userId: data.id } });
             return;

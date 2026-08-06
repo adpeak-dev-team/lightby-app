@@ -60,6 +60,7 @@ export default function BoardDetailPage() {
   const [likeCount, setLikeCount] = useState(0);
   const [likeInitialized, setLikeInitialized] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [commentAnonymous, setCommentAnonymous] = useState(false);
   const [showUnlikeModal, setShowUnlikeModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   // 삭제 확인 대기 중인 댓글 id (웹과 동일하게 확인 모달을 거친다)
@@ -123,10 +124,10 @@ export default function BoardDetailPage() {
     const content = commentText.trim();
     if (!content) return;
     createReplyMutation.mutate(
-      { content, userId: me.id },
-      { onSuccess: () => setCommentText('') },
+      { content, userId: me.id, anonymous: commentAnonymous },
+      { onSuccess: () => { setCommentText(''); setCommentAnonymous(false); } },
     );
-  }, [commentText, me?.id]);
+  }, [commentText, commentAnonymous, me?.id]);
 
   // 휴지통 클릭 → 확인 모달 오픈
   const handleDeleteReply = useCallback((replyId: number) => {
@@ -264,6 +265,7 @@ export default function BoardDetailPage() {
             replies={replies}
             myId={me?.id}
             postAuthorId={post?.user_id}
+            postIsAnonymous={post?.is_anonymous}
             onDeleteReply={handleDeleteReply}
             onReportReply={handleReportReply}
           />
@@ -277,6 +279,8 @@ export default function BoardDetailPage() {
           isSubmitting={createReplyMutation.isPending}
           keyboardVisible={keyboardVisible}
           bottomInset={bottomInset}
+          anonymous={commentAnonymous}
+          onAnonymousChange={setCommentAnonymous}
         />
       </View>
 

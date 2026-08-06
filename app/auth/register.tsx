@@ -264,6 +264,7 @@ export default function RegisterPage() {
       },
       {
         // 신규 가입자는 관심설정이 비어있으므로 바로 관심 설정 온보딩으로 (front 동일)
+        // 관심설정 완료 후 프로필 작성으로 이어진다.
         onSuccess: () => router.replace('/set-user-info/interest'),
         onError: (err: any) => {
           setError('loginId', err.response?.data?.message ?? '회원가입 중 오류가 발생했습니다.');

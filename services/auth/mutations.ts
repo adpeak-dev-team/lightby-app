@@ -13,6 +13,8 @@ import {
   verifyPhoneAuth,
   findPasswordSendOtp,
   resetPassword,
+  recoverAccount, RecoverAccountRequest,
+  discardWithdrawnAccount, DiscardWithdrawnRequest,
 } from './api';
 
 export const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -70,6 +72,25 @@ export function useSignIn() {
         await persistAuthTokens(data.accessToken, data.refreshToken);
       }
     },
+  });
+}
+
+// 탈퇴 유예 기간 내 계정 복구. 서버가 복구와 동시에 토큰을 발급하므로 바로 로그인 상태가 된다.
+export function useRecoverAccount() {
+  return useMutation({
+    mutationFn: (body: RecoverAccountRequest) => recoverAccount(body),
+    onSuccess: async (data) => {
+      if (data.accessToken && data.refreshToken) {
+        await persistAuthTokens(data.accessToken, data.refreshToken);
+      }
+    },
+  });
+}
+
+// 탈퇴 유예 기간 내 계정 즉시 파기 (새 계정으로 재가입). 토큰은 발급되지 않는다.
+export function useDiscardWithdrawnAccount() {
+  return useMutation({
+    mutationFn: (body: DiscardWithdrawnRequest) => discardWithdrawnAccount(body),
   });
 }
 
