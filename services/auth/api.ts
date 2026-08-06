@@ -6,7 +6,18 @@ export interface SignInRequest {
   deviceId: string;
 }
 
-export interface SignInResponse {
+// 탈퇴 유예 기간(14일) 내 계정으로 로그인했을 때 서버가 토큰 대신 내려주는 필드들.
+// 이 값들이 오면 로그인이 완료된 게 아니라 복구 선택 화면(/auth/recover)으로 보내야 한다.
+export interface WithdrawnUserFields {
+  isWithdrawnUser?: boolean;
+  userId?: number;
+  deletedAt?: string; // ISO
+  expiresAt?: string; // ISO — 이 시각까지 복구 가능
+  recoveryToken?: string; // 복구/파기 요청 시 소유권 증명 (일회용)
+}
+
+export interface SignInResponse extends WithdrawnUserFields {
+  // isWithdrawnUser 인 경우 아래 토큰 필드는 응답에 없다(런타임 undefined).
   accessToken: string;
   refreshToken: string;
   id: number;
@@ -41,7 +52,7 @@ export interface OAuthProfile {
   thumbnailImage: string | null;
 }
 
-export interface OAuthSignInResponse {
+export interface OAuthSignInResponse extends WithdrawnUserFields {
   // 시나리오 1: 기존 사용자 로그인 완료
   accessToken?: string;
   refreshToken?: string;
@@ -50,7 +61,7 @@ export interface OAuthSignInResponse {
   // 시나리오 2: 기존 사용자, 전화번호 인증 필요
   isExistingUser?: boolean;
   needsPhoneAuth?: boolean;
-  userId?: number;
+  // 시나리오 2-1: 탈퇴 유예 기간 사용자 → WithdrawnUserFields 참고
   // 시나리오 3: 신규 사용자
   isNewUser?: boolean;
   oauthProfile?: OAuthProfile;
@@ -147,6 +158,37 @@ export async function oauthSignUp(body: OAuthSignUpRequest): Promise<OAuthSignUp
   // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프
   const res = await apiClient.post<OAuthSignUpResponse>('/auth/sign-up/oauth', { ...body, platform: 'app' });
   return res.data;
+}
+
+export interface RecoverAccountRequest {
+  userId: number;
+  recoveryToken: string;
+  deviceId: string;
+}
+
+export interface RecoverAccountResponse {
+  accessToken: string;
+  refreshToken: string;
+  id: number;
+  role: string;
+  needsPhoneAuth: boolean;
+}
+
+export interface DiscardWithdrawnRequest {
+  userId: number;
+  recoveryToken: string;
+}
+
+// 탈퇴 유예 기간 내 계정 복구 — 성공 시 서버가 곧바로 로그인 토큰을 발급한다.
+export async function recoverAccount(body: RecoverAccountRequest): Promise<RecoverAccountResponse> {
+  const res = await apiClient.post<RecoverAccountResponse>('/auth/recover', body);
+  return res.data;
+}
+
+// 탈퇴 유예 기간 내 계정을 즉시 파기 (새 계정으로 다시 가입할 때).
+// 파기 후에는 복구할 수 없다.
+export async function discardWithdrawnAccount(body: DiscardWithdrawnRequest): Promise<void> {
+  await apiClient.post('/auth/recover/discard', body);
 }
 
 export async function verifyPhoneAuth(

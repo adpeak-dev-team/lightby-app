@@ -133,6 +133,20 @@ export default function AppleLoginPage() {
               router.replace({ pathname: '/auth/phoneauth', params: { userId: data.userId } });
               return;
             }
+            // 시나리오 2-1: 탈퇴 유예 기간 사용자 → 복구 선택 화면으로
+            if (data.isWithdrawnUser && data.userId && data.recoveryToken) {
+              router.replace({
+                pathname: '/auth/recover',
+                params: {
+                  userId: String(data.userId),
+                  recoveryToken: data.recoveryToken,
+                  deletedAt: data.deletedAt ?? '',
+                  expiresAt: data.expiresAt ?? '',
+                  source: 'apple',
+                },
+              });
+              return;
+            }
             // 시나리오 3: 신규 사용자 (Apple은 닉네임/전화 모두 직접 입력)
             if (data.isNewUser && profile && data.conflicts) {
               setOauthProfile({ ...profile, name: profile.name || name });
@@ -256,9 +270,11 @@ export default function AppleLoginPage() {
         authorizationCode: authorizationCodeRef.current,
       },
       {
+        // 신규 가입자는 관심설정이 비어있으므로 바로 관심 설정 온보딩으로 (front 동일)
+        // 관심설정 완료 후 프로필 작성으로 이어진다.
         onSuccess: () => {
-          toast.success('회원가입이 완료되었습니다!');
-          router.replace('/');
+          toast.success('회원가입이 완료되었습니다! 관심 정보를 설정해주세요.');
+          router.replace('/set-user-info/interest');
         },
         onError: (err: any) => {
           Alert.alert('오류', err.response?.data?.message ?? '회원가입에 실패했습니다.');

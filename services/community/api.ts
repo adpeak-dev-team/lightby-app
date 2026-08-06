@@ -77,8 +77,8 @@ export async function toggleLike(postId: number, userId: number): Promise<{ like
   return { liked: data.liked };
 }
 
-export async function createReply(boardId: number, content: string, userId: number): Promise<void> {
-  await apiClient.post('/community/replies', { board_id: boardId, content, user_id: userId });
+export async function createReply(boardId: number, content: string, userId: number, anonymous = false): Promise<void> {
+  await apiClient.post('/community/replies', { board_id: boardId, content, user_id: userId, anonymous });
 }
 
 export async function deleteReply(replyId: number): Promise<void> {

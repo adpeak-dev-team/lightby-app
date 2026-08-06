@@ -11,12 +11,12 @@ import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
 import { useGetUserProfile, useGetNotificationSettings } from '@/services/user/queries';
 import {
-  useUpdateNickname, useSendPhoneAuthCode, useVerifyPhoneAuthCode, useChangePassword,
+  useSendPhoneAuthCode, useVerifyPhoneAuthCode, useChangePassword,
   useUpdateNotificationSettings,
 } from '@/services/user/mutations';
 import type { NotificationSettings } from '@/services/user/api';
 
-type EditField = 'nickname' | 'phone' | 'password' | null;
+type EditField = 'phone' | 'password' | null;
 
 const NOTIFICATION_ITEMS: { key: keyof NotificationSettings; label: string; description: string }[] = [
   {
@@ -43,14 +43,12 @@ export default function SettingsPage() {
   const notiSectionY = useRef(0);
   const didAutoScroll = useRef(false);
 
-  const updateNicknameMutation = useUpdateNickname();
   const sendCodeMutation = useSendPhoneAuthCode();
   const verifyCodeMutation = useVerifyPhoneAuthCode();
   const changePasswordMutation = useChangePassword();
 
   const [editingField, setEditingField] = useState<EditField>(null);
 
-  const [newNickname, setNewNickname] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [authCodeSent, setAuthCodeSent] = useState(false);
@@ -85,22 +83,10 @@ export default function SettingsPage() {
 
   const handleCancel = useCallback(() => {
     setEditingField(null);
-    setNewNickname(''); setNewPhone(''); setAuthCode('');
+    setNewPhone(''); setAuthCode('');
     setAuthCodeSent(false); setTimer(0);
     setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
   }, []);
-
-  const handleNicknameChange = async () => {
-    if (!newNickname.trim()) { Alert.alert('오류', '닉네임을 입력해주세요.'); return; }
-    try {
-      const res = await updateNicknameMutation.mutateAsync(newNickname);
-      Alert.alert('완료', res.message);
-      refetch();
-      handleCancel();
-    } catch (e: any) {
-      Alert.alert('오류', e.response?.data?.message || '닉네임 변경 실패');
-    }
-  };
 
   const handleSendCode = async () => {
     if (!newPhone.trim()) { Alert.alert('오류', '휴대폰 번호를 입력해주세요.'); return; }
@@ -178,13 +164,8 @@ export default function SettingsPage() {
 
         {/* 정보 카드 */}
         <View style={s.card}>
-          {/* 아이디 */}
-          <View style={s.row}>
-            <Text style={s.label}>아이디</Text>
-            <Text style={s.value}>{profile?.id ?? '-'}</Text>
-          </View>
-
-          {/* 로그인 ID / SNS */}
+          {/* 아이디 — 로컬은 login_id, 소셜은 가입 경로(kakao/apple)를 보여준다.
+              (내부 PK를 노출하던 행은 제거) */}
           <View style={s.row}>
             <Text style={s.label}>{profile?.sns_type === 'local' ? '로그인 ID' : 'SNS'}</Text>
             <Text style={s.value}>
@@ -192,42 +173,7 @@ export default function SettingsPage() {
             </Text>
           </View>
 
-          {/* 닉네임 */}
-          <View style={[s.row, s.rowBig]}>
-            <View style={s.rowHeader}>
-              <Text style={s.label}>닉네임</Text>
-              {editingField !== 'nickname' && (
-                <TouchableOpacity onPress={() => { setEditingField('nickname'); setNewNickname(profile?.nickname ?? ''); }}>
-                  <Text style={s.changeBtn}>변경하기</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-            {editingField === 'nickname' ? (
-              <View style={s.editWrap}>
-                <View style={s.inputRow}>
-                  <TextInput
-                    style={s.input}
-                    value={newNickname}
-                    onChangeText={setNewNickname}
-                    placeholder="새 닉네임 입력"
-                    placeholderTextColor="#94a3b8"
-                  />
-                  <TouchableOpacity
-                    style={[s.actionBtn, updateNicknameMutation.isPending && s.btnDisabled]}
-                    onPress={handleNicknameChange}
-                    disabled={updateNicknameMutation.isPending}
-                  >
-                    <Text style={s.actionBtnText}>{updateNicknameMutation.isPending ? '변경 중...' : '변경'}</Text>
-                  </TouchableOpacity>
-                </View>
-                <TouchableOpacity style={s.cancelBtn} onPress={handleCancel}>
-                  <Text style={s.cancelBtnText}>취소</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <Text style={s.value}>{profile?.nickname ?? '-'}</Text>
-            )}
-          </View>
+          {/* 닉네임은 프로필 관리(/mypage/talent)에서 수정한다 */}
 
           {/* 휴대폰 */}
           <View style={[s.row, s.rowBig]}>

@@ -18,8 +18,8 @@ export function useToggleLike(boardId: number) {
 export function useCreateReply(boardId: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ content, userId }: { content: string; userId: number }) =>
-      createReply(boardId, content, userId),
+    mutationFn: ({ content, userId, anonymous }: { content: string; userId: number; anonymous?: boolean }) =>
+      createReply(boardId, content, userId, anonymous),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.replies(boardId) });
       qc.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
