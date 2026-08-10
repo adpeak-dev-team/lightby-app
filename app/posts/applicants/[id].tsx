@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Modal, Pressable, FlatList, Linking,
 } from 'react-native';
@@ -246,24 +246,34 @@ export default function ApplicantsPage() {
   const insets = useSafeAreaInsets();
 
   const { data, isLoading } = useGetPostApplicants(id);
-  const [localList, setLocalList] = useState<ApplicantProfile[]>([]);
+  // 열람 즉시 NEW 뱃지를 떼기 위한 낙관적 표시.
+  // ⚠️ 서버 목록을 로컬 배열로 "대체"하면 안 된다 — 예전엔 한 명이라도 열람하는 순간
+  //    로컬 배열이 고정돼서, 이후 새로 들어온 지원자가 화면을 나갔다 올 때까지 안 보였다.
+  //    서버 목록은 그대로 두고 열람한 id 위에만 덮어쓴다.
+  const [readIds, setReadIds] = useState<Set<number>>(() => new Set());
   const [selected, setSelected] = useState<ApplicantProfile | null>(null);
 
-  const applicants = localList.length > 0 ? localList : (data?.items ?? []);
+  const applicants = useMemo(
+    () => (data?.items ?? []).map((a) =>
+      readIds.has(a.apply_id) ? { ...a, status: 'read' as const } : a
+    ),
+    [data?.items, readIds],
+  );
 
   const handleOpen = useCallback((applicant: ApplicantProfile) => {
-    setSelected(applicant);
-    if (applicant.status === 'unread') {
-      markApplyAsRead(applicant.apply_id)
-        .then(() => qc.invalidateQueries({ queryKey: ['my-job-postings'] }))
-        .catch(() => null);
-      const source = localList.length > 0 ? localList : (data?.items ?? []);
-      setLocalList(source.map((a) =>
-        a.apply_id === applicant.apply_id ? { ...a, status: 'read' as const } : a
-      ));
-      setSelected({ ...applicant, status: 'read' });
+    if (applicant.status !== 'unread') {
+      setSelected(applicant);
+      return;
     }
-  }, [localList, data?.items, qc]);
+    setReadIds((prev) => new Set(prev).add(applicant.apply_id));
+    setSelected({ ...applicant, status: 'read' });
+    markApplyAsRead(applicant.apply_id)
+      .then(() => {
+        qc.invalidateQueries({ queryKey: ['my-job-postings'] });
+        qc.invalidateQueries({ queryKey: ['post-applicants', id] });
+      })
+      .catch(() => null);
+  }, [qc, id]);
 
   return (
     <View style={s.container}>
