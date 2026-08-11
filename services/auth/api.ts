@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { apiClient } from '@/api/apiClient';
 
 export interface SignInRequest {
@@ -100,7 +101,13 @@ export interface OAuthSignUpResponse {
 
 export async function signUp(body: SignUpRequest): Promise<SignUpResponse> {
   // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프
-  const res = await apiClient.post<SignUpResponse>('/auth/sign-up', { ...body, platform: 'app' });
+  // x-visit-platform — 가입 유입 기록에 안드로이드/iOS 를 구분해 남긴다(방문 기록과 같은 헤더).
+  //   방문자 식별자(x-attribution-id)는 apiClient 인터셉터가 자동으로 붙인다.
+  const res = await apiClient.post<SignUpResponse>(
+    '/auth/sign-up',
+    { ...body, platform: 'app' },
+    { headers: { 'x-visit-platform': Platform.OS === 'ios' ? 'IOS' : 'ANDROID' } },
+  );
   return res.data;
 }
 
@@ -155,8 +162,12 @@ export async function oauthAppleSignIn(
 }
 
 export async function oauthSignUp(body: OAuthSignUpRequest): Promise<OAuthSignUpResponse> {
-  // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프
-  const res = await apiClient.post<OAuthSignUpResponse>('/auth/sign-up/oauth', { ...body, platform: 'app' });
+  // platform: 'app' — 백엔드가 앱 설치(앱 보유) 사용자로 스탬프 (헤더 설명은 signUp 참고)
+  const res = await apiClient.post<OAuthSignUpResponse>(
+    '/auth/sign-up/oauth',
+    { ...body, platform: 'app' },
+    { headers: { 'x-visit-platform': Platform.OS === 'ios' ? 'IOS' : 'ANDROID' } },
+  );
   return res.data;
 }
 

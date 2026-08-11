@@ -66,7 +66,9 @@
           "autoVerify": true,
           "data": [
             { "scheme": "https", "host": "lightby.co.kr", "pathPrefix": "/posts" },
-            { "scheme": "https", "host": "www.lightby.co.kr", "pathPrefix": "/posts" }
+            { "scheme": "https", "host": "www.lightby.co.kr", "pathPrefix": "/posts" },
+            { "scheme": "https", "host": "lightby.co.kr", "pathPrefix": "/open" },
+            { "scheme": "https", "host": "www.lightby.co.kr", "pathPrefix": "/open" }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
         }
