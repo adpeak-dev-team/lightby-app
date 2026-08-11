@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Updates from 'expo-updates';
+import * as Linking from 'expo-linking';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -25,6 +26,7 @@ import { ForceUpdateGate } from '@/components/ForceUpdateGate';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
 import { queryClient } from '@/lib/queryClient';
+import { handleDeepLink, initAttribution } from '@/lib/attribution';
 
 /**
  * RN에는 브라우저의 window focus 이벤트가 없어 react-query의 refetchOnWindowFocus가
@@ -128,6 +130,15 @@ export default function RootLayout() {
   // 부팅 시 한 번 푸시 권한 요청 & 토큰 서버 등록 (실패해도 throw 안 함)
   useEffect(() => {
     registerForPushNotifications();
+  }, []);
+
+  // 유입 매칭 — 광고→웹→스토어→설치로 끊긴 유입 정보를 앱 최초 실행에서 되찾는다.
+  // 최초 1회만 서버에 매칭을 요청하고, 이후 실행은 저장된 식별자를 메모리에 올리기만 한다.
+  // 앱이 이미 떠 있는 상태에서 딥링크로 열리면 그 URL 의 식별자로 갈아탄다.
+  useEffect(() => {
+    initAttribution();
+    const sub = Linking.addEventListener('url', ({ url }) => { handleDeepLink(url); });
+    return () => sub.remove();
   }, []);
 
   // OTA 업데이트 수동 체크 — 앱 시작 5초 후 백그라운드로.

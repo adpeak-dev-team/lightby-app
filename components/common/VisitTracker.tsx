@@ -3,6 +3,7 @@ import { AppState, AppStateStatus, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePathname } from 'expo-router';
 import { apiClient } from '@/api/apiClient';
+import { saveAttributionId } from '@/lib/attribution';
 
 // 웹 프론트(VisitTracker.tsx)와 동일한 하루 1회 기록 규칙. 저장 키도 의미를 맞춰 둔다.
 const LAST_VISIT_KEY = 'lastVisitDate';
@@ -34,12 +35,20 @@ export default function VisitTracker() {
                 const today = kstToday();
                 if ((await AsyncStorage.getItem(LAST_VISIT_KEY)) === today) return;
 
-                await apiClient.post('/internal/visit', null, {
-                    headers: {
-                        'x-visit-path': pathnameRef.current,
-                        'x-visit-platform': Platform.OS === 'ios' ? 'IOS' : 'ANDROID',
+                const res = await apiClient.post<{ success: boolean; attributionId?: string }>(
+                    '/internal/visit',
+                    null,
+                    {
+                        headers: {
+                            'x-visit-path': pathnameRef.current,
+                            'x-visit-platform': Platform.OS === 'ios' ? 'IOS' : 'ANDROID',
+                        },
                     },
-                });
+                );
+
+                // 앱은 쿠키가 없어 서버가 매번 새 식별자를 만들 수 있다.
+                // 첫 응답의 값을 저장해 두면 그 뒤로는 헤더로 실려 같은 방문자로 이어진다.
+                await saveAttributionId(res.data?.attributionId);
 
                 // 서버 기록에 성공했을 때만 저장 — 실패하면 다음 기회에 다시 시도한다.
                 await AsyncStorage.setItem(LAST_VISIT_KEY, today);

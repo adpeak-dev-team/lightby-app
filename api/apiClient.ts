@@ -81,11 +81,28 @@ export const apiClient = axios.create({
   baseURL: `${BASE_URL}/api`,
 });
 
+/**
+ * 유입 추적용 방문자 식별자(lb_aid)의 메모리 캐시.
+ *
+ * 값의 주인은 lib/attribution.ts 다. 여기서는 매 요청마다 저장소를 읽지 않도록 캐시만 들고 있는다.
+ * (반대 방향으로 import 하면 apiClient ↔ attribution 순환 참조가 된다)
+ */
+let requestAttributionId: string | null = null;
+
+export const setRequestAttributionId = (attributionId: string | null) => {
+  requestAttributionId = attributionId;
+};
+
 // 요청마다 저장된 토큰을 Authorization 헤더에 자동으로 붙여줌
 apiClient.interceptors.request.use(async (config) => {
   const token = await tokenStorage.get();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  // 유입 추적용 방문자 식별자. 앱은 쿠키를 쓰지 않아 헤더로 보낸다.
+  // (lib/attribution.ts 가 앱 최초 실행 때 서버에서 받아 저장해 둔 값)
+  if (requestAttributionId) {
+    config.headers['x-attribution-id'] = requestAttributionId;
   }
   return config;
 });
