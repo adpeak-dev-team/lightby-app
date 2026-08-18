@@ -1,11 +1,15 @@
 import {
   View, TouchableOpacity, StyleSheet,
 } from 'react-native';
+import { useState, useEffect } from 'react';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS, industries as INDUSTRY_LIST } from '@/lib/constants';
 import { getImageUrl } from '@/lib/lib';
+
+// require() 결과는 번들러가 처리하는 asset id (number|object)라 union 타입이 까다로워 any 로 둔다.
+const DEFAULT_JOB_IMAGE = require('@/assets/images/job_default_image.jpg');
 
 export interface JobItem {
   id: number;
@@ -70,6 +74,12 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   // 목록 API가 image를 안 주는 경우(구버전 응답)에만 썸네일로 폴백.
   const imageUri = job.image ? getImageUrl(job.image) : (job.thumbnail ? getImageUrl(job.thumbnail) : null);
 
+  // 값은 있지만 로드가 실패하는 케이스(스크랩된 외부 이미지가 만료·404) 대응.
+  // failed=true 가 되면 이후 렌더에서 기본 이미지로 폴백한다. job 이 바뀌면 상태 초기화.
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [imageUri]);
+  const showDefault = !imageUri || failed;
+
   // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
   const thumbWrapStyle =
     vertical ? styles.thumbWrapVertical : variant === 'top' ? styles.thumbWrapTop : styles.thumbWrap;
@@ -96,10 +106,11 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
         {/* 썸네일 */}
         <View style={thumbWrapStyle}>
           <Image
-            source={imageUri ? { uri: imageUri } : require('@/assets/images/alt_image.jpg')}
+            source={showDefault ? DEFAULT_JOB_IMAGE : { uri: imageUri! }}
             style={styles.thumb}
             contentFit="cover"
             transition={200}
+            onError={() => setFailed(true)}
           />
         </View>
 
