@@ -1,6 +1,7 @@
 import {
-  View, TextInput,
+  View,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { KakaoPostcode } from '@/components/common/KakaoPostcode';
 import { KakaoMap } from '@/components/common/KakaoMap';

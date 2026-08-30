@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useRef, forwardRef } from 'react';
 import {
-  ScrollView, ScrollViewProps, TextInput, TextInputProps,
+  ScrollView, ScrollViewProps, type TextInput, TextInputProps,
   findNodeHandle, Platform,
 } from 'react-native';
+import { TextInput as AppTextInput } from '@/components/common/AppTextInput';
 
 type FocusHandler = NonNullable<TextInputProps['onFocus']>;
 type FocusEvt = Parameters<FocusHandler>[0];
@@ -64,6 +65,6 @@ export const KeyboardAwareTextInput = forwardRef<TextInput, TextInputProps>(
       }, 50);
     };
 
-    return <TextInput ref={setRef} {...props} onFocus={handleFocus} />;
+    return <AppTextInput ref={setRef} {...props} onFocus={handleFocus} />;
   },
 );

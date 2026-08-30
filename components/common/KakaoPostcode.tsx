@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
-  View, TouchableOpacity, Modal, Pressable, ActivityIndicator, StyleSheet, TextInput, Keyboard,
+  View, TouchableOpacity, Modal, Pressable, ActivityIndicator, StyleSheet, Keyboard,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -160,6 +161,8 @@ export function KakaoPostcode({ address, onSelect, hasCoords = true }: Props) {
                         </TouchableOpacity>
                     </View>
                     <WebView
+                      // Android: 시스템 글꼴 크기 설정을 따라가지 않게 고정(앱 전역 정책과 동일). iOS는 무시됨.
+                      textZoom={100}
                         source={{ html: POSTCODE_HTML, baseUrl: 'https://localhost' }}
                         onMessage={handleMessage}
                         javaScriptEnabled

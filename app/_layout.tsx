@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppState, AppStateStatus, Platform, Text, TextInput } from 'react-native';
+import { AppState, AppStateStatus, Platform } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
@@ -42,20 +42,6 @@ function useAppStateFocus() {
   }, []);
 }
 
-// 웹(Pretendard)과 동일한 폰트를 앱 전역 기본값으로 적용.
-// RN은 폰트가 상속되지 않으므로 Text/TextInput defaultProps에 한 번만 주입한다.
-// 가변 폰트라 각 컴포넌트의 fontWeight 값이 그대로 살아난다(별도 매핑 불필요).
-let fontDefaultsApplied = false;
-function applyPretendardDefault() {
-  if (fontDefaultsApplied) return;
-  fontDefaultsApplied = true;
-  const T = Text as unknown as { defaultProps?: { style?: unknown } };
-  const TI = TextInput as unknown as { defaultProps?: { style?: unknown } };
-  T.defaultProps = T.defaultProps ?? {};
-  T.defaultProps.style = [{ fontFamily: 'Pretendard' }, T.defaultProps.style];
-  TI.defaultProps = TI.defaultProps ?? {};
-  TI.defaultProps.style = [{ fontFamily: 'Pretendard' }, TI.defaultProps.style];
-}
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -151,10 +137,10 @@ export default function RootLayout() {
   // 푸시 알림 탭 → 해당 공고로 이동
   useNotificationObserver();
 
-  // 폰트 로드 완료 시 전역 기본 폰트 주입 후 렌더(시스템 폰트 깜빡임 방지).
+  // 폰트 로드가 끝난 뒤 렌더해 시스템 폰트 깜빡임을 방지한다.
   // 실패/타임아웃 시엔 시스템 폰트로 진행(스플래시 무한 대기 방지).
+  // 실제 폰트 적용은 공용 AppText / AppTextInput 이 담당한다.
   if (!fontsLoaded && !fontsError && !forceReady) return null;
-  if (fontsLoaded) applyPretendardDefault();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

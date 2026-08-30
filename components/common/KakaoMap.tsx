@@ -81,6 +81,8 @@ export function KakaoMap({ latitude, longitude, label = '', height = 200 }: Prop
   return (
     <View style={[s.wrap, { height }]} pointerEvents="none">
       <WebView
+        // Android: 시스템 글꼴 크기 설정을 따라가지 않게 고정(앱 전역 정책과 동일). iOS는 무시됨.
+        textZoom={100}
         source={{
           html: buildMapHTML(latitude, longitude, label),
           baseUrl: 'https://localhost',

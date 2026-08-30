@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
+  View, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { KeyboardAwareScrollView, KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

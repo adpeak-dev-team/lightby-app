@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
-  View, StyleSheet, TextInput,
+  View, StyleSheet,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';

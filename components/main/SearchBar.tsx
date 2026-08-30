@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import {
-  View, TextInput, TouchableOpacity, Modal, StyleSheet, Pressable, Animated, PanResponder,
+  View, TouchableOpacity, Modal, StyleSheet, Pressable, Animated, PanResponder,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
