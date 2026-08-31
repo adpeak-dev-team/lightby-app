@@ -97,6 +97,8 @@ export default function MapViewPage() {
       {/* 지도 */}
       {isValid ? (
         <WebView
+          // Android: 시스템 글꼴 크기 설정을 따라가지 않게 고정(앱 전역 정책과 동일). iOS는 무시됨.
+          textZoom={100}
           source={{
             html: buildFullMapHTML(lat, lng, label),
             baseUrl: 'https://localhost',

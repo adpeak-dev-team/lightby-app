@@ -255,6 +255,8 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
         {/* WebView — 결제창 */}
         <View style={{ flex: 1 }}>
           <WebView
+            // Android: 시스템 글꼴 크기 설정을 따라가지 않게 고정(앱 전역 정책과 동일). iOS는 무시됨.
+            textZoom={100}
             source={{ uri: payurl }}
             onNavigationStateChange={handleNavChange}
             onShouldStartLoadWithRequest={handleShouldStartLoad}

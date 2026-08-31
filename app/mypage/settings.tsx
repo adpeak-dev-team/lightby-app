@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, Switch,
+  View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Switch,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';

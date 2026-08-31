@@ -3,16 +3,15 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "node scripts/with-secrets.mjs expo start",
+    "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "node scripts/with-secrets.mjs expo run:android",
-    "ios": "node scripts/with-secrets.mjs expo run:ios",
-    "web": "node scripts/with-secrets.mjs expo start --web",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
     "lint": "expo lint",
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@google-cloud/secret-manager": "^6.3.0",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-seoul/kakao-login": "^5.4.2",

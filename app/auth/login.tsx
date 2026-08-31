@@ -1,6 +1,7 @@
 import {
-  View, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView,
+  View, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';

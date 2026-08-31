@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
+  View, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { KeyboardAwareScrollView, KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { BottomInsetFiller } from '@/components/common/BottomInsetFiller';

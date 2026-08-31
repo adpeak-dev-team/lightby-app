@@ -1,6 +1,7 @@
 import {
-  View, TextInput, StyleSheet,
+  View, StyleSheet,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { KeyboardAwareTextInput } from '@/components/common/KeyboardAwareScroll';
 import { SectionHeader, ss } from './shared';

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, SectionList, ActivityIndicator, StyleSheet, TouchableOpacity, TextInput, RefreshControl,
+  View, SectionList, ActivityIndicator, StyleSheet, TouchableOpacity, RefreshControl,
 } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { Text } from '@/components/common/AppText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';

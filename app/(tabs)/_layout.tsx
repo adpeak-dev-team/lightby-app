@@ -38,7 +38,11 @@ export default function TabLayout() {
         paddingBottom: bottomInset + TABBAR_GAP,
         paddingTop: 6,
       },
+      // 라벨은 react-navigation이 자체 Text로 그리므로 AppText를 안 거친다.
+      // 탭바 높이가 고정값이라 시스템 글꼴 배율을 따라가면 라벨이 잘린다.
+      tabBarAllowFontScaling: false,
       tabBarLabelStyle: {
+        fontFamily: 'Pretendard',
         fontSize: 10,
         fontWeight: '500' as const,
       },

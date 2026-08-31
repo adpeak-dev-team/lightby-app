@@ -1,4 +1,5 @@
-import { View, TextInput } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/components/common/AppTextInput';
 import { SectionHeader, Label, ss } from './shared';
 
 interface Props {
