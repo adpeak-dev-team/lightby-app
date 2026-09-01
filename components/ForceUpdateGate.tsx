@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
-    Modal, View, Text, TouchableOpacity, StyleSheet, Platform, Linking,
+    Modal, View, TouchableOpacity, StyleSheet, Platform, Linking,
 } from 'react-native';
 import * as Application from 'expo-application';
+
+// 시스템 글꼴 배율을 따라가지 않는 공용 Text(allowFontScaling=false).
+// 이 모달은 카드 높이가 고정이라 배율이 커지면 글자가 잘린다.
+import { Text } from '@/components/common/AppText';
 
 import { fetchAppVersionConfig } from '@/services/app-update/api';
 import { isBelow } from '@/services/app-update/version';
