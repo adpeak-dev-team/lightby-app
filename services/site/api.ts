@@ -130,7 +130,7 @@ export interface JobPostingPayload {
   selectedIcons: number[];
   totalAmount: number;
   // 결제 수단/애플 인앱결제 검증 (iOS 유료 등록 시)
-  paymentMethod?: 'apple' | 'toss';
+  paymentMethod?: 'apple';
   appleJws?: string; // StoreKit2 서명 거래(purchaseToken)
 }
 
