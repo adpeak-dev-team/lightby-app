@@ -170,7 +170,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         {showIcons ? (
                             <View style={s.iconSection}>
                                 <View style={s.iconHeader}>
-                                    <Text style={s.iconTitle}>포인트 아이콘 <Text style={s.iconSub}>(개당 {FALLBACK_ICON_PRICE.toLocaleString()}원~)</Text></Text>
+                                    <Text style={s.iconTitle}>아이콘 <Text style={s.iconSub}>(개당 {FALLBACK_ICON_PRICE.toLocaleString()}원~)</Text></Text>
                                     <Text style={s.iconLimit}>1개 선택 가능</Text>
                                 </View>
                                 <View style={s.iconGrid}>
