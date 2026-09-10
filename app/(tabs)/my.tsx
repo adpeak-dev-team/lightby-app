@@ -242,6 +242,22 @@ export default function MyPage() {
           <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
         </TouchableOpacity>
 
+        {/* 모바일 명함 */}
+        <TouchableOpacity
+          style={s.pointRow}
+          onPress={() => router.push('/mypage/card' as never)}
+          activeOpacity={0.8}
+        >
+          <View style={[s.menuIcon, { backgroundColor: '#dbeafe' }]}>
+            <Ionicons name="id-card" size={18} color="#2563eb" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.menuLabel}>모바일 명함</Text>
+            <Text style={s.pointSub}>현장별로 만들어 카톡·문자로 보냅니다</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
+        </TouchableOpacity>
+
         {/* 메뉴 리스트 */}
         <View style={s.menuCard}>
           {MENU_ITEMS.map(({ icon, iconBg, iconColor, label, route }, idx) => (
