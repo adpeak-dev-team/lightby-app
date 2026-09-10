@@ -159,42 +159,18 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <SafeAreaView style={{ flex: 1, paddingBottom: androidKeyboardPad }} edges={['top']}>
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/register" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/findpwd" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/phoneauth" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/kakao" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/apple" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/recover" options={{ headerShown: false }} />
-                <Stack.Screen name="posts/board/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="posts/site/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="set-user-info/interest" options={{ headerShown: false }} />
-                <Stack.Screen name="set-user-info/profile" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/account" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/settings" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/talent" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/application-status" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/applicant-management" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/post" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/support" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/notifications" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/withdraw" options={{ headerShown: false }} />
-                <Stack.Screen name="mypage/blocked" options={{ headerShown: false }} />
+              {/* 새로 추가되는 화면이 라우트 이름을 제목으로 단 기본 헤더를 달고 나오지
+                  않도록 기본값으로 끈다. 전 화면이 자체 헤더를 그린다. */}
+              <Stack screenOptions={{ headerShown: false }}>
                 {/* ⚠️ 아래 작성 화면들은 beforeRemove + e.preventDefault() 로 "나가시겠어요?"를 띄운다.
                     iOS 스와이프 백 제스처는 네이티브가 화면을 먼저 없앤 뒤에야 pop 을 dispatch 하므로
                     (native-stack 의 onDismissed) preventDefault 가 무의미해지고, 화면만 마운트된 채 남아
                     확인 모달이 엉뚱한 화면 위로 떠버린다. 제스처를 꺼서 back 을 JS 주도로만 처리한다. */}
-                <Stack.Screen name="registration/sitepost" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="registration/sitepost-edit/[id]" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="registration/qna" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="registration/communitypost" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="registration/communitypost-edit/[id]" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="map-view" options={{ headerShown: false }} />
-                <Stack.Screen name="terms" options={{ headerShown: false }} />
-                <Stack.Screen name="fortune" options={{ headerShown: false }} />
-            <Stack.Screen name="posts/applicants/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="registration/sitepost" options={{ gestureEnabled: false }} />
+                <Stack.Screen name="registration/sitepost-edit/[id]" options={{ gestureEnabled: false }} />
+                <Stack.Screen name="registration/qna" options={{ gestureEnabled: false }} />
+                <Stack.Screen name="registration/communitypost" options={{ gestureEnabled: false }} />
+                <Stack.Screen name="registration/communitypost-edit/[id]" options={{ gestureEnabled: false }} />
               </Stack>
               <StatusBar style="auto" />
               <Toast />

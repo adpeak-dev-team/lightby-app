@@ -12,10 +12,13 @@ export const CARD_QUERY_KEYS = {
     shares: (id: number) => ['card-shares', id] as const,
 };
 
-export const useCards = () =>
+// 탭으로 승격되면서 비로그인 상태에서도 화면이 열린다. 그때 쏘면 401 만 받고
+// 끝나므로(retry:false) 토큰이 확정되기 전에는 아예 쏘지 않는다.
+export const useCards = (enabled = true) =>
     useQuery({
         queryKey: CARD_QUERY_KEYS.list,
         queryFn: getCards,
+        enabled,
         retry: false,
     });
 

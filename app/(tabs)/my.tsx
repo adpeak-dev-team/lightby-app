@@ -236,7 +236,7 @@ export default function MyPage() {
             <Ionicons name="sparkles" size={18} color="#7c3aed" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={s.menuLabel}>내 사주</Text>
+            <Text style={s.menuLabel}>내 운세 보기</Text>
             <Text style={s.pointSub}>오늘의 사주 · 이번달 운세 · 평생 총운 · 영업 궁합</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />

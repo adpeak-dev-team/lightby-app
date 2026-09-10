@@ -34,6 +34,26 @@ export default function Header() {
     }, [isLoggedIn, refetchUnread])
   );
 
+  /**
+   * 운세 진입 — 매일 들어올 이유를 만드는 화면이라 전 화면 헤더에 둔다(웹 동일).
+   *
+   * ⚠️ 여기서 오늘 결과를 미리 불러오지 말 것. 서버는 조회 시점에 그날 결과를 동결하고
+   *    "본 것"으로 기록한다(saju_daily_views). 헤더가 부르면 아무 화면이나 열기만 해도
+   *    오늘의 운세를 쓴 것으로 잡히고, 포인트 차감이 걸리면 그대로 오차감이 된다.
+   */
+  const fortuneBtn = (
+    <TouchableOpacity
+      style={styles.fortuneBtn}
+      onPress={() => router.push('/saju' as never)}
+      activeOpacity={0.75}
+      hitSlop={6}
+      accessibilityLabel="운세"
+    >
+      <Ionicons name="sparkles" size={13} color="#d97706" />
+      <Text style={styles.fortuneText}>운세</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.header}>
       <Image
@@ -42,26 +62,34 @@ export default function Header() {
         resizeMode="contain"
       />
 
-      {isLoggedIn ? (
-        <TouchableOpacity
-          style={styles.bellBtn}
-          onPress={() => router.push('/mypage/notifications')}
-          activeOpacity={0.7}
-          hitSlop={8}
-        >
-          <Ionicons name="notifications" size={24} color="#94a3b8" />
-          {unreadCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.loginBtn} onPress={() => router.push('/auth/login')}>
-          <Ionicons name="person-outline" size={15} color="#fff" />
-          <Text style={styles.loginText}>로그인</Text>
-        </TouchableOpacity>
-      )}
+      <View style={styles.right}>
+        {isLoggedIn ? (
+          <>
+            <TouchableOpacity
+              style={styles.bellBtn}
+              onPress={() => router.push('/mypage/notifications')}
+              activeOpacity={0.7}
+              hitSlop={8}
+            >
+              <Ionicons name="notifications" size={24} color="#94a3b8" />
+              {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            {fortuneBtn}
+          </>
+        ) : (
+          <>
+            {fortuneBtn}
+            <TouchableOpacity style={styles.loginBtn} onPress={() => router.push('/auth/login')}>
+              <Ionicons name="person-outline" size={15} color="#fff" />
+              <Text style={styles.loginText}>로그인</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
     </View>
   );
 }
@@ -104,9 +132,29 @@ const styles = StyleSheet.create({
     fontWeight: '800', // font-extrabold
     fontSize: 12, // text-xs
   },
+  right: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   bellBtn: {
     padding: 4,
     position: 'relative',
+  },
+  // 웹 헤더의 운세 칩과 같은 모양(amber-50 / amber-600)
+  fortuneBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#fffbeb',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  fortuneText: {
+    color: '#d97706',
+    fontSize: 12,
+    fontWeight: '800',
   },
   badge: {
     position: 'absolute',
