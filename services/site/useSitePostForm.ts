@@ -226,9 +226,18 @@ export function useSitePostForm() {
                     if (res.success) {
                         isSuccessRef.current = true;
                         callbacks.onCloseModal();
-                        Alert.alert('등록 완료', '공고가 등록되었습니다.', [
-                            { text: '확인', onPress: callbacks.onSuccess },
-                        ]);
+                        // 실제로 받은 액수만 말한다. 하루 1건 한도에 걸리면 0 이라
+                        // "500P 적립" 이라고 하면 거짓말이 된다.
+                        const earned = (res as { point?: { earned: number } })?.point?.earned ?? 0;
+                        qc.invalidateQueries({ queryKey: ['point-balance'] });
+                        qc.invalidateQueries({ queryKey: ['point-history'] });
+                        Alert.alert(
+                            '등록 완료',
+                            earned > 0
+                                ? `공고가 등록되고 ${earned.toLocaleString('ko-KR')}P가 적립되었습니다.`
+                                : '공고가 등록되었습니다.',
+                            [{ text: '확인', onPress: callbacks.onSuccess }],
+                        );
                     } else {
                         Alert.alert('오류', res.message ?? '등록에 실패했습니다.');
                     }
@@ -264,12 +273,18 @@ export function useSitePostForm() {
     // PayApp 결제 확정 후 호출 — 서버 웹훅이 이미 공고를 만들었으므로 성공 처리만.
     // 단, 이 경로는 createMutation을 타지 않으므로 목록 캐시 무효화를 직접 해줘야
     // 결제로 등록한 공고가 메인에 바로 뜬다.
-    const finalizeAfterPayapp = (onSuccess: () => void) => {
+    const finalizeAfterPayapp = (onSuccess: () => void, pointEarned = 0) => {
         invalidateJobLists(qc);
+        qc.invalidateQueries({ queryKey: ['point-balance'] });
+        qc.invalidateQueries({ queryKey: ['point-history'] });
         isSuccessRef.current = true;
-        Alert.alert('결제 완료', '결제 및 공고 등록이 완료되었습니다.', [
-            { text: '확인', onPress: onSuccess },
-        ]);
+        Alert.alert(
+            '결제 완료',
+            pointEarned > 0
+                ? `결제 및 공고 등록이 완료되고 ${pointEarned.toLocaleString('ko-KR')}P가 적립되었습니다.`
+                : '결제 및 공고 등록이 완료되었습니다.',
+            [{ text: '확인', onPress: onSuccess }],
+        );
     };
 
     // ── 나가기 시 업로드 이미지 삭제 ──

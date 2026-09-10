@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { PointEarnNotice } from '@/components/common/PointEarnNotice';
 import {
   View, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal,
   KeyboardAvoidingView, Platform,
@@ -125,7 +126,7 @@ export default function SitePostPage() {
                 visible={!!payapp}
                 payurl={payapp?.payurl ?? null}
                 orderId={payapp?.orderId ?? null}
-                onSuccess={() => form.finalizeAfterPayapp(() => router.back())}
+                onSuccess={(earned) => form.finalizeAfterPayapp(() => router.back(), earned ?? 0)}
                 onCancel={() => {/* 취소 안내는 모달이 자체 알림 처리 */}}
                 onDismiss={() => setPayapp(null)}
             />
@@ -218,6 +219,9 @@ export default function SitePostPage() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
+                {/* 적립 안내 — 등록하기 전에 알려야 등록한다 */}
+                <PointEarnNotice code="site_create" />
+
                 <View style={s.sectionCard}>
                     <ImageSection images={form.images} onChange={form.setImages} />
                 </View>

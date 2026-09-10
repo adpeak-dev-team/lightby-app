@@ -10,11 +10,20 @@ import { WebView, type WebViewNavigation } from 'react-native-webview';
 import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { getPayappStatus } from '@/services/payapp/api';
 
+/** 폴링이 볼 상태. 공고 주문과 충전 주문이 서로 다른 표를 쓴다. */
+export type PayappOrderState = 'pending' | 'paid' | 'cancelled' | 'expired' | 'refunded';
+
 interface Props {
   visible: boolean;
   payurl: string | null;
   orderId: string | null;
-  onSuccess: () => void;   // 결제 확정 (paid) — 호출부에서 후속 처리
+  /**
+   * 주문 상태 확인. 비우면 공고 주문(/payapp/status)을 본다.
+   * 포인트 충전은 다른 표를 쓰므로 호출부가 넘긴다.
+   */
+  checkStatus?: (orderId: string) => Promise<PayappOrderState>;
+  /** 결제 확정 (paid). 공고 경로는 적립액을 같이 넘긴다 */
+  onSuccess: (pointEarned?: number) => void;
   onCancel: () => void;    // 사용자 취소 or 결제 실패
   onDismiss: () => void;   // 모달 닫힘(성공/취소/타임아웃 어느 경우든)
 }
@@ -28,7 +37,7 @@ const POLL_INTERVAL_MS = 2000;
 const MAX_TICKS = 150;      // 총 상한 약 5분
 const GRACE_LIMIT = 8;      // returnurl 복귀 후 웹훅 대기 약 16초
 
-export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCancel, onDismiss }: Props) {
+export function PayappWebViewModal({ visible, payurl, orderId, checkStatus, onSuccess, onCancel, onDismiss }: Props) {
   const insets = useSafeAreaInsets();
   const [returned, setReturned] = useState(false); // returnurl 진입 여부 (grace 유예 계산용)
   const [polling, setPolling] = useState(false);
@@ -36,6 +45,8 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const ticksRef = useRef(0);
   const graceRef = useRef(0);
+  /** 상태 조회가 알려 준 적립액. 확정 순간에 호출부로 넘긴다. */
+  const earnedRef = useRef(0);
 
   // 모달이 열리는 즉시 폴링 시작 — 웹뷰 내부 X(=PayApp HTML의 닫기 버튼)로 return URL 을 건너뛰는
   // 케이스가 있어서, return URL 도달 여부와 무관하게 서버 상태를 계속 확인한다.
@@ -67,12 +78,12 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
     stopPolling();
 
     if (result === 'paid') {
-      onSuccess();
+      onSuccess(earnedRef.current);
     } else if (result === 'cancelled') {
       onCancel();
     } else {
       // timeout: 알림톡/카톡 확인 유도. 실제 결제는 웹훅으로 뒤늦게 확정될 수 있음.
-      Alert.alert('결제 확인 지연', '결제 확인이 지연되고 있습니다. 잠시 후 내 공고에서 확인해 주세요.');
+      Alert.alert('결제 확인 지연', '결제 확인이 지연되고 있습니다. 잠시 후 다시 확인해 주세요.');
       onCancel();
     }
     onDismiss();
@@ -84,9 +95,16 @@ export function PayappWebViewModal({ visible, payurl, orderId, onSuccess, onCanc
     pollTimerRef.current = setInterval(async () => {
       ticksRef.current += 1;
       try {
-        const s = await getPayappStatus(orderId);
-        if (s.status === 'paid') return finish('paid');
-        if (s.status === 'cancelled' || s.status === 'expired') return finish('cancelled');
+        let state: PayappOrderState;
+        if (checkStatus) {
+          state = await checkStatus(orderId);
+        } else {
+          const r = await getPayappStatus(orderId);
+          state = r.status;
+          earnedRef.current = Number(r.pointEarned ?? 0);
+        }
+        if (state === 'paid') return finish('paid');
+        if (state === 'cancelled' || state === 'expired') return finish('cancelled');
       } catch {
         // 폴링 일시 실패는 무시
       }

@@ -9,6 +9,8 @@ export interface PayappRequestResult {
 export interface PayappStatus {
     status: 'pending' | 'paid' | 'cancelled' | 'expired';
     siteId: number | null;
+    /** 이 공고로 실제 지급된 포인트. 유료 경로는 웹훅이 공고를 만들어 달리 알 길이 없다 */
+    pointEarned?: number;
 }
 
 /**

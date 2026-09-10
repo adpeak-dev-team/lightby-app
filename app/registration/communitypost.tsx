@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { PointEarnNotice } from '@/components/common/PointEarnNotice';
+import { POINT_QUERY_KEYS } from '@/services/point/queries';
 import {
   View, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal, Switch, KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
@@ -35,6 +38,9 @@ export default function CommunityPostPage() {
 
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [successVisible, setSuccessVisible] = useState(false);
+  /** 이번 등록으로 실제 지급된 포인트. 한도에 걸리면 0 이다. */
+  const [earned, setEarned] = useState(0);
+  const queryClient = useQueryClient();
   const [leaveVisible, setLeaveVisible] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
 
@@ -104,6 +110,11 @@ export default function CommunityPostPage() {
           if (res.success) {
             newUploadedRef.current = [];
             bypassLeaveGuardRef.current = true;
+            // **실제로 받은 액수**다. 하루 한도나 글자 조건에 걸리면 0 으로 온다 —
+            // 0 인데 "100P 적립" 이라고 하면 거짓말이 된다.
+            setEarned((res as { point?: { earned: number } })?.point?.earned ?? 0);
+            queryClient.invalidateQueries({ queryKey: POINT_QUERY_KEYS.balance });
+            queryClient.invalidateQueries({ queryKey: POINT_QUERY_KEYS.history });
             setSuccessVisible(true);
           } else {
             Alert.alert('등록 실패', res.message ?? '게시글 등록에 실패했습니다.');
@@ -159,7 +170,11 @@ export default function CommunityPostPage() {
               <Ionicons name="checkmark" size={36} color="#fff" />
             </View>
             <Text style={s.modalTitle}>등록 완료!</Text>
-            <Text style={s.modalDesc}>게시글이 성공적으로 등록되었어요.</Text>
+            <Text style={s.modalDesc}>
+              {earned > 0
+                ? `게시글이 등록되고 ${earned.toLocaleString('ko-KR')}P가 적립되었어요.`
+                : '게시글이 성공적으로 등록되었어요.'}
+            </Text>
             <TouchableOpacity
               style={s.modalPrimaryBtn}
               onPress={() => { setSuccessVisible(false); router.replace('/community'); }}
@@ -190,6 +205,9 @@ export default function CommunityPostPage() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* 적립 안내 — 쓰기 전에 알려야 쓴다 */}
+          <PointEarnNotice code="board_write" />
+
           {/* 익명 토글 */}
           <View style={s.section}>
             <View style={s.anonymousRow}>

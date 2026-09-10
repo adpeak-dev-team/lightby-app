@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { usePointBalance } from '@/services/point/queries';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal,
 } from 'react-native';
@@ -85,6 +86,8 @@ export default function MyPage() {
     enabled: isLoggedIn === true,
   });
   const { data: jobPostings } = useGetMyJobPostings({ enabled: isLoggedIn === true });
+  // 포인트가 꺼져 있으면 enabled=false 로 와서 줄 자체를 안 그린다.
+  const { data: point } = usePointBalance(isLoggedIn === true);
   const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
 
   const logoutMutation = useLogout();
@@ -200,6 +203,29 @@ export default function MyPage() {
           </TouchableOpacity>
         </View>
 
+        {/* 내 포인트 — 메뉴가 아니라 잔액이 보이는 줄로 둔다.
+            앱 설치 1,000P 가 이미 들어가 있는데 사용자는 모르는 상태였다.
+            숫자가 보여야 눌러 본다. */}
+        {point?.enabled && (
+          <TouchableOpacity
+            style={s.pointRow}
+            onPress={() => router.push('/mypage/point' as never)}
+            activeOpacity={0.8}
+          >
+            <View style={[s.menuIcon, { backgroundColor: '#fef3c7' }]}>
+              <Ionicons name="wallet" size={18} color="#d97706" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.menuLabel}>내 포인트</Text>
+              <Text style={s.pointSub}>
+                충전 {(point.paidBalance ?? 0).toLocaleString('ko-KR')}P · 적립 {(point.freeBalance ?? 0).toLocaleString('ko-KR')}P
+              </Text>
+            </View>
+            <Text style={s.pointAmount}>{(point.balance ?? 0).toLocaleString('ko-KR')}P</Text>
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
+          </TouchableOpacity>
+        )}
+
         {/* 메뉴 리스트 */}
         <View style={s.menuCard}>
           {MENU_ITEMS.map(({ icon, iconBg, iconColor, label, route }, idx) => (
@@ -309,6 +335,13 @@ const s = StyleSheet.create({
   quickBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   /* 메뉴 */
+  pointRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#fff', borderRadius: 16,
+    paddingHorizontal: 16, paddingVertical: 14, marginBottom: 10,
+  },
+  pointSub: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  pointAmount: { fontSize: 16, fontWeight: '800', color: '#0f172a' },
   menuCard: {
     backgroundColor: '#fff', borderRadius: 16,    overflow: 'hidden',
   },
