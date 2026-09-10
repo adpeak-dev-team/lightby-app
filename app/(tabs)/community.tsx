@@ -64,22 +64,47 @@ export default function CommunityPage() {
     try { await refetch(); } finally { setRefreshing(false); }
   }, [refetch]);
 
-  // 오늘의 영업운 — 목록과 함께 스크롤되어 위로 사라진다(고정 아님).
+  // 운세 두 갈래 — 목록과 함께 스크롤되어 위로 사라진다(고정 아님).
+  //
+  // 띠별(무료)과 사주(유료)는 다른 물건이다. 띠는 열둘 중 하나를 고르는 가벼운
+  // 재미고, 사주는 내 생년월일로 뽑는 개인 결과다. 같은 버튼에 섞으면 사용자가
+  // 뭘 보고 있는지 모른다.
   const listHeader = (
-    <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/fortune')} style={s.fortuneWrap}>
-      <LinearGradient
-        colors={['#e0f2fe', '#f0f9ff']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={s.fortuneBtn}
+    <View style={s.fortuneWrap}>
+      <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/fortune')}>
+        <LinearGradient
+          colors={['#e0f2fe', '#f0f9ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={s.fortuneBtn}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={s.fortuneTitle}>오늘의 영업운</Text>
+            <Text style={s.fortuneSub}>띠를 선택하고 오늘의 운세를 확인하세요</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+        </LinearGradient>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => router.push('/saju' as never)}
+        style={{ marginTop: 8 }}
       >
-        <View style={{ flex: 1 }}>
-          <Text style={s.fortuneTitle}>오늘의 영업운</Text>
-          <Text style={s.fortuneSub}>띠를 선택하고 오늘의 운세를 확인하세요</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
-      </LinearGradient>
-    </TouchableOpacity>
+        <LinearGradient
+          colors={['#ede9fe', '#f5f3ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={s.fortuneBtn}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={s.fortuneTitle}>내 사주</Text>
+            <Text style={s.fortuneSub}>오늘의 사주 · 이번달 운세 · 평생 총운 · 영업 궁합</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
   );
 
   // 카테고리 탭 + 검색창 — 이쪽만 스크롤 시 상단에 고정된다

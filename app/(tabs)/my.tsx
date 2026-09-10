@@ -226,6 +226,22 @@ export default function MyPage() {
           </TouchableOpacity>
         )}
 
+        {/* 사주 — 유료 항목이라 포인트 줄 바로 아래가 자연스럽다 */}
+        <TouchableOpacity
+          style={s.pointRow}
+          onPress={() => router.push('/saju' as never)}
+          activeOpacity={0.8}
+        >
+          <View style={[s.menuIcon, { backgroundColor: '#ede9fe' }]}>
+            <Ionicons name="sparkles" size={18} color="#7c3aed" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.menuLabel}>내 사주</Text>
+            <Text style={s.pointSub}>오늘의 사주 · 이번달 운세 · 평생 총운 · 영업 궁합</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
+        </TouchableOpacity>
+
         {/* 메뉴 리스트 */}
         <View style={s.menuCard}>
           {MENU_ITEMS.map(({ icon, iconBg, iconColor, label, route }, idx) => (
