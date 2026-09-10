@@ -14,7 +14,7 @@ import { checkLikeStatus, incrementCommunityView } from '@/services/community/ap
 import { useGetMe } from '@/services/auth/queries';
 import { toast } from '@/hooks/use-toast';
 import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
-import { IMAGE_PREFIX } from '@/lib/constants';
+import { WEB_URL, IMAGE_PREFIX } from '@/lib/constants';
 import { formatDate } from '@/lib/lib';
 import PostTopNav from '@/components/common/PostTopNav';
 import CommentsSection from '@/components/community-post/CommentsSection';
@@ -93,7 +93,7 @@ export default function BoardDetailPage() {
   }, [postId, me?.id]);
 
   const handleShare = useCallback(() => {
-    Share.share({ message: `https://lightby.co.kr/posts/board/${postId}` });
+    Share.share({ message: `${WEB_URL}/posts/board/${postId}` });
   }, [postId]);
 
   const handleLike = useCallback(() => {

@@ -15,7 +15,7 @@ import { AxiosError } from 'axios';
 import { useGetJobDetail, useGetLikeStatus } from '@/services/site/queries';
 import { incrementSiteView, applyToJob, toggleSiteLike, deleteJobPost } from '@/services/site/api';
 import { useGetMe } from '@/services/auth/queries';
-import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
+import { WEB_URL, ICON_LIST, ICON_COLORS } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
 import { KakaoMap } from '@/components/common/KakaoMap';
 import ContentActionSheet from '@/components/community-post/ContentActionSheet';
@@ -146,7 +146,7 @@ export default function SiteDetailPage() {
   }, [me, likeMutation]);
 
   const handleShare = useCallback(() => {
-    Share.share({ message: `https://lightby.co.kr/posts/site/${id}` });
+    Share.share({ message: `${WEB_URL}/posts/site/${id}` });
   }, [id]);
 
   const handleCall = useCallback(() => {

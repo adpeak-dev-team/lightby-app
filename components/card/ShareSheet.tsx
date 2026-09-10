@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { WEB_URL } from '@/lib/constants';
 import {
     Modal, View, TouchableOpacity, StyleSheet, Alert, Share, Linking, Platform,
 } from 'react-native';
@@ -11,7 +12,6 @@ import { CARD_QUERY_KEYS } from '@/services/card/queries';
 import { usePointBalance, usePointPolicies } from '@/services/point/queries';
 import type { CardListItem, ShareLog } from '@/services/card/types';
 
-const WEB_ORIGIN = process.env.EXPO_PUBLIC_WEB_URL ?? 'https://lightby.co.kr';
 const won = (n: number) => n.toLocaleString('ko-KR');
 
 type Channel = Extract<ShareLog['channel'], 'kakao' | 'sms' | 'link'>;
@@ -74,7 +74,7 @@ export function ShareSheet({
                 requestKey: makeRequestKey(),
                 channel,
             });
-            const url = `${WEB_ORIGIN}/card/${token}`;
+            const url = `${WEB_URL}/card/${token}`;
             const message = `${card.name} 명함입니다.\n${url}`;
 
             qc.invalidateQueries({ queryKey: CARD_QUERY_KEYS.list });

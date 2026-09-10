@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { WEB_URL } from '@/lib/constants';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 import type { CardPayload } from '@/services/card/types';
 
-/** 웹 오리진. 미리보기 렌더러가 거기 있다. */
-const WEB_ORIGIN = process.env.EXPO_PUBLIC_WEB_URL ?? 'https://lightby.co.kr';
-const PREVIEW_URL = `${WEB_ORIGIN}/card/preview`;
+const PREVIEW_URL = `${WEB_URL}/card/preview`;
 
 /**
  * 명함 미리보기.

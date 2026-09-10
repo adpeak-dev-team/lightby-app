@@ -1,8 +1,22 @@
 export const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
 
+/**
+ * 웹 오리진 — 공유 링크와 명함 미리보기(WebView)가 쓴다.
+ *
+ * 배포 환경에서는 EXPO_PUBLIC_API_URL 과 **같은 값**이다. 앱은 `{API_URL}/api` 로
+ * 부르고 Next 가 그걸 백엔드로 프록시하기 때문이다. 그래서 따로 설정할 필요가 없다.
+ *
+ * 갈리는 건 로컬 개발뿐이다 — 그때만 API 는 :4000(백엔드 직접), 웹은 :3000 이다.
+ * 그 경우에만 EXPO_PUBLIC_WEB_URL 을 따로 준다.
+ */
+export const WEB_URL =
+  process.env.EXPO_PUBLIC_WEB_URL
+  ?? process.env.EXPO_PUBLIC_API_URL
+  ?? 'https://lightby.co.kr';
+
 // 이용약관 / 개인정보처리방침 (가입 시 동의 — App Store 가이드라인 1.2)
-export const TERMS_URL = process.env.EXPO_PUBLIC_TERMS_URL ?? 'https://lightby.co.kr/terms';
-export const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL ?? 'https://lightby.co.kr/terms';
+export const TERMS_URL = process.env.EXPO_PUBLIC_TERMS_URL ?? `${WEB_URL}/terms`;
+export const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL ?? `${WEB_URL}/terms`;
 
 // 신고 사유 목록 (커뮤니티 콘텐츠 신고)
 export const REPORT_REASONS = [
