@@ -17,6 +17,7 @@ import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
 import { getImageUrl } from '@/lib/lib';
+import { BirthdayInput, isValidBirthday } from '@/components/common/BirthdayInput';
 
 type Gender = '남자' | '여자' | null;
 
@@ -30,7 +31,7 @@ export default function TalentPage() {
 
   const [nickname, setNickname] = useState('');
   const [gender, setGender] = useState<Gender>(null);
-  const [age, setAge] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [introduction, setIntroduction] = useState('');
   const [careers, setCareers] = useState<string[]>([]);
   const [careerInput, setCareerInput] = useState('');
@@ -49,15 +50,14 @@ export default function TalentPage() {
     hydratedRef.current = true;
 
     const g: Gender = profile.gender === 'male' ? '남자' : profile.gender === 'female' ? '여자' : null;
-    const a = profile.birthday
-      ? String(new Date().getFullYear() - new Date(profile.birthday).getFullYear())
-      : '';
+    // 'YYYY-MM-DD' 로 그대로 쓴다. 서버가 datetime 으로 줄 수 있어 앞 10자만 자른다.
+    const b = profile.birthday ? String(profile.birthday).slice(0, 10) : '';
     const intro = profile.introduction ?? '';
     const cs = profile.careers ?? [];
 
     setNickname(profile.nickname ?? '');
     setGender(g);
-    setAge(a);
+    setBirthday(b);
     setIntroduction(intro);
     setCareers(cs);
   }, [profile]);
@@ -148,13 +148,12 @@ export default function TalentPage() {
       Alert.alert('오류', '닉네임을 입력해주세요.');
       return;
     }
-    if (!gender || !age || !introduction) {
+    if (!gender || !birthday || !introduction) {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
       return;
     }
-    const ageNum = parseInt(age, 10);
-    if (Number.isNaN(ageNum) || ageNum < 10 || ageNum > 120) {
-      Alert.alert('오류', '나이를 올바르게 입력해 주세요.');
+    if (!isValidBirthday(birthday)) {
+      Alert.alert('오류', '생년월일을 올바르게 입력해 주세요.');
       return;
     }
 
@@ -169,9 +168,8 @@ export default function TalentPage() {
       }
     }
 
-    const birthYear = new Date().getFullYear() - ageNum;
     saveMutation.mutate(
-      { gender, birthday: `${birthYear}-01-01`, introduction, careers },
+      { gender, birthday, introduction, careers },
       {
         onSuccess: (res) => {
           if (res.success) {
@@ -284,35 +282,27 @@ export default function TalentPage() {
               />
             </View>
 
-            <View style={s.row}>
-              <View style={[s.field, { flex: 1 }]}>
-                <Text style={s.label}>성별 <Text style={s.required}>*</Text></Text>
-                <View style={s.btnGroup}>
-                  {(['남자', '여자'] as Gender[]).map((g) => (
-                    <TouchableOpacity
-                      key={g!}
-                      style={[s.choiceBtn, gender === g && s.choiceBtnActive]}
-                      onPress={() => setGender(g)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[s.choiceText, gender === g && s.choiceTextActive]}>{g}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+            <View style={s.field}>
+              <Text style={s.label}>성별 <Text style={s.required}>*</Text></Text>
+              <View style={s.btnGroup}>
+                {(['남자', '여자'] as Gender[]).map((g) => (
+                  <TouchableOpacity
+                    key={g!}
+                    style={[s.choiceBtn, gender === g && s.choiceBtnActive]}
+                    onPress={() => setGender(g)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[s.choiceText, gender === g && s.choiceTextActive]}>{g}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
+            </View>
 
-              <View style={[s.field, { flex: 1 }]}>
-                <Text style={s.label}>나이 <Text style={s.required}>*</Text></Text>
-                <TextInput
-                  style={s.input}
-                  value={age}
-                  onChangeText={(v) => setAge(v.replace(/[^0-9]/g, ''))}
-                  placeholder="예: 32"
-                  placeholderTextColor="#94a3b8"
-                  keyboardType="number-pad"
-                  maxLength={3}
-                />
-              </View>
+            {/* 생년월일 — 사주가 이 값으로 계산된다.
+                예전에는 나이만 받아 1월 1일로 저장했다(웹은 이미 고쳤다). */}
+            <View style={s.field}>
+              <Text style={s.label}>생년월일 <Text style={s.required}>*</Text></Text>
+              <BirthdayInput value={birthday} onChange={setBirthday} />
             </View>
           </View>
 
