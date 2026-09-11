@@ -81,6 +81,34 @@ export const formatTime = (seconds: number) => {
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
+/**
+ * 서버가 준 날짜 값 → 'YYYY-MM-DD' (한국 시각 기준).
+ *
+ * ⚠️ **앞 10자만 자르면 하루가 밀린다.**
+ *    백엔드 mysql2 풀이 `timezone: '+09:00'` 이라, DATE 컬럼 `1990-10-25` 는
+ *    "1990-10-25 00:00 KST" 인 Date 로 살아나고 JSON 으로는 UTC ISO
+ *    `1990-10-24T15:00:00.000Z` 로 나간다. 여기서 slice(0,10) 하면 10-24 다.
+ *
+ * 기기 시간대에 맡기지 않고 **+09:00 으로 고정**한다. 서버가 그 시간대로 값을
+ * 만들어 보내기 때문이고, 해외에 있는 사용자도 같은 날짜를 봐야 하기 때문이다.
+ * (웹은 기기 시간대로 변환한다 — 한국 밖에서는 웹이 하루 밀린다)
+ */
+export const toDateString = (value: unknown): string => {
+    if (!value) return '';
+    const raw = String(value);
+
+    // 이미 'YYYY-MM-DD' 면 그대로 쓴다 — 시간대를 다시 태울 이유가 없다
+    const plain = /^(\d{4}-\d{2}-\d{2})(?:$|[T ])/.exec(raw);
+    if (plain && !raw.includes('Z') && !/[+-]\d{2}:?\d{2}$/.test(raw)) return plain[1];
+
+    const t = Date.parse(raw);
+    if (Number.isNaN(t)) return plain ? plain[1] : '';
+
+    const kst = new Date(t + 9 * 60 * 60 * 1000);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())}`;
+};
+
 export const formatDate = (dateStr: string): string => {
     const d = new Date(dateStr);
     const y = d.getFullYear().toString().slice(2);

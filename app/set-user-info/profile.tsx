@@ -17,7 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { useGetUserProfile } from '@/services/user/queries';
 import { useSaveTalentInfo, useUploadProfileImage } from '@/services/user/mutations';
 
-import { getImageUrl } from '@/lib/lib';
+import { getImageUrl, toDateString } from '@/lib/lib';
 import { BirthdayInput, isValidBirthday } from '@/components/common/BirthdayInput';
 
 type Gender = '남자' | '여자' | null;
@@ -39,10 +39,8 @@ export default function SetUserInfoProfilePage() {
   useEffect(() => {
     if (!profile) return;
     setGender(profile.gender === 'male' ? '남자' : profile.gender === 'female' ? '여자' : null);
-    if (profile.birthday) {
-      // 'YYYY-MM-DD' 로 그대로 쓴다(서버가 datetime 으로 줄 수 있어 앞 10자만).
-      setBirthday(String(profile.birthday).slice(0, 10));
-    }
+    // 서버는 UTC ISO 로 준다 — 앞 10자만 자르면 하루가 밀린다(toDateString 주석 참고)
+    setBirthday(toDateString(profile.birthday));
     setIntroduction(profile.introduction ?? '');
     setCareers(profile.careers ?? []);
   }, [profile]);

@@ -16,7 +16,7 @@ import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage, useUpd
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
-import { getImageUrl } from '@/lib/lib';
+import { getImageUrl, toDateString } from '@/lib/lib';
 import { BirthdayInput, isValidBirthday } from '@/components/common/BirthdayInput';
 
 type Gender = '남자' | '여자' | null;
@@ -50,8 +50,8 @@ export default function TalentPage() {
     hydratedRef.current = true;
 
     const g: Gender = profile.gender === 'male' ? '남자' : profile.gender === 'female' ? '여자' : null;
-    // 'YYYY-MM-DD' 로 그대로 쓴다. 서버가 datetime 으로 줄 수 있어 앞 10자만 자른다.
-    const b = profile.birthday ? String(profile.birthday).slice(0, 10) : '';
+    // 서버는 UTC ISO 로 준다 — 앞 10자만 자르면 하루가 밀린다(toDateString 주석 참고)
+    const b = toDateString(profile.birthday);
     const intro = profile.introduction ?? '';
     const cs = profile.careers ?? [];
 
