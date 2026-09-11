@@ -64,27 +64,15 @@ export default function CommunityPage() {
     try { await refetch(); } finally { setRefreshing(false); }
   }, [refetch]);
 
-  // 운세 두 갈래 — 목록과 함께 스크롤되어 위로 사라진다(고정 아님).
-  //
-  // 띠별(무료)과 사주(유료)는 다른 물건이다. 띠는 열둘 중 하나를 고르는 가벼운
-  // 재미고, 사주는 내 생년월일로 뽑는 개인 결과다. 같은 버튼에 섞으면 사용자가
-  // 뭘 보고 있는지 모른다.
+  // 운세 진입 — 목록과 함께 스크롤되어 위로 사라진다(고정 아님).
   const listHeader = (
     <View style={s.fortuneWrap}>
       <FortuneCard
-        emoji="🐯"
-        colors={['#e0f2fe', '#f0f9ff']}
-        title="오늘의 영업운"
-        desc="띠를 선택하고 오늘의 운세를 확인하세요"
-        onPress={() => router.push('/fortune')}
-      />
-      <FortuneCard
         emoji="🔮"
-        colors={['#ede9fe', '#f5f3ff']}
-        title="내 사주"
-        desc="오늘의 사주 · 이번달 운세 · 평생 총운 · 영업 궁합"
+        colors={['#e0f2fe', '#f0f9ff']}
+        title="오늘의 영업운 보기"
+        desc="내 사주, 오늘의 영업운, 팀원과의 관계운 번개분양에서 확인하기"
         onPress={() => router.push('/saju' as never)}
-        style={{ marginTop: 8 }}
       />
     </View>
   );
@@ -189,21 +177,23 @@ export default function CommunityPage() {
 }
 
 /**
- * 운세 진입 카드 — 웹 /community 상단과 같은 모양(그라데이션 · 이모지 · 제목/설명 · 화살표).
- * 두 화면이 같아 보여야 사용자가 앱과 웹을 오갈 때 같은 물건이라고 알아본다.
+ * 운세 진입 카드 — 웹 /community 상단과 **같은 모양**이다(그라데이션 · 수정구슬 ·
+ * 제목/설명 · 화살표). 두 화면이 같아 보여야 앱과 웹을 오갈 때 같은 물건으로 알아본다.
+ *
+ * 문은 하나다. 띠별과 사주로 갈라 두 개를 세워 봤더니 들어오는 사람은 둘의 차이를
+ * 모른 채 위에 있는 것만 눌렀다. 갈래는 들어간 뒤에 고르게 한다.
  */
 function FortuneCard({
-  emoji, colors, title, desc, onPress, style,
+  emoji, colors, title, desc, onPress,
 }: {
   emoji: string;
   colors: [string, string];
   title: string;
   desc: string;
   onPress: () => void;
-  style?: object;
 }) {
   return (
-    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={style}>
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
       <LinearGradient
         colors={colors}
         start={{ x: 0, y: 0 }}
@@ -215,7 +205,7 @@ function FortuneCard({
           <Text style={s.fortuneTitle}>{title}</Text>
           <Text style={s.fortuneSub}>{desc}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+        <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -234,22 +224,23 @@ const s = StyleSheet.create({
   // 원래는 거의 흰색(#fdf2f8→#fefce8)이라 배경에 묻혔다.
   // 테두리·라운드·아이콘 배경 없이 그라데이션 색만으로 구분한다.
   fortuneWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 2 },
-  fortuneEmoji: { fontSize: 34, lineHeight: 42 },
+  fortuneEmoji: { fontSize: 36, lineHeight: 44 },
   fortuneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
     borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingLeft: 32,
+    paddingRight: 20,
+    paddingVertical: 36,
     shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 2,
   },
-  fortuneTitle: { fontSize: 17, fontWeight: '700', color: '#1e293b' },
-  fortuneSub: { fontSize: 13, color: '#64748b', marginTop: 3, lineHeight: 19 },
+  fortuneTitle: { fontSize: 20, fontWeight: '700', color: '#1e293b' },
+  fortuneSub: { fontSize: 14, color: '#64748b', marginTop: 4, lineHeight: 20 },
   // 카테고리 탭
   tabs: {
     flexDirection: 'row',
