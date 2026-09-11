@@ -245,7 +245,7 @@ export default function MyPage() {
         {/* 모바일 명함 */}
         <TouchableOpacity
           style={s.pointRow}
-          onPress={() => router.push('/mypage/card' as never)}
+          onPress={() => router.push('/card' as never)}
           activeOpacity={0.8}
         >
           <View style={[s.menuIcon, { backgroundColor: '#dbeafe' }]}>

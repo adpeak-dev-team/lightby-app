@@ -13,7 +13,7 @@ export default function CardTab() {
     return (
         <View style={s.container}>
             <Header />
-            <CardListView variant="tab" />
+            <CardListView />
         </View>
     );
 }

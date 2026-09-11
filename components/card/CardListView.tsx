@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokenStorage } from '@/api/apiClient';
 import { IMAGE_PREFIX } from '@/lib/constants';
 import { ShareSheet } from '@/components/card/ShareSheet';
-import { TEMPLATE_SWATCH } from '@/components/card/swatches';
+import { TEMPLATE_SWATCH } from '@/components/card/templates';
 import { useCards } from '@/services/card/queries';
 import { usePointBalance, usePointPolicies } from '@/services/point/queries';
 import type { CardListItem } from '@/services/card/types';
@@ -28,24 +28,21 @@ const won = (n: number) => n.toLocaleString('ko-KR');
  * 제작에 포인트가 든다(첫 장은 무료). 값은 만들기 전에 보여 준다 — 다 만들고
  * 저장할 때 "부족합니다" 가 뜨면 들인 수고가 통째로 날아간다.
  *
- * 하단 탭과 마이페이지 양쪽에서 같은 화면을 연다. 다른 건 위아래 여백뿐이라
- * (탭은 Header 가 위에, 탭바가 아래에 있다) 화면을 둘로 나누지 않고 variant 로 받는다.
+ * 만들기·수정은 **다른 주소**다(/card/new, /card/modify/{id}). 한 화면에서 상태로
+ * 갈아 끼우면 뒤로가기가 목록이 아니라 앱 밖으로 나간다.
  */
-export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
+export function CardListView() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
     // 탭이라 비로그인 상태에서도 열린다. 토큰이 확정되기 전에는 조회하지 않는다.
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(
-        variant === 'stack' ? true : null,
-    );
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
     useFocusEffect(
         useCallback(() => {
-            if (variant === 'stack') return;
             let active = true;
             tokenStorage.get().then((t) => { if (active) setIsLoggedIn(!!t); });
             return () => { active = false; };
-        }, [variant]),
+        }, []),
     );
 
     const { data: cards, isLoading } = useCards(isLoggedIn === true);
@@ -74,7 +71,7 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
             );
             return;
         }
-        router.push('/mypage/card/edit' as never);
+        router.push('/card/new' as never);
     };
 
     if (isLoggedIn === false) {
@@ -98,21 +95,11 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
 
     return (
         <View style={s.container}>
-            {variant === 'stack' && (
-                <View style={s.nav}>
-                    <TouchableOpacity onPress={() => router.back()} style={s.navBack}>
-                        <Ionicons name="chevron-back" size={24} color="#0f172a" />
-                    </TouchableOpacity>
-                    <Text style={s.navTitle}>내 명함</Text>
-                    <View style={s.navBack} />
-                </View>
-            )}
-
             <ScrollView
                 contentContainerStyle={{
                     padding: 12,
-                    // 탭에서는 탭바가 목록 마지막 줄을 덮는다
-                    paddingBottom: insets.bottom + (variant === 'tab' ? 100 : 32),
+                    // 탭바가 목록 마지막 줄을 덮는다
+                    paddingBottom: insets.bottom + 100,
                 }}
                 showsVerticalScrollIndicator={false}
             >
@@ -133,7 +120,7 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
                             key={c.id}
                             card={c}
                             onEdit={() => router.push({
-                                pathname: '/mypage/card/edit',
+                                pathname: '/card/modify/[id]',
                                 params: { id: String(c.id) },
                             } as never)}
                             onSend={() => setSharing(c)}
@@ -245,14 +232,6 @@ function Stat({
 const s = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f1f5f9' },
     center: { alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 32 },
-    nav: {
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        backgroundColor: '#fff', paddingTop: 10, paddingBottom: 12, paddingHorizontal: 16,
-        borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
-    },
-    navBack: { width: 40, alignItems: 'flex-start' },
-    navTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-
     empty: { alignItems: 'center', marginTop: 50, marginBottom: 20, gap: 8, paddingHorizontal: 24 },
     emptyTitle: { fontSize: 15, fontWeight: '700', color: '#475569' },
     emptyDesc: { fontSize: 13, color: '#94a3b8', textAlign: 'center', lineHeight: 20 },
