@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { TextInput } from '@/components/common/AppTextInput';
@@ -101,32 +102,18 @@ export function SajuForm({
 
                 {!value.timeUnknown && (
                     <View style={s.timeRow}>
-                        <View style={s.timeCell}>
-                            <TextInput
-                                style={s.input}
-                                value={String(time.hour).padStart(2, '0')}
-                                onChangeText={(v: string) =>
-                                    set('birthTime', joinTime(clamp(v, 23), time.minute))
-                                }
-                                keyboardType="number-pad"
-                                maxLength={2}
-                                selectTextOnFocus
-                            />
-                            <Text style={s.unit}>시</Text>
-                        </View>
-                        <View style={s.timeCell}>
-                            <TextInput
-                                style={s.input}
-                                value={String(time.minute).padStart(2, '0')}
-                                onChangeText={(v: string) =>
-                                    set('birthTime', joinTime(time.hour, clamp(v, 59)))
-                                }
-                                keyboardType="number-pad"
-                                maxLength={2}
-                                selectTextOnFocus
-                            />
-                            <Text style={s.unit}>분</Text>
-                        </View>
+                        <NumberCell
+                            label="시"
+                            max={23}
+                            value={time.hour}
+                            onChange={(h) => set('birthTime', joinTime(h, time.minute))}
+                        />
+                        <NumberCell
+                            label="분"
+                            max={59}
+                            value={time.minute}
+                            onChange={(m) => set('birthTime', joinTime(time.hour, m))}
+                        />
                     </View>
                 )}
             </View>
@@ -165,6 +152,50 @@ export function SajuForm({
             >
                 <Text style={s.saveText}>{submitting ? '저장 중…' : submitLabel}</Text>
             </TouchableOpacity>
+        </View>
+    );
+}
+
+/**
+ * 두 자리 숫자 칸.
+ *
+ * ⚠️ 화면에 그리는 문자열을 **자체 상태로 들고 있는다.** 부모 값(항상 두 자리로
+ *    맞춰진 숫자)만 보고 그리면, 한 자리를 친 순간 '01' 로 되돌아오고 maxLength=2 에
+ *    걸려 두 번째 숫자를 아예 못 친다. (실제로 그렇게 동작했다)
+ *    범위 보정은 입력할 때 값으로만 하고, 표시는 칸을 떠날 때 정리한다.
+ */
+function NumberCell({
+    label, max, value, onChange,
+}: {
+    label: string;
+    max: number;
+    value: number;
+    onChange: (v: number) => void;
+}) {
+    const [text, setText] = useState(String(value).padStart(2, '0'));
+
+    // 밖에서 값이 바뀐 경우(시각 모름 해제 등)에만 맞춘다
+    useEffect(() => {
+        if (clamp(text, max) !== value) setText(String(value).padStart(2, '0'));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
+
+    return (
+        <View style={s.timeCell}>
+            <TextInput
+                style={s.input}
+                value={text}
+                onChangeText={(v: string) => {
+                    const t = v.replace(/[^0-9]/g, '').slice(0, 2);
+                    setText(t);
+                    onChange(clamp(t, max));
+                }}
+                onBlur={() => setText(String(clamp(text, max)).padStart(2, '0'))}
+                keyboardType="number-pad"
+                maxLength={2}
+                selectTextOnFocus
+            />
+            <Text style={s.unit}>{label}</Text>
         </View>
     );
 }
