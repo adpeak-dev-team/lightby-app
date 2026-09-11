@@ -28,6 +28,8 @@ import { useNotificationObserver } from '@/services/push/useNotificationObserver
 import { queryClient } from '@/lib/queryClient';
 import { handleDeepLink, initAttribution } from '@/lib/attribution';
 
+import { initializeKakaoSDK } from '@react-native-kakao/core';
+
 /**
  * RN에는 브라우저의 window focus 이벤트가 없어 react-query의 refetchOnWindowFocus가
  * 아무 때도 발동하지 않는다. AppState를 focusManager에 물려서
@@ -64,6 +66,21 @@ function useWebWordBreak() {
     document.head.appendChild(style);
   }, []);
 }
+
+/**
+ * 카카오 SDK 초기화 — **명함 카카오톡 공유**가 쓴다.
+ *
+ * 로그인은 @react-native-seoul/kakao-login 이 네이티브에서 따로 초기화한다.
+ * 같은 네이티브 앱키를 다시 넣는 것이라 덮어써도 값이 같다.
+ *
+ * 실패해도 앱을 세우지 않는다 — 공유 한 기능이 안 되는 것과 앱이 안 뜨는 것은
+ * 무게가 다르다. 실제 실패는 공유를 누르는 순간 그 자리에서 드러난다.
+ */
+void initializeKakaoSDK(
+  process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY ?? '89b2edd8a00e96465bb62815518d2c62',
+).catch((e) => {
+  console.warn('[kakao] SDK 초기화 실패', e);
+});
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

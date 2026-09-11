@@ -104,6 +104,18 @@
         }
       ],
       [
+        "@react-native-kakao/core",
+        {
+          "nativeAppKey": "89b2edd8a00e96465bb62815518d2c62",
+          "android": {
+            "forwardKakaoLinkIntentFilterToMainActivity": true
+          },
+          "ios": {
+            "handleKakaoOpenUrl": true
+          }
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {

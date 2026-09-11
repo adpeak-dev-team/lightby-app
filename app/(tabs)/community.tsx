@@ -81,42 +81,42 @@ export default function CommunityPage() {
   const sectionHeader = (
     <View style={s.searchWrap}>
       <View style={s.tabs}>
-          {COMMUNITY_TABS.map((t) => {
-            const active = tab === t.key;
-            return (
-              <TouchableOpacity
-                key={t.key}
-                style={[s.tab, active && s.tabActive]}
-                onPress={() => setTab(t.key)}
-                activeOpacity={0.85}
-              >
-                <Text style={[s.tabText, active && s.tabTextActive]}>{t.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <View style={[s.searchBar, focused && s.searchBarFocused]}>
-          <Ionicons name="search-outline" size={16} color="#94a3b8" />
-          <TextInput
-            style={s.searchInput}
-            value={input}
-            onChangeText={setInput}
-            placeholder="제목 또는 내용으로 검색"
-            placeholderTextColor="#94a3b8"
-            returnKeyType="search"
-            onSubmitEditing={handleSubmit}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            autoCorrect={false}
-            autoCapitalize="none"
-          />
-          {!!input && (
-            <TouchableOpacity onPress={handleClear} hitSlop={8}>
-              <Ionicons name="close-circle" size={16} color="#94a3b8" />
+        {COMMUNITY_TABS.map((t) => {
+          const active = tab === t.key;
+          return (
+            <TouchableOpacity
+              key={t.key}
+              style={[s.tab, active && s.tabActive]}
+              onPress={() => setTab(t.key)}
+              activeOpacity={0.85}
+            >
+              <Text style={[s.tabText, active && s.tabTextActive]}>{t.label}</Text>
             </TouchableOpacity>
-          )}
-        </View>
+          );
+        })}
+      </View>
+
+      <View style={[s.searchBar, focused && s.searchBarFocused]}>
+        <Ionicons name="search-outline" size={16} color="#94a3b8" />
+        <TextInput
+          style={s.searchInput}
+          value={input}
+          onChangeText={setInput}
+          placeholder="제목 또는 내용으로 검색"
+          placeholderTextColor="#94a3b8"
+          returnKeyType="search"
+          onSubmitEditing={handleSubmit}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+        {!!input && (
+          <TouchableOpacity onPress={handleClear} hitSlop={8}>
+            <Ionicons name="close-circle" size={16} color="#94a3b8" />
+          </TouchableOpacity>
+        )}
+      </View>
 
       {!!search && (
         <Text style={s.searchResult}>
@@ -223,24 +223,24 @@ const s = StyleSheet.create({
   // 오늘의 영업운 버튼 — 블루 계열 파스텔(sky-100 → blue-200)의 평평한 배너.
   // 원래는 거의 흰색(#fdf2f8→#fefce8)이라 배경에 묻혔다.
   // 테두리·라운드·아이콘 배경 없이 그라데이션 색만으로 구분한다.
-  fortuneWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 2 },
+  fortuneWrap: { paddingHorizontal: 2, paddingTop: 3, paddingBottom: 2 },
   fortuneEmoji: { fontSize: 36, lineHeight: 44 },
   fortuneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
     borderRadius: 16,
-    paddingLeft: 32,
-    paddingRight: 20,
-    paddingVertical: 36,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingVertical: 14,
     shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 2,
   },
-  fortuneTitle: { fontSize: 20, fontWeight: '700', color: '#1e293b' },
-  fortuneSub: { fontSize: 14, color: '#64748b', marginTop: 4, lineHeight: 20 },
+  fortuneTitle: { fontSize: 18, fontWeight: '700', color: '#1e293b' },
+  fortuneSub: { fontSize: 12, color: '#64748b', marginTop: 4, lineHeight: 20 },
   // 카테고리 탭
   tabs: {
     flexDirection: 'row',

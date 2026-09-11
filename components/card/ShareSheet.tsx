@@ -7,12 +7,18 @@ import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { IMAGE_PREFIX } from '@/lib/constants';
+import { shareCardToKakao } from '@/lib/kakaoShare';
 import { issueShare } from '@/services/card/api';
 import { CARD_QUERY_KEYS } from '@/services/card/queries';
 import { usePointBalance, usePointPolicies } from '@/services/point/queries';
 import type { CardListItem, ShareLog } from '@/services/card/types';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
+
+/** 카카오 서버가 직접 가져가는 썸네일이라 **절대 URL** 이어야 한다. */
+const cardPhotoUrl = (path: string | null) =>
+    !path ? undefined : path.startsWith('http') ? path : `${IMAGE_PREFIX}${path}`;
 
 type Channel = Extract<ShareLog['channel'], 'kakao' | 'sms' | 'link'>;
 
@@ -90,9 +96,24 @@ export function ShareSheet({
                 const sep = Platform.OS === 'ios' ? '&' : '?';
                 await Linking.openURL(`sms:${sep}body=${encodeURIComponent(message)}`);
             } else {
-                // 카카오 전용 SDK 대신 OS 공유 시트를 쓴다 — 카톡이 목록에 뜨고,
-                // 문자·메일·다른 앱까지 한 번에 열린다. 앱에서는 이쪽이 더 넓다.
-                await Share.share({ message });
+                // 카카오톡은 **네이티브 SDK 로 직접 그린다**(웹과 같은 피드 템플릿).
+                // OS 공유 시트로 텍스트만 던지면 카톡이 링크를 긁어 OG 미리보기를
+                // 만드는데, 제목·썸네일을 우리가 못 고르고 "명함 보기" 버튼도 없다.
+                // 받는 사람이 보는 첫 화면이라 여기서 밀리면 안 된다.
+                try {
+                    await shareCardToKakao({
+                        url,
+                        title: card.name.trim()
+                            ? `${card.name.trim()}님의 명함을 확인해보세요`
+                            : '명함을 확인해보세요',
+                        imageUrl: cardPhotoUrl(card.photoPath),
+                    });
+                } catch (e) {
+                    // 카카오톡이 없거나 SDK 가 실패한 기기에서는 링크라도 나가야 한다.
+                    // **여기서 멈추면 이미 차감된 포인트로 아무것도 못 보낸 셈이 된다.**
+                    console.warn('[card] 카카오 공유 실패 — 공유 시트로 대체', e);
+                    await Share.share({ message });
+                }
             }
             onClose();
         } catch (e: any) {
@@ -115,7 +136,7 @@ export function ShareSheet({
                     <View style={s.row}>
                         <ChannelBtn
                             icon="chatbubble-ellipses"
-                            label="공유하기"
+                            label="카카오톡"
                             busy={busy === 'kakao'}
                             onPress={() => send('kakao')}
                         />
