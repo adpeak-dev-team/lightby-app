@@ -15,7 +15,7 @@ import { useGetMe } from '@/services/auth/queries';
 import { toast } from '@/hooks/use-toast';
 import { useKeyboardHeight } from '@/hooks/use-keyboard-height';
 import { WEB_URL, IMAGE_PREFIX } from '@/lib/constants';
-import { formatDate } from '@/lib/lib';
+import { formatDate, getImageUrl } from '@/lib/lib';
 import PostTopNav from '@/components/common/PostTopNav';
 import CommentsSection from '@/components/community-post/CommentsSection';
 import CommentInputBar from '@/components/community-post/CommentInputBar';
@@ -184,8 +184,7 @@ export default function BoardDetailPage() {
   }
 
   const isAnon = !!post.is_anonymous;
-  const profileUri = post.profile_thumbnail && !isAnon
-    ? `${IMAGE_PREFIX}${post.profile_thumbnail}` : null;
+  const profileUri = !isAnon ? getImageUrl(post.profile_thumbnail) : null;
 
   return (
     <View style={s.container}>

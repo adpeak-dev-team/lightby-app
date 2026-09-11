@@ -16,7 +16,7 @@ import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage, useUpd
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+import { getImageUrl } from '@/lib/lib';
 
 type Gender = '남자' | '여자' | null;
 
@@ -193,9 +193,7 @@ export default function TalentPage() {
     return <View style={s.center}><Text style={{ color: '#f87171' }}>프로필 정보를 불러오는 데 실패했습니다.</Text></View>;
   }
 
-  const avatarUri = profile?.profile_thumbnail
-    ? `${IMAGE_PREFIX}${profile.profile_thumbnail}`
-    : null;
+  const avatarUri = getImageUrl(profile?.profile_thumbnail);
 
   return (
     <View style={s.container}>

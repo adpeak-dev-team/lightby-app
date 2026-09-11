@@ -174,14 +174,31 @@ export const getUserId = (): string | null => {
     }
 }
 
-export const getImageUrl = (imagePath: string) => {
+/**
+ * 저장된 이미지 경로 → 화면에 쓸 주소.
+ *
+ * 두 종류가 섞여 들어온다:
+ *  - GCS 상대 경로 (우리가 업로드한 것) → 접두사를 붙인다
+ *  - 절대 URL (카카오 로그인 프로필 사진, k.kakaocdn.net) → 그대로 쓴다
+ *
+ * ⚠️ 절대 URL 에 접두사를 붙이면 `.../lightby/http://k.kakaocdn.net/...` 이 되어
+ *    조용히 깨진다. 운영 DB 기준 프로필 사진의 **94%(249/264)가 카카오 절대 URL** 이라
+ *    이걸 놓치면 대부분의 사용자가 빈 동그라미를 본다.
+ *
+ * ⚠️ 카카오가 주는 주소는 **http** 다. 릴리스 빌드에는 usesCleartextTraffic 이 없어
+ *    안드로이드가 평문 HTTP 를 막는다 — 디버그에서만 보이고 스토어 빌드에서는 안 뜬다.
+ *    같은 호스트가 https 로도 열리므로 올려서 쓴다.
+ */
+export const getImageUrl = (imagePath: string | null | undefined) => {
     if (!imagePath) return null;
 
-    if (imagePath.includes('http')) {
-        return imagePath;
+    // startsWith 로 본다. includes('http') 는 경로 한가운데 'http' 가 들어간
+    // 파일명까지 절대 URL 로 오해한다.
+    if (/^https?:\/\//i.test(imagePath)) {
+        return imagePath.replace(/^http:\/\//i, 'https://');
     }
 
-    return `${process.env.EXPO_PUBLIC_IMAGE_PREFIX}${imagePath}`;
+    return `${process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? ''}${imagePath}`;
 }
 
 // 백엔드 썸네일은 원본 파일명 앞에 'T' 접두사가 붙은 리사이즈본이다.

@@ -18,7 +18,7 @@ import { useLogout } from '@/services/auth/mutations';
 import { useGetUserProfile, useGetUserPostCount, USER_KEYS } from '@/services/user/queries';
 import { useGetMyJobPostings } from '@/services/site/queries';
 
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+import { getImageUrl } from '@/lib/lib';
 
 type MenuItem = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -134,9 +134,8 @@ export default function MyPage() {
     );
   }
 
-  const avatarUri = profile?.profile_thumbnail
-    ? `${IMAGE_PREFIX}${profile.profile_thumbnail}`
-    : null;
+  // 카카오 로그인 사진은 절대 URL 이다 — 접두사를 붙이면 깨진다(getImageUrl 주석 참고)
+  const avatarUri = getImageUrl(profile?.profile_thumbnail);
 
   return (
     <View style={s.container}>

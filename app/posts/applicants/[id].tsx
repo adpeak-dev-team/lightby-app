@@ -12,8 +12,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGetPostApplicants } from '@/services/site/queries';
 import { markApplyAsRead } from '@/services/site/api';
 import { ApplicantProfile } from '@/services/site/types';
-import { IMAGE_PREFIX } from '@/lib/constants';
 
+import { getImageUrl } from '@/lib/lib';
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function calcAge(birthday: string): number {
   const birth = new Date(birthday);
@@ -45,7 +45,7 @@ function formatPhone(phone: string): string {
 
 function getProfileUri(thumbnail?: string | null): string | null {
   if (!thumbnail) return null;
-  return thumbnail.startsWith('http') ? thumbnail : `${IMAGE_PREFIX}${thumbnail}`;
+  return getImageUrl(thumbnail);
 }
 
 // ─── 성별 뱃지 ────────────────────────────────────────────────────────────────

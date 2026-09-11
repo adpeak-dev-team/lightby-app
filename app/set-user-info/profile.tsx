@@ -17,7 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { useGetUserProfile } from '@/services/user/queries';
 import { useSaveTalentInfo, useUploadProfileImage } from '@/services/user/mutations';
 
-const IMAGE_PREFIX = process.env.EXPO_PUBLIC_IMAGE_PREFIX ?? '';
+import { getImageUrl } from '@/lib/lib';
 
 type Gender = '남자' | '여자' | null;
 
@@ -127,7 +127,7 @@ export default function SetUserInfoProfilePage() {
     return <View style={s.center}><Text style={s.errorText}>프로필 정보를 불러오는 데 실패했습니다.</Text></View>;
   }
 
-  const avatarUri = profile?.profile_thumbnail ? `${IMAGE_PREFIX}${profile.profile_thumbnail}` : null;
+  const avatarUri = getImageUrl(profile?.profile_thumbnail);
 
   return (
     <View style={s.container}>
