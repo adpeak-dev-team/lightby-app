@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ErrorNotice } from '@/components/saju/ErrorNotice';
 import { GateNotice, useSajuGate } from '@/components/saju/SajuGate';
 import { SajuShareButton } from '@/components/saju/SajuShareButton';
 import { useSajuDaily } from '@/services/saju/queries';
@@ -91,7 +92,10 @@ export default function SajuTodayPage() {
                         })}
                     </View>
 
-                    {current.isLoading || !f ? (
+                    {current.isError ? (
+                        // 실패를 그리지 않으면 스피너가 영원히 돈다(retry:false).
+                        <ErrorNotice error={current.error} onRetry={() => current.refetch()} />
+                    ) : current.isLoading || !f ? (
                         <ActivityIndicator size="small" color="#60a5fa" style={{ marginTop: 40 }} />
                     ) : (
                         <>

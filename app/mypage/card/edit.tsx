@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CardPreview } from '@/components/card/CardPreview';
-import { useCard, useCreateCard, useUpdateCard } from '@/services/card/queries';
+import { useCard, useCreateCard, useDeleteCard, useUpdateCard } from '@/services/card/queries';
 import { usePointBalance, usePointPolicies } from '@/services/point/queries';
 import { useGetUserProfile } from '@/services/user/queries';
 import type { CardPayload, TemplateId } from '@/services/card/types';
@@ -155,7 +155,37 @@ export default function CardEditPage() {
         }
     };
 
+    const remove = useDeleteCard();
     const saving = create.isPending || update.isPending;
+
+    /**
+     * 명함 삭제.
+     *
+     * 목록이 아니라 **여기**에 둔다. 이미 뿌린 링크가 전부 "삭제된 명함입니다" 로
+     * 바뀌는 동작이라, 목록에서 작은 휴지통 아이콘 하나로 날아가면 안 된다.
+     */
+    const onDelete = () => {
+        if (!cardId) return;
+        Alert.alert(
+            '이 명함을 삭제할까요?',
+            '이미 보낸 링크는 "삭제된 명함입니다" 안내가 뜹니다. 되돌릴 수 없습니다.',
+            [
+                { text: '취소', style: 'cancel' },
+                {
+                    text: '삭제',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await remove.mutateAsync(cardId);
+                            router.back();
+                        } catch (e: any) {
+                            Alert.alert('삭제 실패', e?.response?.data?.message ?? '삭제에 실패했습니다.');
+                        }
+                    },
+                },
+            ],
+        );
+    };
 
     if (cardId && isLoading) {
         return (
@@ -264,6 +294,20 @@ export default function CardEditPage() {
                     <Text style={s.note}>첫 장은 무료입니다</Text>
                 ) : null}
                 {cardId ? <Text style={s.note}>수정은 무료입니다</Text> : null}
+
+                {cardId ? (
+                    <TouchableOpacity
+                        style={[s.deleteBtn, remove.isPending && { opacity: 0.6 }]}
+                        onPress={onDelete}
+                        disabled={remove.isPending}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="trash-outline" size={15} color="#dc2626" />
+                        <Text style={s.deleteText}>
+                            {remove.isPending ? '삭제 중…' : '이 명함 삭제'}
+                        </Text>
+                    </TouchableOpacity>
+                ) : null}
             </ScrollView>
         </View>
     );
@@ -345,5 +389,12 @@ const s = StyleSheet.create({
         paddingVertical: 15, marginTop: 12, alignItems: 'center',
     },
     saveText: { fontSize: 15, fontWeight: '700', color: '#fff' },
+    deleteBtn: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+        backgroundColor: '#fff', borderRadius: 14,
+        borderWidth: 1, borderColor: '#fecaca',
+        paddingVertical: 14, marginTop: 20,
+    },
+    deleteText: { fontSize: 14, fontWeight: '700', color: '#dc2626' },
     note: { fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 8 },
 });

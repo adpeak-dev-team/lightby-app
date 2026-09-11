@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ErrorNotice } from '@/components/saju/ErrorNotice';
 import { GateNotice, useSajuGate } from '@/components/saju/SajuGate';
 import { PointGate } from '@/components/saju/PointGate';
 import { SajuShareButton } from '@/components/saju/SajuShareButton';
@@ -84,8 +85,10 @@ export default function SajuMonthlyPage() {
 }
 
 function Body({ ready }: { ready: boolean }) {
-    const { data, isLoading } = useSajuMonthly(ready);
+    const { data, isLoading, isError, error, refetch } = useSajuMonthly(ready);
 
+    // 실패를 그리지 않으면 스피너가 영원히 돈다(retry:false).
+    if (isError) return <ErrorNotice error={error} onRetry={() => refetch()} />;
     if (isLoading || !data) {
         return <ActivityIndicator size="small" color="#60a5fa" style={{ marginTop: 40 }} />;
     }

@@ -71,39 +71,21 @@ export default function CommunityPage() {
   // 뭘 보고 있는지 모른다.
   const listHeader = (
     <View style={s.fortuneWrap}>
-      <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/fortune')}>
-        <LinearGradient
-          colors={['#e0f2fe', '#f0f9ff']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.fortuneBtn}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={s.fortuneTitle}>오늘의 영업운</Text>
-            <Text style={s.fortuneSub}>띠를 선택하고 오늘의 운세를 확인하세요</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
-        </LinearGradient>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        activeOpacity={0.85}
+      <FortuneCard
+        emoji="🐯"
+        colors={['#e0f2fe', '#f0f9ff']}
+        title="오늘의 영업운"
+        desc="띠를 선택하고 오늘의 운세를 확인하세요"
+        onPress={() => router.push('/fortune')}
+      />
+      <FortuneCard
+        emoji="🔮"
+        colors={['#ede9fe', '#f5f3ff']}
+        title="내 사주"
+        desc="오늘의 사주 · 이번달 운세 · 평생 총운 · 영업 궁합"
         onPress={() => router.push('/saju' as never)}
         style={{ marginTop: 8 }}
-      >
-        <LinearGradient
-          colors={['#ede9fe', '#f5f3ff']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.fortuneBtn}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={s.fortuneTitle}>내 사주</Text>
-            <Text style={s.fortuneSub}>오늘의 사주 · 이번달 운세 · 평생 총운 · 영업 궁합</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
-        </LinearGradient>
-      </TouchableOpacity>
+      />
     </View>
   );
 
@@ -206,6 +188,39 @@ export default function CommunityPage() {
   );
 }
 
+/**
+ * 운세 진입 카드 — 웹 /community 상단과 같은 모양(그라데이션 · 이모지 · 제목/설명 · 화살표).
+ * 두 화면이 같아 보여야 사용자가 앱과 웹을 오갈 때 같은 물건이라고 알아본다.
+ */
+function FortuneCard({
+  emoji, colors, title, desc, onPress, style,
+}: {
+  emoji: string;
+  colors: [string, string];
+  title: string;
+  desc: string;
+  onPress: () => void;
+  style?: object;
+}) {
+  return (
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={style}>
+      <LinearGradient
+        colors={colors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={s.fortuneBtn}
+      >
+        <Text style={s.fortuneEmoji}>{emoji}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={s.fortuneTitle}>{title}</Text>
+          <Text style={s.fortuneSub}>{desc}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
+
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   searchWrap: {
@@ -219,21 +234,22 @@ const s = StyleSheet.create({
   // 원래는 거의 흰색(#fdf2f8→#fefce8)이라 배경에 묻혔다.
   // 테두리·라운드·아이콘 배경 없이 그라데이션 색만으로 구분한다.
   fortuneWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 2 },
+  fortuneEmoji: { fontSize: 34, lineHeight: 42 },
   fortuneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 13,
+    gap: 14,
     borderRadius: 16,
     paddingHorizontal: 20,
-    paddingVertical: 26,
+    paddingVertical: 20,
     shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 2,
   },
-  fortuneTitle: { fontSize: 15, fontWeight: '600', color: '#1e293b' },
-  fortuneSub: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  fortuneTitle: { fontSize: 17, fontWeight: '700', color: '#1e293b' },
+  fortuneSub: { fontSize: 13, color: '#64748b', marginTop: 3, lineHeight: 19 },
   // 카테고리 탭
   tabs: {
     flexDirection: 'row',

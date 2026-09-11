@@ -3,6 +3,9 @@ import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
+import { AxiosError } from 'axios';
+
+import { ErrorNotice } from '@/components/saju/ErrorNotice';
 import { useSajuProfile } from '@/services/saju/queries';
 import type { SajuProfile } from '@/services/saju/types';
 
@@ -17,14 +20,21 @@ export type SajuGate =
     | { kind: 'loading' }
     | { kind: 'needLogin' }
     | { kind: 'needBirthday' }
+    | { kind: 'error'; error: unknown }
     | { kind: 'ok'; profile: SajuProfile };
 
 export function useSajuGate(): SajuGate {
     const { data: profile, isLoading, error } = useSajuProfile();
 
     if (isLoading) return { kind: 'loading' };
-    // 401 등 — 로그인해야 내 생년월일을 읽을 수 있다
-    if (error || !profile) return { kind: 'needLogin' };
+    // 로그인해야 내 생년월일을 읽을 수 있다
+    if (error instanceof AxiosError && error.response?.status === 401) {
+        return { kind: 'needLogin' };
+    }
+    // ⚠️ 401 이 아닌 실패까지 "로그인이 필요합니다" 로 뭉뚱그리면, 서버가 500 을
+    //    내는 동안 사용자는 멀쩡한 계정으로 로그인 화면만 반복해 보게 된다.
+    if (error) return { kind: 'error', error };
+    if (!profile) return { kind: 'needLogin' };
     // 생년월일이 회원 정보에 없으면 사주 자체를 뽑을 수 없다.
     // 여기서 받지 않는 이유: 두 곳에 같은 값을 두면 반드시 어긋난다.
     if (!profile.hasBirthday) return { kind: 'needBirthday' };
@@ -37,6 +47,10 @@ export function GateNotice({ gate }: { gate: Exclude<SajuGate, { kind: 'ok' }> }
 
     if (gate.kind === 'loading') {
         return <ActivityIndicator size="small" color="#60a5fa" style={{ marginTop: 60 }} />;
+    }
+
+    if (gate.kind === 'error') {
+        return <ErrorNotice error={gate.error} />;
     }
 
     if (gate.kind === 'needLogin') {

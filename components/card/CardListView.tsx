@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import {
-    View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
+    View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Image, Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,8 +10,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { tokenStorage } from '@/api/apiClient';
+import { IMAGE_PREFIX } from '@/lib/constants';
 import { ShareSheet } from '@/components/card/ShareSheet';
-import { useCards, useDeleteCard } from '@/services/card/queries';
+import { TEMPLATE_SWATCH } from '@/components/card/swatches';
+import { useCards } from '@/services/card/queries';
 import { usePointBalance, usePointPolicies } from '@/services/point/queries';
 import type { CardListItem } from '@/services/card/types';
 
@@ -48,8 +51,6 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
     const { data: cards, isLoading } = useCards(isLoggedIn === true);
     const { data: balance } = usePointBalance(isLoggedIn === true);
     const { data: policies } = usePointPolicies();
-    const { mutate: remove, isPending: removing } = useDeleteCard();
-
     const [sharing, setSharing] = useState<CardListItem | null>(null);
 
     const policy = balance?.enabled
@@ -74,17 +75,6 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
             return;
         }
         router.push('/mypage/card/edit' as never);
-    };
-
-    const onDelete = (c: CardListItem) => {
-        Alert.alert(
-            '이 명함을 삭제할까요?',
-            '이미 보낸 링크는 "삭제된 명함입니다" 안내가 뜹니다.',
-            [
-                { text: '취소', style: 'cancel' },
-                { text: '삭제', style: 'destructive', onPress: () => remove(c.id) },
-            ],
-        );
     };
 
     if (isLoggedIn === false) {
@@ -139,43 +129,15 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
                     </View>
                 ) : (
                     cards.map((c) => (
-                        <View key={c.id} style={s.card}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={s.cardTitle}>{c.title || c.siteName || c.name}</Text>
-                                <Text style={s.cardMeta}>
-                                    {[c.position, c.company].filter(Boolean).join(' · ') || '—'}
-                                </Text>
-                                <Text style={s.cardStat}>
-                                    발송 {c.stats.sent}건 · 열람 {c.stats.viewed}건
-                                </Text>
-                            </View>
-                            <View style={s.cardBtns}>
-                                <TouchableOpacity
-                                    style={s.sendBtn}
-                                    onPress={() => setSharing(c)}
-                                    activeOpacity={0.85}
-                                >
-                                    <Ionicons name="paper-plane" size={14} color="#fff" />
-                                    <Text style={s.sendText}>보내기</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={s.iconBtn}
-                                    onPress={() => router.push({
-                                        pathname: '/mypage/card/edit',
-                                        params: { id: String(c.id) },
-                                    } as never)}
-                                >
-                                    <Ionicons name="create-outline" size={16} color="#64748b" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={s.iconBtn}
-                                    onPress={() => onDelete(c)}
-                                    disabled={removing}
-                                >
-                                    <Ionicons name="trash-outline" size={16} color="#94a3b8" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
+                        <CardRow
+                            key={c.id}
+                            card={c}
+                            onEdit={() => router.push({
+                                pathname: '/mypage/card/edit',
+                                params: { id: String(c.id) },
+                            } as never)}
+                            onSend={() => setSharing(c)}
+                        />
                     ))
                 )}
 
@@ -211,6 +173,75 @@ export function CardListView({ variant }: { variant: 'tab' | 'stack' }) {
     );
 }
 
+/**
+ * 목록 한 줄. 웹 /card 와 같은 구조다 —
+ * 왼쪽 썸네일(템플릿 색 + 사진), 가운데 제목·소속·실적, 오른쪽 '보내기'.
+ *
+ * 왼쪽과 가운데 **어디를 눌러도 수정**으로 들어간다. 줄마다 작은 아이콘 버튼을
+ * 늘어놓으면 손가락으로 정확히 골라야 해서 오조작이 난다. 삭제는 수정 화면 안에
+ * 둔다 — 목록에서 한 번에 지워지면 안 되는 물건이다(이미 뿌린 링크가 죽는다).
+ */
+function CardRow({
+    card, onEdit, onSend,
+}: {
+    card: CardListItem;
+    onEdit: () => void;
+    onSend: () => void;
+}) {
+    const swatch = TEMPLATE_SWATCH[card.templateId] ?? TEMPLATE_SWATCH.minimal;
+    const photo = card.photoPath
+        ? (card.photoPath.startsWith('http') ? card.photoPath : `${IMAGE_PREFIX}${card.photoPath}`)
+        : null;
+    const sub = [card.name, card.position, card.company].filter(Boolean).join(' · ');
+
+    return (
+        <View style={s.card}>
+            <TouchableOpacity onPress={onEdit} activeOpacity={0.8} accessibilityLabel="명함 수정">
+                <LinearGradient
+                    colors={swatch}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={s.thumb}
+                >
+                    {photo && <Image source={{ uri: photo }} style={s.thumbPhoto} />}
+                </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={s.cardBody} onPress={onEdit} activeOpacity={0.8}>
+                <Text style={s.cardTitle} numberOfLines={1}>
+                    {card.title || card.siteName || '제목 없음'}
+                </Text>
+                <Text style={s.cardMeta} numberOfLines={1}>{sub || '—'}</Text>
+                <View style={s.statRow}>
+                    <Stat icon="paper-plane-outline" value={card.stats.sent} label="발송" />
+                    <Stat icon="eye-outline" value={card.stats.viewed} label="열람" />
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={s.sendBtn} onPress={onSend} activeOpacity={0.85}>
+                <Ionicons name="share-social-outline" size={14} color="#2563eb" />
+                <Text style={s.sendText}>보내기</Text>
+            </TouchableOpacity>
+        </View>
+    );
+}
+
+function Stat({
+    icon, value, label,
+}: {
+    icon: keyof typeof Ionicons.glyphMap;
+    value: number;
+    label: string;
+}) {
+    return (
+        <View style={s.stat}>
+            <Ionicons name={icon} size={12} color="#94a3b8" />
+            <Text style={s.statValue}>{value}</Text>
+            <Text style={s.statLabel}>{label}</Text>
+        </View>
+    );
+}
+
 const s = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f1f5f9' },
     center: { alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 32 },
@@ -232,24 +263,27 @@ const s = StyleSheet.create({
     loginBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
     card: {
-        flexDirection: 'row', alignItems: 'center',
-        backgroundColor: '#fff', borderRadius: 14,
-        paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8,
+        flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+        backgroundColor: '#fff', borderRadius: 16,
+        borderWidth: 1, borderColor: '#e2e8f0',
+        padding: 12, marginBottom: 8,
     },
-    cardTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
+    thumb: { width: 60, height: 84, borderRadius: 12, overflow: 'hidden' },
+    thumbPhoto: { width: '100%', height: '100%', opacity: 0.9 },
+    cardBody: { flex: 1, minWidth: 0 },
+    cardTitle: { fontSize: 14, fontWeight: '700', color: '#0f172a' },
     cardMeta: { fontSize: 12, color: '#64748b', marginTop: 2 },
-    cardStat: { fontSize: 11, color: '#94a3b8', marginTop: 4 },
-    cardBtns: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    statRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+    stat: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+    statValue: { fontSize: 11, fontWeight: '700', color: '#334155' },
+    statLabel: { fontSize: 11, color: '#94a3b8' },
     sendBtn: {
+        alignSelf: 'center',
         flexDirection: 'row', alignItems: 'center', gap: 4,
-        backgroundColor: '#2563eb', borderRadius: 10,
-        paddingHorizontal: 11, paddingVertical: 8,
+        backgroundColor: '#eff6ff', borderRadius: 12,
+        paddingHorizontal: 12, paddingVertical: 10,
     },
-    sendText: { fontSize: 12, fontWeight: '700', color: '#fff' },
-    iconBtn: {
-        width: 32, height: 32, borderRadius: 8,
-        alignItems: 'center', justifyContent: 'center',
-    },
+    sendText: { fontSize: 12, fontWeight: '700', color: '#2563eb' },
 
     createBtn: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
