@@ -69,6 +69,23 @@ export const uploadCardPhoto = async (asset: {
         name: asset.name ?? asset.uri.split('/').pop() ?? 'photo.jpg',
         type: asset.type ?? 'image/jpeg',
     } as unknown as Blob);
-    const { data } = await apiClient.post<Envelope<{ photoPath: string }>>('/card/photo', form);
+
+    // ⚠️ Content-Type 을 **직접 박아야 한다.** axios 는 FormData 를 만나면 헤더를 지워
+    //    런타임이 boundary 를 붙이게 두는데, 그 분기가 브라우저 환경(hasStandardBrowserEnv)
+    //    에서만 돈다. RN 에서는 타지 않아 헤더가 엉뚱하게 붙고 서버는 파일을 못 찾는다.
+    //    boundary 는 OkHttp 가 알아서 채운다 — 여기서 만들지 않는다.
+    //    (회원 프로필 사진 업로드가 같은 이유로 이렇게 되어 있다)
+    const { data } = await apiClient.post<Envelope<{ photoPath: string }>>('/card/photo', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    // 서버는 파일을 못 찾으면 **200 에 success:false** 로 답한다(에러가 아니다).
+    // 그대로 두면 data.data 가 없어 엉뚱한 TypeError 가 나고, 화면에는 진짜 이유 대신
+    // "다시 시도해 주세요" 만 뜬다.
+    if (!data?.success || !data.data?.photoPath) {
+        throw new Error(
+            (data as unknown as { message?: string })?.message ?? '사진을 저장하지 못했습니다.',
+        );
+    }
     return data.data.photoPath;
 };

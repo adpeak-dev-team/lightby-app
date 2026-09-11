@@ -147,7 +147,12 @@ export function CardEditorView({ cardId }: { cardId: number | null }) {
             set('photoPath', path);
             setPhotoUrl(imageUrl(path));
         } catch (e: any) {
-            Alert.alert('사진 업로드 실패', e?.response?.data?.message ?? '다시 시도해 주세요.');
+            // 무엇이 실패했는지 화면에 남긴다. 이유 없이 "실패" 만 뜨면 사용자도 우리도
+            // 다시 시도하는 것 말고 할 수 있는 게 없다.
+            const status = e?.response?.status;
+            const msg = e?.response?.data?.message ?? e?.message ?? '다시 시도해 주세요.';
+            console.warn('[card] 사진 업로드 실패', status, e?.response?.data ?? e);
+            Alert.alert('사진 업로드 실패', status ? `${msg} (${status})` : msg);
         } finally {
             setUploading(false);
         }

@@ -64,8 +64,9 @@ export function CardForm({
                 name: out.uri.split('/').pop() ?? 'card-photo.jpg',
                 type: 'image/jpeg',
             });
-        } catch {
-            Alert.alert('오류', '사진을 준비하지 못했습니다.');
+        } catch (e: any) {
+            console.warn('[card] 사진 준비 실패', e);
+            Alert.alert('사진을 준비하지 못했습니다', e?.message ?? '다시 시도해 주세요.');
         }
     };
 
