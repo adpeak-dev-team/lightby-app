@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { apiClient } from '@/api/apiClient';
 import type {
     PointBalance, PointHistoryPage, PointOrderStatus, PointPackageList, PointPolicy,
@@ -32,8 +34,14 @@ export async function getPointPolicies(): Promise<PointPolicy[]> {
     return data.data;
 }
 
+/**
+ * 충전 상품. iOS 는 App Store 상품 ID 가 있는 것만, iOS 충전 스위치 기준으로 받는다.
+ * 안드로이드는 웹과 같은 목록(PayApp).
+ */
 export async function getPointPackages(): Promise<PointPackageList> {
-    const { data } = await apiClient.get<Envelope<PointPackageList>>('/point/packages');
+    const { data } = await apiClient.get<Envelope<PointPackageList>>('/point/packages', {
+        params: Platform.OS === 'ios' ? { platform: 'ios' } : undefined,
+    });
     return data.data;
 }
 

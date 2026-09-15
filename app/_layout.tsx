@@ -23,6 +23,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from '@/components/common/Toast';
 import VisitTracker from '@/components/common/VisitTracker';
 import { ForceUpdateGate } from '@/components/ForceUpdateGate';
+import { IapRecovery } from '@/components/IapRecovery';
 import { registerForPushNotifications } from '@/services/push/register';
 import { useNotificationObserver } from '@/services/push/useNotificationObserver';
 import { queryClient } from '@/lib/queryClient';
@@ -195,6 +196,8 @@ export default function RootLayout() {
               <VisitTracker />
               {/* 강제 업데이트 게이트 — 구버전이면 차단(Android=Play 임베디드, iOS=모달→App Store) */}
               <ForceUpdateGate />
+              {/* iOS 인앱결제 — 결제만 되고 반영 안 된 거래를 앱 실행·복귀 때 마무리 */}
+              <IapRecovery />
             </SafeAreaView>
           </ThemeProvider>
         </QueryClientProvider>

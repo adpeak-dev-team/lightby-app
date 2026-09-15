@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/apiClient';
 import { getJobDetail, JobPostingPayload } from './api';
@@ -9,6 +9,8 @@ import { useGetUserProfile } from '@/services/user/queries';
 import { ProductType } from '@/components/site-post/ProductSelectModal';
 import { requestPayapp } from '@/services/payapp/api';
 import { geocodeAddress } from '@/lib/geocode';
+import { prepareIosPostOrder } from '@/services/iap/api';
+import { IapError, purchaseIos } from '@/lib/iap';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -254,7 +256,35 @@ export function useSitePostForm() {
             return;
         }
 
-        // 유료 상품 → PayApp 결제 요청
+        // 유료 상품 · iOS → App Store 인앱결제 (3.1.1 — iOS 에서 PayApp 을 열면 리젝된다)
+        //   서버가 결제 **전에** 금칙어·하루 건수·중복을 보고 주문을 만든다. 거기서 막히면 결제창을 안 연다.
+        //   결제 후 공고 생성은 서버 확정(confirm)이 한다. 흐름은 lib/iap.ts.
+        if (Platform.OS === 'ios') {
+            setIsPayappLoading(true);
+            try {
+                const order = await prepareIosPostOrder(payload);
+                const result = await purchaseIos(order);
+                callbacks.onCloseModal();
+                if (result.kind === 'post' && result.fulfilled) {
+                    finalizeAfterPayapp(callbacks.onSuccess, result.pointEarned);
+                } else if (result.kind === 'post') {
+                    Alert.alert('공고 등록 실패', result.message);
+                }
+            } catch (e: any) {
+                if (e instanceof IapError) {
+                    if (e.kind !== 'cancelled') {
+                        Alert.alert(e.kind === 'pending' ? '승인 대기' : '결제 실패', e.message);
+                    }
+                } else {
+                    Alert.alert('결제 요청 실패', e?.response?.data?.message ?? e?.message ?? '결제 요청 중 오류가 발생했습니다.');
+                }
+            } finally {
+                setIsPayappLoading(false);
+            }
+            return;
+        }
+
+        // 유료 상품 · 안드로이드 → PayApp 결제 요청
         console.log('[SitePost] requestPayapp 호출 시작');
         setIsPayappLoading(true);
         try {

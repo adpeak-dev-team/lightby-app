@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import {
-    View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Platform,
+    View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { usePointBalance, usePointHistory, usePointPolicies } from '@/services/point/queries';
+import { usePointBalance, usePointHistory, usePointPolicies, useCanChargePoint } from '@/services/point/queries';
 import type { PointHistoryItem, PointPolicy } from '@/services/point/types';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
@@ -53,7 +53,7 @@ export default function PointPage() {
         [data],
     );
     const earns = (policies ?? []).filter((p) => p.kind === 'earn' && p.amount > 0);
-    const canCharge = Platform.OS === 'android';
+    const canCharge = useCanChargePoint();
 
     if (isLoading) {
         return (

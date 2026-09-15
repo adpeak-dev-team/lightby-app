@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-    View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Platform,
+    View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { TextInput } from '@/components/common/AppTextInput';
@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GateNotice, useSajuGate } from '@/components/saju/SajuGate';
 import { SajuShareButton } from '@/components/saju/SajuShareButton';
-import { usePointBalance, usePointPolicies } from '@/services/point/queries';
+import { usePointBalance, usePointPolicies, useCanChargePoint } from '@/services/point/queries';
 import {
     SAJU_QUERY_KEYS, useDeleteSavedMatchTarget, useSajuMatch, useSavedMatchTargets,
 } from '@/services/saju/queries';
@@ -165,7 +165,7 @@ function Gate({
 }) {
     const router = useRouter();
     const short = balance < cost;
-    const canCharge = Platform.OS === 'android';
+    const canCharge = useCanChargePoint();
 
     return (
         <>

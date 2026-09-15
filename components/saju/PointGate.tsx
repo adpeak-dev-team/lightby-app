@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import {
-    View, TouchableOpacity, StyleSheet, ActivityIndicator, Platform,
+    View, TouchableOpacity, StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { usePointBalance, usePointPolicies } from '@/services/point/queries';
+import { usePointBalance, usePointPolicies, useCanChargePoint } from '@/services/point/queries';
 import { useSajuAccess } from '@/services/saju/queries';
 import type { SajuAccess } from '@/services/saju/types';
 
@@ -49,7 +49,7 @@ export function PointGate({
     const balanceNow = balance?.balance ?? 0;
     const short = balanceNow < item.cost;
     const earns = (policies ?? []).filter((p) => p.kind === 'earn' && p.amount > 0);
-    const canCharge = Platform.OS === 'android';
+    const canCharge = useCanChargePoint();
 
     return (
         <View style={s.wrap}>

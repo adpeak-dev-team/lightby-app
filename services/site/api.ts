@@ -19,6 +19,11 @@ export interface PricingProduct {
   app_discount_rate: number;
   app_discount_text: string | null;
   app_price: number;
+  /** 서버 신버전부터. app_* 와 같은 값(iOS App Store 기준가) */
+  ios_original_price?: number;
+  ios_discount_rate?: number;
+  ios_discount_text?: string | null;
+  ios_price?: number;
 }
 export interface PricingIcon {
   id: number;
@@ -26,9 +31,20 @@ export interface PricingIcon {
   color: string;
   price: number;
 }
+/** iOS 공고 인앱결제 상품 ID — 등급·아이콘 조합마다 하나 */
+export interface IosPostProducts {
+  top: string;
+  top_icon: string;
+  premium: string;
+  premium_icon: string;
+  /** 무료 프리미엄 혜택으로 등급 값이 0원일 때 아이콘만 사는 상품 */
+  icon: string;
+}
 export interface SitePricing {
   products: PricingProduct[];
   icons: PricingIcon[];
+  /** 서버 신버전부터 */
+  iosProducts?: IosPostProducts;
 }
 export async function getSitePricing(): Promise<SitePricing> {
   const { data } = await apiClient.get<{ success: boolean; data: SitePricing }>('/site/pricing');

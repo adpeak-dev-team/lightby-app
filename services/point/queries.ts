@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import {
@@ -61,3 +62,16 @@ export const usePointPackages = (enabled = true) =>
         staleTime: 1000 * 60,
         retry: false,
     });
+
+/**
+ * 충전 버튼을 보여줄지.
+ *
+ * 안드로이드는 늘 보여준다(충전 화면이 꺼짐을 안내한다). iOS 는 App Store 상품이
+ * 실제로 열려 있을 때만 — 심사원이 누른 버튼이 "준비 중" 으로 끝나면 미완성 기능으로 본다.
+ */
+export const useCanChargePoint = () => {
+    const isIos = Platform.OS === 'ios';
+    const { data } = usePointPackages(isIos);
+    if (!isIos) return Platform.OS === 'android';
+    return !!data?.enabled && data.items.length > 0;
+};

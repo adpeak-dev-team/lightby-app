@@ -1,12 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet,
+  Modal, View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Platform,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS } from '@/lib/constants';
 import { useSitePricing } from '@/services/site/queries';
+import type { IosPostProducts } from '@/services/site/api';
+import { loadIosPrices } from '@/lib/iap';
+
+const IS_IOS = Platform.OS === 'ios';
+
+/** 서버 site.constants 의 iosPostProductId 와 같은 규칙 — 표시용. 실제 상품은 서버가 주문 때 정한다 */
+function iosComboId(ids: IosPostProducts, product: 'PREMIUM' | 'TOP', withIcon: boolean, freebie: boolean): string | null {
+    if (freebie) return withIcon ? ids.icon : null;
+    if (product === 'PREMIUM') return withIcon ? ids.premium_icon : ids.premium;
+    return withIcon ? ids.top_icon : ids.top;
+}
 
 export type ProductType = 'FREE' | 'TOP' | 'PREMIUM';
 
@@ -21,27 +32,42 @@ interface Props {
 }
 
 // 서버(관리자 결제관리) 응답 실패 시 폴백 — 실제 표시가는 useSitePricing 응답을 우선한다.
-const FALLBACK_APP_PRICE: Record<'premium' | 'top', number> = { premium: 27900, top: 13900 };
-const FALLBACK_APP_ORIGINAL: Record<'premium' | 'top', number> = { premium: 55800, top: 27800 };
+// iOS 는 App Store 기준가, 안드로이드는 PayApp 이 청구하는 웹 가격
+const FALLBACK_APP_PRICE: Record<'premium' | 'top', number> = IS_IOS ? { premium: 27900, top: 13900 } : { premium: 19900, top: 9900 };
+const FALLBACK_APP_ORIGINAL: Record<'premium' | 'top', number> = IS_IOS ? { premium: 55800, top: 27800 } : { premium: 39800, top: 19800 };
 const FALLBACK_ICON_PRICE = 2200;
 
 export function ProductSelectModal({ visible, onClose, onConfirm, freebies = false, freebiesLeft = 2, isPending = false }: Props) {
     const [selected, setSelected] = useState<ProductType>('FREE');
     const [selectedIcons, setSelectedIcons] = useState<number[]>([]);
 
-    // 관리자 결제관리(DB) 값 — 실패 시 폴백. 앱은 app_* 필드를 사용.
+    // 관리자 결제관리(DB) 값 — 실패 시 폴백.
+    //  · 안드로이드: PayApp 이 **웹 가격**으로 청구하므로 웹 가격을 보여준다.
+    //    (예전엔 app_* 을 보여줘 27,900원이라 적고 19,900원을 청구했다)
+    //  · iOS: App Store 가 청구한다. 금액 문자열은 Apple 표시가(iosPrices)를 쓰고,
+    //    숫자(ios_price)는 무료/유료 판단과 참고용 합계에만 쓴다.
     const { data: pricing } = useSitePricing();
     const premium = pricing?.products?.find((p) => p.code === 'premium');
     const top = pricing?.products?.find((p) => p.code === 'top');
-    const PREMIUM_PRICE = premium?.app_price ?? FALLBACK_APP_PRICE.premium;
-    const TOP_PRICE = top?.app_price ?? FALLBACK_APP_PRICE.top;
-    const PREMIUM_ORIGINAL = premium?.app_original_price || FALLBACK_APP_ORIGINAL.premium;
-    const TOP_ORIGINAL = top?.app_original_price || FALLBACK_APP_ORIGINAL.top;
-    const PREMIUM_DISCOUNT_TEXT = premium?.app_discount_text?.trim() || null;
-    const TOP_DISCOUNT_TEXT = top?.app_discount_text?.trim() || null;
+    const PREMIUM_PRICE = (IS_IOS ? premium?.app_price : premium?.web_price) ?? FALLBACK_APP_PRICE.premium;
+    const TOP_PRICE = (IS_IOS ? top?.app_price : top?.web_price) ?? FALLBACK_APP_PRICE.top;
+    const PREMIUM_ORIGINAL = (IS_IOS ? premium?.app_original_price : premium?.original_price) || FALLBACK_APP_ORIGINAL.premium;
+    const TOP_ORIGINAL = (IS_IOS ? top?.app_original_price : top?.original_price) || FALLBACK_APP_ORIGINAL.top;
+    const PREMIUM_DISCOUNT_TEXT = (IS_IOS ? premium?.app_discount_text : premium?.discount_text)?.trim() || null;
+    const TOP_DISCOUNT_TEXT = (IS_IOS ? top?.app_discount_text : top?.discount_text)?.trim() || null;
     // 취소선(정가)은 할인율 > 0 이고 원금액이 판매가보다 클 때만 노출.
-    const showPremiumOriginal = (premium?.app_discount_rate ?? 50) > 0 && PREMIUM_ORIGINAL > PREMIUM_PRICE;
-    const showTopOriginal = (top?.app_discount_rate ?? 50) > 0 && TOP_ORIGINAL > TOP_PRICE;
+    // iOS 는 청구액이 Apple 가격표라 우리 정가와 나란히 두면 할인율이 틀어질 수 있어 그리지 않는다.
+    const showPremiumOriginal = !IS_IOS && (premium?.discount_rate ?? 50) > 0 && PREMIUM_ORIGINAL > PREMIUM_PRICE;
+    const showTopOriginal = !IS_IOS && (top?.discount_rate ?? 50) > 0 && TOP_ORIGINAL > TOP_PRICE;
+
+    // iOS: App Store 표시가. 모달이 열릴 때 한 번 불러온다.
+    const iosIds = pricing?.iosProducts;
+    const [iosPrices, setIosPrices] = useState<Record<string, string> | null>(null);
+    useEffect(() => {
+        if (!IS_IOS || !visible || !iosIds) return;
+        loadIosPrices(Object.values(iosIds)).then(setIosPrices).catch(() => setIosPrices({}));
+    }, [visible, iosIds]);
+    const iosText = (id: string | null | undefined) => (id && iosPrices?.[id]) || null;
 
     // 선택 가능한 아이콘 목록 (DB 우선). 앱은 웹과 동일한 개당 가격 사용.
     const iconList = useMemo(
@@ -70,6 +96,21 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
 
     // 등록 버튼 텍스트 — 무료 흐름(FREE 또는 freebies로 총액 0)이면 '무료로 등록', 아니면 '결제하고 등록'
     const isFreeFlow = selected === 'FREE' || totalAmount === 0;
+
+    // iOS 금액 표시 — 이 조합으로 실제로 살 App Store 상품의 가격
+    const freebieApplied = freebies && selected === 'PREMIUM';
+    const comboId = IS_IOS && iosIds && selected !== 'FREE'
+        ? iosComboId(iosIds, selected, selectedIcons.length > 0, freebieApplied)
+        : null;
+    const won = (n: number) => `${n.toLocaleString()}원`;
+    const premiumPriceText = IS_IOS ? iosText(iosIds?.premium) ?? '-' : won(PREMIUM_PRICE);
+    const topPriceText = IS_IOS ? iosText(iosIds?.top) ?? '-' : won(TOP_PRICE);
+    const baseText = IS_IOS
+        ? (selected === 'FREE' || freebieApplied ? '0원' : iosText(selected === 'PREMIUM' ? iosIds?.premium : iosIds?.top) ?? '-')
+        : won(basePrice);
+    const totalText = IS_IOS ? (isFreeFlow ? '0원' : iosText(comboId) ?? '-') : won(totalAmount);
+    // iOS 는 App Store 가격을 못 불러오면 결제를 열 수 없다(상품이 아직 등록 전이거나 네트워크 문제)
+    const iosPriceMissing = IS_IOS && !isFreeFlow && !iosText(comboId);
 
     return (
         <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
@@ -114,7 +155,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                             <Text style={s.productOriginalPrice}>{PREMIUM_ORIGINAL.toLocaleString()}원</Text>
                                         )}
                                         <Text style={[s.productPrice, freebies && { color: '#3b82f6' }]}>
-                                            {freebies ? '0원 (무료)' : `${PREMIUM_PRICE.toLocaleString()}원`}
+                                            {freebies ? '0원 (무료)' : premiumPriceText}
                                         </Text>
                                     </View>
                                 </View>
@@ -142,7 +183,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                         {showTopOriginal && (
                                             <Text style={s.productOriginalPrice}>{TOP_ORIGINAL.toLocaleString()}원</Text>
                                         )}
-                                        <Text style={s.productPrice}>{TOP_PRICE.toLocaleString()}원</Text>
+                                        <Text style={s.productPrice}>{topPriceText}</Text>
                                     </View>
                                 </View>
                                 <Text style={s.productDesc}>• 선택한 지역페이지 상단 랜덤 노출{'\n'}• 광고 기간 10일 제공</Text>
@@ -170,7 +211,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         {showIcons ? (
                             <View style={s.iconSection}>
                                 <View style={s.iconHeader}>
-                                    <Text style={s.iconTitle}>아이콘 <Text style={s.iconSub}>(개당 {FALLBACK_ICON_PRICE.toLocaleString()}원~)</Text></Text>
+                                    <Text style={s.iconTitle}>아이콘 <Text style={s.iconSub}>{IS_IOS ? '(결제 금액에 포함)' : `(개당 ${FALLBACK_ICON_PRICE.toLocaleString()}원~)`}</Text></Text>
                                     <Text style={s.iconLimit}>1개 선택 가능</Text>
                                 </View>
                                 <View style={s.iconGrid}>
@@ -202,14 +243,14 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         <View style={s.summary}>
                             <View style={s.summaryRow}>
                                 <Text style={s.summaryLabel}>선택 상품</Text>
-                                <Text style={s.summaryValue}>{productName}  {basePrice.toLocaleString()}원</Text>
+                                <Text style={s.summaryValue}>{productName}  {baseText}</Text>
                             </View>
                             {selectedIcons.map((id) => {
                                 const icon = iconList.find((i) => i.id === id);
                                 return (
                                     <View key={id} style={s.summaryRow}>
                                         <Text style={s.summaryLabel}>아이콘: {icon?.name}</Text>
-                                        <Text style={s.summaryValue}>{iconPriceOf(id).toLocaleString()}원</Text>
+                                        <Text style={s.summaryValue}>{IS_IOS ? '포함' : won(iconPriceOf(id))}</Text>
                                     </View>
                                 );
                             })}
@@ -217,7 +258,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                             <View style={s.summaryRow}>
                                 <Text style={s.summaryTotalLabel}>최종 금액</Text>
                                 <Text style={[s.summaryTotal, freebies && selected === 'PREMIUM' && s.summaryTotalFree]}>
-                                    {freebies && selected === 'PREMIUM' ? '0원' : `${totalAmount.toLocaleString()}원`}
+                                    {freebieApplied && selectedIcons.length === 0 ? '0원' : totalText}
                                 </Text>
                             </View>
                         </View>
@@ -226,7 +267,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                     {/* 등록 버튼 — 무료면 바로 등록, 유료면 PayApp 결제창 오픈(호출부에서 처리) */}
                     <View style={s.footer}>
                         {/* 법인 결제 안내 — 유료 결제일 때만 */}
-                        {!isFreeFlow && (
+                        {!isFreeFlow && !IS_IOS && (
                             <View style={s.payNotice}>
                                 <Text style={s.payNoticeText}>
                                     결제 시 법인카드가 지원되지 않으니, 계좌이체로 결제해 주세요.
@@ -235,9 +276,9 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                         )}
                         <TouchableOpacity
                             onPress={() => onConfirm(selected, selectedIcons, totalAmount)}
-                            disabled={isPending}
+                            disabled={isPending || iosPriceMissing}
                             activeOpacity={0.85}
-                            style={isPending && { opacity: 0.6 }}
+                            style={(isPending || iosPriceMissing) && { opacity: 0.6 }}
                         >
                             {/* 웹과 동일: emerald-500 → teal-600 좌우 그라데이션 */}
                             <LinearGradient
@@ -249,7 +290,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                                 {isPending
                                     ? <ActivityIndicator size="small" color="#fff" />
                                     : <Text style={s.confirmBtnText}>
-                                        {isFreeFlow ? '무료로 등록하기' : '결제 및 등록하기'}
+                                        {isFreeFlow ? '무료로 등록하기' : iosPriceMissing ? '결제 정보를 불러오는 중…' : '결제 및 등록하기'}
                                     </Text>}
                             </LinearGradient>
                         </TouchableOpacity>
