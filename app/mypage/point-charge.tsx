@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-    View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform,
+    View, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { useRouter } from 'expo-router';
@@ -8,37 +8,32 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PayappWebViewModal } from '@/components/site-post/PayappWebViewModal';
-import { getPointOrder, requestPointCharge } from '@/services/point/api';
 import { POINT_QUERY_KEYS, usePointBalance, usePointPackages } from '@/services/point/queries';
 import type { PointPackage } from '@/services/point/types';
-import { prepareIosPointOrder } from '@/services/iap/api';
-import { IapError, loadIosPrices, purchaseIos, recoverUnfinished } from '@/lib/iap';
+import { prepareStorePointOrder } from '@/services/iap/api';
+import { IapError, loadStorePrices, purchaseStore, recoverUnfinished } from '@/lib/iap';
 
 const won = (n: number) => n.toLocaleString('ko-KR');
 
 /**
  * 포인트 충전.
  *
- * · 안드로이드 — PayApp. 결제 확정은 **서버 웹훅**이 한다. 결제창이 닫힌 것만으로
- *   지급했다고 보면 창만 닫고 결제는 안 한 경우까지 지급된다 — 모달이 주문 상태를
- *   폴링해 paid 를 확인한 뒤에야 성공으로 넘긴다.
- * · iOS — App Store 인앱결제만 쓸 수 있다(3.1.1). 가격은 Apple 이 주는 표시가를 그대로
- *   보여준다. 우리 DB 가격을 쓰면 Apple 청구액과 어긋날 수 있다. 흐름은 lib/iap.ts.
+ * 앱은 **스토어 인앱결제만** 쓴다 (iOS App Store / Android Google Play).
+ * 앱 안에서 파는 포인트는 디지털 상품이라 두 스토어 모두 자기 결제를 요구한다.
+ * 가격은 스토어가 주는 표시가를 그대로 보여준다 — 우리 DB 가격을 쓰면 실제 청구액과 어긋날 수 있다.
+ * 흐름은 lib/iap.ts. 웹 충전은 PayApp 으로 따로 돈다.
  */
 export default function PointChargePage() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const qc = useQueryClient();
 
-    const isIos = Platform.OS === 'ios';
     const { data: balance } = usePointBalance();
     const { data: packages, isLoading } = usePointPackages();
 
     const [busy, setBusy] = useState<string | null>(null);
-    const [pay, setPay] = useState<{ payurl: string; orderId: string } | null>(null);
-    /** iOS: 상품 ID → '₩1,100'. Apple 에서 못 불러온 상품은 팔지 않는다 */
-    const [iosPrices, setIosPrices] = useState<Record<string, string> | null>(null);
+    /** 상품 ID → '₩1,100'. 스토어에서 못 불러온 상품은 팔지 않는다 */
+    const [storePrices, setStorePrices] = useState<Record<string, string> | null>(null);
 
     const refresh = () => {
         qc.invalidateQueries({ queryKey: POINT_QUERY_KEYS.balance });
@@ -46,35 +41,19 @@ export default function PointChargePage() {
     };
 
     useEffect(() => {
-        if (!isIos || !packages?.enabled) return;
-        const ids = packages.items.map((p) => p.iosProductId).filter((v): v is string => !!v);
-        loadIosPrices(ids).then(setIosPrices).catch(() => setIosPrices({}));
+        if (!packages?.enabled) return;
+        const ids = packages.items.map((p) => p.storeProductId).filter((v): v is string => !!v);
+        loadStorePrices(ids).then(setStorePrices).catch(() => setStorePrices({}));
         // 전에 결제만 되고 반영이 안 된 건이 있으면 여기서 마무리한다
         recoverUnfinished().then((r) => { if (r.length) refresh(); });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isIos, packages]);
-
-    const startIos = async (pkg: PointPackage) => {
-        const order = await prepareIosPointOrder(pkg.code);
-        const result = await purchaseIos(order);
-        refresh();
-        if (result.kind === 'point') {
-            Alert.alert('충전 완료', `${won(result.points)}P가 지급되었습니다.`, [
-                { text: '확인', onPress: () => router.back() },
-            ]);
-        }
-    };
+    }, [packages]);
 
     const start = async (pkg: PointPackage) => {
         if (busy) return;
         setBusy(pkg.code);
         try {
-            if (isIos) {
-                await startIos(pkg);
-            } else {
-                const r = await requestPointCharge(pkg.code);
-                setPay(r);
-            }
+            await charge(pkg);
         } catch (e: any) {
             if (e instanceof IapError) {
                 if (e.kind !== 'cancelled') Alert.alert(e.kind === 'pending' ? '승인 대기' : '충전 실패', e.message);
@@ -86,13 +65,21 @@ export default function PointChargePage() {
         }
     };
 
-    // iOS 는 Apple 가격을 불러온 상품만 보여준다
-    const items = (packages?.items ?? []).filter(
-        (p) => !isIos || (p.iosProductId && iosPrices?.[p.iosProductId]),
-    );
-    const priceText = (p: PointPackage) =>
-        isIos ? iosPrices?.[p.iosProductId ?? ''] ?? '' : `${won(p.priceWeb)}원`;
-    const loading = isLoading || (isIos && !!packages?.enabled && iosPrices === null);
+    const charge = async (pkg: PointPackage) => {
+        const order = await prepareStorePointOrder(pkg.code);
+        const result = await purchaseStore(order);
+        refresh();
+        if (result.kind === 'point') {
+            Alert.alert('충전 완료', `${won(result.points)}P가 지급되었습니다.`, [
+                { text: '확인', onPress: () => router.back() },
+            ]);
+        }
+    };
+
+    // 스토어 가격을 불러온 상품만 보여준다 — 아직 등록 전이거나 심사 중이면 팔 수 없다
+    const items = (packages?.items ?? []).filter((p) => p.storeProductId && storePrices?.[p.storeProductId]);
+    const priceText = (p: PointPackage) => storePrices?.[p.storeProductId ?? ''] ?? '';
+    const loading = isLoading || (!!packages?.enabled && storePrices === null);
 
     return (
         <View style={s.container}>
@@ -139,35 +126,18 @@ export default function PointChargePage() {
                                     )}
                                 </View>
                                 <Text style={s.pkgPrice}>
-                                    {busy === p.code ? (isIos ? '결제 중…' : '여는 중…') : priceText(p)}
+                                    {busy === p.code ? '결제 중…' : priceText(p)}
                                 </Text>
                             </TouchableOpacity>
                         ))}
 
                         <Text style={s.note}>
-                            {isIos
-                                ? '결제는 App Store 계정으로 청구되며, 결제가 끝나면 바로 반영됩니다.'
-                                : '1P = 1원입니다. 결제 후 창이 닫히면 자동으로 반영됩니다.'}
+                            결제는 스토어 계정으로 청구되며, 결제가 끝나면 바로 반영됩니다.
                         </Text>
                     </>
                 )}
             </ScrollView>
 
-            <PayappWebViewModal
-                visible={pay !== null}
-                payurl={pay?.payurl ?? null}
-                orderId={pay?.orderId ?? null}
-                // 충전은 공고와 다른 표(point_order)를 본다.
-                checkStatus={async (orderId) => (await getPointOrder(orderId)).status}
-                onSuccess={() => {
-                    refresh();
-                    Alert.alert('충전 완료', '포인트가 지급되었습니다.', [
-                        { text: '확인', onPress: () => router.back() },
-                    ]);
-                }}
-                onCancel={refresh}
-                onDismiss={() => setPay(null)}
-            />
         </View>
     );
 }

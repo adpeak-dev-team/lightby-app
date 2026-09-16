@@ -35,21 +35,21 @@ export async function getPointPolicies(): Promise<PointPolicy[]> {
 }
 
 /**
- * 충전 상품. iOS 는 App Store 상품 ID 가 있는 것만, iOS 충전 스위치 기준으로 받는다.
- * 안드로이드는 웹과 같은 목록(PayApp).
+ * 충전 상품. 앱은 스토어 상품 ID 가 있는 것만, 그 스토어의 충전 스위치 기준으로 받는다.
+ * (웹은 platform 없이 받아 PayApp 기준으로 판단한다)
  */
 export async function getPointPackages(): Promise<PointPackageList> {
     const { data } = await apiClient.get<Envelope<PointPackageList>>('/point/packages', {
-        params: Platform.OS === 'ios' ? { platform: 'ios' } : undefined,
+        params: { platform: Platform.OS === 'ios' ? 'ios' : 'android' },
     });
     return data.data;
 }
 
 /**
- * 충전 주문 생성 → PayApp 결제 URL.
+ * 충전 주문 생성 → PayApp 결제 URL. **웹 전용**이다.
  *
- * ⚠️ **안드로이드에서만 부른다.** iOS 는 디지털 재화를 애플 인앱결제로만 팔 수 있어
- *    이 경로를 태우면 심사에서 리젝된다(App Store 3.1.1).
+ * 앱(iOS·안드로이드)에서 부르면 안 된다 — 두 스토어 모두 앱 안의 디지털 상품은
+ * 자기 결제만 허용한다. 앱은 /iap/point/prepare 를 쓴다.
  */
 export async function requestPointCharge(packageCode: string): Promise<{
     payurl: string;

@@ -1,24 +1,25 @@
 import { Platform } from 'react-native';
 import type { Purchase } from 'expo-iap';
 
-import { confirmIosTransaction, type IosConfirmResult, type IosOrder } from '@/services/iap/api';
+import { confirmStorePurchase, type StoreConfirmResult, type StoreOrder } from '@/services/iap/api';
 
 /**
- * iOS 인앱결제 (StoreKit 2, expo-iap).
+ * 앱 인앱결제 (iOS App Store · Android Google Play, expo-iap).
  *
  * ── 흐름 ──
  * 1) 서버에 주문을 만든다(prepare) → { orderId, productId }
- * 2) orderId 를 appAccountToken 으로 넣어 결제한다. Apple 이 서명한 거래에 그 값이 들어간다.
- * 3) 거래(JWS)를 서버로 보내 확정한다(confirm). 서버가 주문을 찾아 포인트·공고를 처리한다.
+ * 2) orderId 를 스토어 결제에 실어 보낸다 (애플 appAccountToken / 구글 obfuscatedAccountId).
+ * 3) 결제 결과(애플 JWS / 구글 구매 토큰)를 서버로 보내 확정한다(confirm).
  * 4) **서버가 성공을 확인한 뒤에만** finishTransaction 한다.
+ *    (안드로이드에서 이 호출이 소비 처리까지 해 준다 — 안 하면 같은 상품을 다시 못 산다)
  *
- * 끝내지 않은 거래는 Apple 이 앱을 켤 때마다 다시 준다. 결제 직후 앱이 꺼지거나 네트워크가
+ * 끝내지 않은 거래는 스토어가 앱을 켤 때마다 다시 준다. 결제 직후 앱이 꺼지거나 네트워크가
  * 끊겨도 다음 실행 때 recoverUnfinished() 가 3)부터 이어간다.
- *
- * 안드로이드에서는 모듈이 아예 링크되지 않는다(package.json expo.autolinking) — 그래서
- * import 대신 iOS 에서만 require 한다. 안드로이드 결제는 PayApp 이다.
  */
-const IAP: typeof import('expo-iap') | null = Platform.OS === 'ios' ? require('expo-iap') : null;
+const IAP: typeof import('expo-iap') | null =
+    Platform.OS === 'ios' || Platform.OS === 'android' ? require('expo-iap') : null;
+
+const IS_IOS = Platform.OS === 'ios';
 
 export const isIapAvailable = IAP !== null;
 
@@ -28,7 +29,7 @@ const FINISHABLE_ERROR_CODES = ['30001', '30002', '30003', '30004'];
 export class IapError extends Error {
     constructor(
         message: string,
-        /** cancelled: 사용자가 닫음 / pending: 승인 대기(자녀 구매 요청 등) / failed: 그 외 */
+        /** cancelled: 사용자가 닫음 / pending: 승인 대기(자녀 구매 요청·무통장 등) / failed: 그 외 */
         readonly kind: 'cancelled' | 'pending' | 'failed',
     ) {
         super(message);
@@ -45,8 +46,8 @@ function connect() {
     return connected;
 }
 
-/** 상품 ID → App Store 표시 가격('₩13,900'). Apple 가격을 그대로 보여줘야 한다(심사 요건). */
-export async function loadIosPrices(productIds: string[]): Promise<Record<string, string>> {
+/** 상품 ID → 스토어 표시 가격('₩13,900'). 스토어 가격을 그대로 보여줘야 한다(심사 요건). */
+export async function loadStorePrices(productIds: string[]): Promise<Record<string, string>> {
     if (!IAP || productIds.length === 0) return {};
     await connect();
     const products = (await IAP.fetchProducts({ skus: productIds, type: 'in-app' })) ?? [];
@@ -58,9 +59,9 @@ export async function loadIosPrices(productIds: string[]): Promise<Record<string
 // ── 거래 처리 ──
 
 /** 같은 거래가 requestPurchase 반환값과 리스너로 두 번 올 수 있다 — 한 번만 서버로 보낸다 */
-const inflight = new Map<string, Promise<IosConfirmResult>>();
+const inflight = new Map<string, Promise<StoreConfirmResult>>();
 
-function handlePurchase(purchase: Purchase): Promise<IosConfirmResult> {
+function handlePurchase(purchase: Purchase): Promise<StoreConfirmResult> {
     const key = purchase.id;
     let p = inflight.get(key);
     if (!p) {
@@ -70,9 +71,10 @@ function handlePurchase(purchase: Purchase): Promise<IosConfirmResult> {
     return p;
 }
 
-async function confirmAndFinish(purchase: Purchase): Promise<IosConfirmResult> {
+async function confirmAndFinish(purchase: Purchase): Promise<StoreConfirmResult> {
     if (!IAP) throw new IapError('인앱결제를 사용할 수 없습니다.', 'failed');
     if (purchase.purchaseState === 'pending') {
+        // 안드로이드 무통장·상품권, iOS 승인 요청 — 결제가 끝나면 스토어가 다시 알려준다
         throw new IapError('결제 승인을 기다리고 있습니다. 승인되면 자동으로 반영됩니다.', 'pending');
     }
     if (!purchase.purchaseToken) {
@@ -80,7 +82,8 @@ async function confirmAndFinish(purchase: Purchase): Promise<IosConfirmResult> {
     }
 
     try {
-        const result = await confirmIosTransaction(purchase.purchaseToken);
+        const result = await confirmStorePurchase(purchase.purchaseToken, purchase.productId);
+        // isConsumable: 안드로이드에서 소비 처리까지 한다. 안 하면 같은 상품을 다시 살 수 없다
         await IAP.finishTransaction({ purchase, isConsumable: true });
         return result;
     } catch (e: any) {
@@ -99,20 +102,20 @@ async function confirmAndFinish(purchase: Purchase): Promise<IosConfirmResult> {
 }
 
 /**
- * 결제한다. 주문은 호출부가 서버에서 먼저 만든다(prepareIos...Order).
+ * 결제한다. 주문은 호출부가 서버에서 먼저 만든다(prepareStore...Order).
  * 서버 확정까지 끝난 결과를 돌려준다.
  */
-export async function purchaseIos(order: IosOrder): Promise<IosConfirmResult> {
+export async function purchaseStore(order: StoreOrder): Promise<StoreConfirmResult> {
     if (!IAP) throw new IapError('이 기기에서는 인앱결제를 사용할 수 없습니다.', 'failed');
     await connect();
 
-    // 상품을 한 번 불러와야 StoreKit 이 결제를 받는다
+    // 상품을 한 번 불러와야 스토어가 결제를 받는다
     const found = await IAP.fetchProducts({ skus: [order.productId], type: 'in-app' });
     if (!found || (found as unknown[]).length === 0) {
         throw new IapError('판매 중인 상품을 찾을 수 없습니다. 잠시 후 다시 시도해 주세요.', 'failed');
     }
 
-    return new Promise<IosConfirmResult>((resolve, reject) => {
+    return new Promise<StoreConfirmResult>((resolve, reject) => {
         let settled = false;
         const done = (fn: () => void) => {
             if (settled) return;
@@ -124,8 +127,6 @@ export async function purchaseIos(order: IosOrder): Promise<IosConfirmResult> {
 
         const updated = IAP.purchaseUpdatedListener((purchase) => {
             if (purchase.productId !== order.productId) return;
-            const token = (purchase as { appAccountToken?: string | null }).appAccountToken;
-            if (token && token.toLowerCase() !== order.orderId.toLowerCase()) return;
             handlePurchase(purchase).then(
                 (r) => done(() => resolve(r)),
                 (e) => done(() => reject(e)),
@@ -143,10 +144,12 @@ export async function purchaseIos(order: IosOrder): Promise<IosConfirmResult> {
             }
         });
 
-        IAP.requestPurchase({
-            request: { apple: { sku: order.productId, appAccountToken: order.orderId } },
-            type: 'in-app',
-        })
+        // 주문번호를 실어 보낸다 — 스토어가 검증한 거래에 그대로 담겨 돌아온다
+        const request = IS_IOS
+            ? { apple: { sku: order.productId, appAccountToken: order.orderId } }
+            : { google: { skus: [order.productId], obfuscatedAccountId: order.orderId } };
+
+        IAP.requestPurchase({ request, type: 'in-app' })
             .then((result) => {
                 // 반환값으로 거래가 오는 경우도 있다. 리스너와 겹쳐도 handlePurchase 가 한 번만 보낸다
                 const purchase = Array.isArray(result) ? result[0] : result;
@@ -169,18 +172,22 @@ export async function purchaseIos(order: IosOrder): Promise<IosConfirmResult> {
 }
 
 /**
- * 끝나지 않은 거래를 서버로 보내 마무리한다. 앱 시작·로그인 직후·충전 화면 진입 때 부른다.
+ * 끝나지 않은 거래를 서버로 보내 마무리한다. 앱 시작·앞으로 돌아올 때·충전 화면 진입 때 부른다.
  * 실패해도 조용히 넘어간다 — 거래가 남아 있어 다음에 다시 시도된다.
  */
 let recovering = false;
-export async function recoverUnfinished(): Promise<IosConfirmResult[]> {
+export async function recoverUnfinished(): Promise<StoreConfirmResult[]> {
     if (!IAP || recovering) return [];
     recovering = true;
     try {
         await connect();
-        const pending = (await IAP.getPendingTransactionsIOS()) ?? [];
-        const results: IosConfirmResult[] = [];
-        for (const purchase of pending as Purchase[]) {
+        // iOS 는 아직 끝내지 않은 거래, 안드로이드는 아직 소비하지 않은 구매가 여기로 온다
+        const pending = IS_IOS
+            ? await IAP.getPendingTransactionsIOS()
+            : await IAP.getAvailablePurchases();
+
+        const results: StoreConfirmResult[] = [];
+        for (const purchase of (pending ?? []) as Purchase[]) {
             try {
                 results.push(await handlePurchase(purchase));
             } catch {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/apiClient';
 import { getJobDetail, JobPostingPayload } from './api';
@@ -7,10 +7,9 @@ import { useCreateJobPost, invalidateJobLists } from './mutations';
 import { MyPostSummary, FeeItem } from './types';
 import { useGetUserProfile } from '@/services/user/queries';
 import { ProductType } from '@/components/site-post/ProductSelectModal';
-import { requestPayapp } from '@/services/payapp/api';
 import { geocodeAddress } from '@/lib/geocode';
-import { prepareIosPostOrder } from '@/services/iap/api';
-import { IapError, purchaseIos } from '@/lib/iap';
+import { prepareStorePostOrder } from '@/services/iap/api';
+import { IapError, purchaseStore } from '@/lib/iap';
 
 const EMPTY_FEE_ITEM: FeeItem = { category: '', amount: '' };
 
@@ -59,7 +58,7 @@ export function useSitePostForm() {
     const qc = useQueryClient();
     const createMutation = useCreateJobPost();
     const [isLoadingPrev, setIsLoadingPrev] = useState(false);
-    const [isPayappLoading, setIsPayappLoading] = useState(false);
+    const [isPurchasing, setIsPurchasing] = useState(false);
 
     // 담당자 성함/연락처를 내 프로필에서 자동 입력 (사용자가 이미 입력했으면 유지)
     // ⚠️ 미인증(OAuth) 사용자의 phone 은 'notauth_...' placeholder라 그대로 채우면
@@ -201,8 +200,7 @@ export function useSitePostForm() {
 
     // ── 상품 선택 후 등록 ──
     // - FREE: 곧바로 createJobPost (기존 흐름)
-    // - PREMIUM/TOP: PayApp 결제 요청 → payurl/orderId 를 호출부로 전달 (호출부가 WebView 오픈).
-    //   결제 확정은 백엔드 웹훅이 처리 → 앱은 폴링 결과가 paid일 때 성공 처리만 하면 된다.
+    // - PREMIUM/TOP: 스토어 인앱결제. 서버 주문 → 결제 → 서버 확정까지 여기서 끝낸다.
     const confirmProduct = async (
         selectedProduct: ProductType,
         selectedIcons: number[],
@@ -210,7 +208,6 @@ export function useSitePostForm() {
         callbacks: {
             onCloseModal: () => void;
             onSuccess: () => void;
-            onPayappRequired?: (payurl: string, orderId: string) => void;
         },
     ) => {
         console.log('[SitePost] confirmProduct 진입:', { selectedProduct, totalAmount });
@@ -256,54 +253,37 @@ export function useSitePostForm() {
             return;
         }
 
-        // 유료 상품 · iOS → App Store 인앱결제 (3.1.1 — iOS 에서 PayApp 을 열면 리젝된다)
+        // 유료 상품 → 스토어 인앱결제 (iOS App Store / Android Google Play)
+        //   앱에서 파는 것은 두 스토어 모두 자기 결제를 요구한다. 웹만 PayApp 이다.
         //   서버가 결제 **전에** 금칙어·하루 건수·중복을 보고 주문을 만든다. 거기서 막히면 결제창을 안 연다.
         //   결제 후 공고 생성은 서버 확정(confirm)이 한다. 흐름은 lib/iap.ts.
-        if (Platform.OS === 'ios') {
-            setIsPayappLoading(true);
-            try {
-                const order = await prepareIosPostOrder(payload);
-                const result = await purchaseIos(order);
-                callbacks.onCloseModal();
-                if (result.kind === 'post' && result.fulfilled) {
-                    finalizeAfterPayapp(callbacks.onSuccess, result.pointEarned);
-                } else if (result.kind === 'post') {
-                    Alert.alert('공고 등록 실패', result.message);
-                }
-            } catch (e: any) {
-                if (e instanceof IapError) {
-                    if (e.kind !== 'cancelled') {
-                        Alert.alert(e.kind === 'pending' ? '승인 대기' : '결제 실패', e.message);
-                    }
-                } else {
-                    Alert.alert('결제 요청 실패', e?.response?.data?.message ?? e?.message ?? '결제 요청 중 오류가 발생했습니다.');
-                }
-            } finally {
-                setIsPayappLoading(false);
-            }
-            return;
-        }
-
-        // 유료 상품 · 안드로이드 → PayApp 결제 요청
-        console.log('[SitePost] requestPayapp 호출 시작');
-        setIsPayappLoading(true);
+        setIsPurchasing(true);
         try {
-            const { payurl, orderId } = await requestPayapp(payload);
-            console.log('[SitePost] requestPayapp 응답:', { payurl, orderId });
+            const order = await prepareStorePostOrder(payload);
+            const result = await purchaseStore(order);
             callbacks.onCloseModal();
-            callbacks.onPayappRequired?.(payurl, orderId);
+            if (result.kind === 'post' && result.fulfilled) {
+                finalizeAfterPurchase(callbacks.onSuccess, result.pointEarned);
+            } else if (result.kind === 'post') {
+                Alert.alert('공고 등록 실패', result.message);
+            }
         } catch (e: any) {
-            console.log('[SitePost] requestPayapp 실패:', e?.response?.status, e?.response?.data, e?.message);
-            Alert.alert('결제 요청 실패', e?.response?.data?.message ?? e?.message ?? '결제 요청 중 오류가 발생했습니다.');
+            if (e instanceof IapError) {
+                if (e.kind !== 'cancelled') {
+                    Alert.alert(e.kind === 'pending' ? '승인 대기' : '결제 실패', e.message);
+                }
+            } else {
+                Alert.alert('결제 요청 실패', e?.response?.data?.message ?? e?.message ?? '결제 요청 중 오류가 발생했습니다.');
+            }
         } finally {
-            setIsPayappLoading(false);
+            setIsPurchasing(false);
         }
     };
 
-    // PayApp 결제 확정 후 호출 — 서버 웹훅이 이미 공고를 만들었으므로 성공 처리만.
+    // 스토어 결제 확정 후 호출 — 서버가 이미 공고를 만들었으므로 성공 처리만.
     // 단, 이 경로는 createMutation을 타지 않으므로 목록 캐시 무효화를 직접 해줘야
     // 결제로 등록한 공고가 메인에 바로 뜬다.
-    const finalizeAfterPayapp = (onSuccess: () => void, pointEarned = 0) => {
+    const finalizeAfterPurchase = (onSuccess: () => void, pointEarned = 0) => {
         invalidateJobLists(qc);
         qc.invalidateQueries({ queryKey: ['point-balance'] });
         qc.invalidateQueries({ queryKey: ['point-history'] });
@@ -364,7 +344,7 @@ export function useSitePostForm() {
         // 유저/API
         userProfile,
         isLoadingPrev,
-        isSubmitting: createMutation.isPending || isPayappLoading,
+        isSubmitting: createMutation.isPending || isPurchasing,
         isSuccessRef,
         imagesRef,
         // 핸들러
@@ -372,7 +352,7 @@ export function useSitePostForm() {
         loadPreviousPost,
         validate,
         confirmProduct,
-        finalizeAfterPayapp,
+        finalizeAfterPurchase,
         deleteUploadedImages,
     };
 }

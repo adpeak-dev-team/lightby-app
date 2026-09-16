@@ -31,8 +31,8 @@ export interface PricingIcon {
   color: string;
   price: number;
 }
-/** iOS 공고 인앱결제 상품 ID — 등급·아이콘 조합마다 하나 */
-export interface IosPostProducts {
+/** 공고 인앱결제 상품 ID — 등급·아이콘 조합마다 하나. 애플·구글 같은 ID */
+export interface StorePostProducts {
   top: string;
   top_icon: string;
   premium: string;
@@ -44,7 +44,7 @@ export interface SitePricing {
   products: PricingProduct[];
   icons: PricingIcon[];
   /** 서버 신버전부터 */
-  iosProducts?: IosPostProducts;
+  storeProducts?: StorePostProducts;
 }
 export async function getSitePricing(): Promise<SitePricing> {
   const { data } = await apiClient.get<{ success: boolean; data: SitePricing }>('/site/pricing');

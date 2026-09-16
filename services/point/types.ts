@@ -49,7 +49,7 @@ export interface PointPackage {
     bonusPoints: number;
     priceWeb: number;
     priceAppDisplay: number | null;
-    iosProductId: string | null;
+    storeProductId: string | null;
 }
 
 export interface PointPackageList {
