@@ -14,7 +14,7 @@ import { loadStorePrices } from '@/lib/iap';
 
 /** 서버 site.constants 의 storePostProductId 와 같은 규칙 — 표시용. 실제 상품은 서버가 주문 때 정한다 */
 function storeComboId(ids: StorePostProducts, product: 'PREMIUM' | 'TOP', withIcon: boolean, freebie: boolean): string | null {
-    if (freebie) return withIcon ? ids.icon : null;
+    if (freebie) return null;   // 무료 프리미엄 혜택은 아이콘까지 무료라 살 상품이 없다
     if (product === 'PREMIUM') return withIcon ? ids.premium_icon : ids.premium;
     return withIcon ? ids.top_icon : ids.top;
 }
@@ -82,10 +82,10 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
         setSelectedIcons((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [id]);
     };
 
-    const basePrice = selected === 'PREMIUM'
-        ? (freebies ? 0 : PREMIUM_PRICE)
-        : selected === 'TOP' ? TOP_PRICE : 0;
-    const iconsTotal = selectedIcons.reduce((sum, id) => sum + iconPriceOf(id), 0);
+    // 무료 프리미엄 혜택은 아이콘까지 무료다 — 결제 없이 등록한다
+    const freebieApplied = freebies && selected === 'PREMIUM';
+    const basePrice = freebieApplied ? 0 : selected === 'PREMIUM' ? PREMIUM_PRICE : selected === 'TOP' ? TOP_PRICE : 0;
+    const iconsTotal = freebieApplied ? 0 : selectedIcons.reduce((sum, id) => sum + iconPriceOf(id), 0);
     const totalAmount = basePrice + iconsTotal;
 
     const productName = selected === 'PREMIUM' ? '프리미엄' : selected === 'TOP' ? '지역 탑' : '무료 등록';
@@ -95,7 +95,6 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
     const isFreeFlow = selected === 'FREE' || totalAmount === 0;
 
     // 이 조합으로 실제로 살 스토어 상품의 가격
-    const freebieApplied = freebies && selected === 'PREMIUM';
     const comboId = storeIds && selected !== 'FREE'
         ? storeComboId(storeIds, selected, selectedIcons.length > 0, freebieApplied)
         : null;
@@ -255,7 +254,7 @@ export function ProductSelectModal({ visible, onClose, onConfirm, freebies = fal
                             <View style={s.summaryRow}>
                                 <Text style={s.summaryTotalLabel}>최종 금액</Text>
                                 <Text style={[s.summaryTotal, freebies && selected === 'PREMIUM' && s.summaryTotalFree]}>
-                                    {freebieApplied && selectedIcons.length === 0 ? '0원' : totalText}
+                                    {freebieApplied ? '0원' : totalText}
                                 </Text>
                             </View>
                         </View>

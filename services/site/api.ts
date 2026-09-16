@@ -37,8 +37,6 @@ export interface StorePostProducts {
   top_icon: string;
   premium: string;
   premium_icon: string;
-  /** 무료 프리미엄 혜택으로 등급 값이 0원일 때 아이콘만 사는 상품 */
-  icon: string;
 }
 export interface SitePricing {
   products: PricingProduct[];
