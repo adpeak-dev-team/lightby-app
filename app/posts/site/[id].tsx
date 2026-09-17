@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  View, ScrollView, TouchableOpacity, StyleSheet, Share, ActivityIndicator, Modal, Pressable, Linking, useWindowDimensions,
+  View, ScrollView, TouchableOpacity, StyleSheet, Share, ActivityIndicator, Modal, Pressable, Linking, useWindowDimensions, Alert,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -71,7 +71,7 @@ export default function SiteDetailPage() {
   // 높이를 낮춰 '충돌이 일어날 면적' 자체를 줄이고, 원본은 탭해서 전체화면 뷰어로 본다.
   const sliderHeight = Math.round(width * 0.75);
 
-  const { data: job, isLoading } = useGetJobDetail(id);
+  const { data: job, isLoading, error: jobError } = useGetJobDetail(id);
   const { data: likeData, refetch: refetchLike } = useGetLikeStatus(job?.id);
   const { data: me } = useGetMe();
 
@@ -162,6 +162,19 @@ export default function SiteDetailPage() {
     applyMutation.mutate();
   }, [me, applyMutation]);
 
+  // 삭제됐거나 없는 공고 — 안내하고 이전 화면으로 돌려보낸다.
+  // 찜·알림·공유 링크로 들어오면 이미 지워진 공고를 열 수 있다. 빈 화면에 두면 나갈 길이 없다.
+  const notFound = !isLoading && !job && (jobError as AxiosError | null)?.response?.status === 404;
+  useEffect(() => {
+    if (!notFound) return;
+    Alert.alert('공고를 볼 수 없습니다', '삭제되었거나 마감된 공고입니다.', [
+      {
+        text: '확인',
+        onPress: () => (router.canGoBack() ? router.back() : router.replace('/' as never)),
+      },
+    ], { cancelable: false });
+  }, [notFound, router]);
+
   // ── 로딩 / 에러 ────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
@@ -171,9 +184,18 @@ export default function SiteDetailPage() {
     );
   }
   if (!job) {
+    // 404 는 위 안내창이 처리한다. 그 외 오류(네트워크 등)에도 나갈 수 있게 뒤로가기를 둔다.
     return (
       <View style={s.centered}>
-        <Text style={s.emptyText}>데이터를 불러올 수 없습니다.</Text>
+        <Text style={s.emptyText}>
+          {notFound ? '삭제되었거나 마감된 공고입니다.' : '데이터를 불러올 수 없습니다.'}
+        </Text>
+        <TouchableOpacity
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/' as never))}
+          style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, backgroundColor: '#f1f5f9' }}
+        >
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#334155' }}>이전 화면으로</Text>
+        </TouchableOpacity>
       </View>
     );
   }

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  updateNickname, sendPhoneAuthCode, verifyPhoneAuthCode, changePassword, saveTalentInfo, savePreferences, uploadProfileImage, deleteProfileImage, withdrawUser,
+  updateName, updateNickname, sendPhoneAuthCode, verifyPhoneAuthCode, changePassword, saveTalentInfo, savePreferences, uploadProfileImage, deleteProfileImage, withdrawUser,
   updateNotificationSettings, type NotificationSettings,
 } from './api';
 import { USER_KEYS, PREFERENCES_KEYS, FAVORITE_KEYS, NOTIFICATION_SETTINGS_KEY } from './queries';
@@ -9,6 +9,14 @@ import { USER_KEYS, PREFERENCES_KEYS, FAVORITE_KEYS, NOTIFICATION_SETTINGS_KEY }
 export function useWithdrawUser() {
   return useMutation({
     mutationFn: () => withdrawUser(),
+  });
+}
+
+export function useUpdateName() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => updateName(name),
+    onSuccess: () => qc.invalidateQueries({ queryKey: USER_KEYS.profile }),
   });
 }
 

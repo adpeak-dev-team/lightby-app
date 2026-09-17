@@ -24,6 +24,12 @@ export async function getUserPostCount(): Promise<UserPostCount> {
   return data.data;
 }
 
+/** 이름 변경 — 실명인증 값이 아니라 사용자가 입력한 값이라 바꿀 수 있다(웹과 같음) */
+export async function updateName(name: string): Promise<{ success: boolean; message: string }> {
+  const { data } = await apiClient.patch('/user/name', { name });
+  return data;
+}
+
 export async function updateNickname(nickname: string): Promise<{ success: boolean; message: string }> {
   const { data } = await apiClient.patch('/user/nickname', { nickname });
   return data;

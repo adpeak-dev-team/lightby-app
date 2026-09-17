@@ -19,6 +19,8 @@ export function useGetJobDetail(id: string) {
     queryKey: ['job-detail', id],
     queryFn: () => getJobDetail(id),
     enabled: !!id,
+    // 없는(삭제된) 공고는 다시 물어봐도 없다. 재시도하면 빈 로딩 화면이 몇 초씩 남는다.
+    retry: (count, error: any) => error?.response?.status !== 404 && count < 2,
   });
 }
 

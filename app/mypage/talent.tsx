@@ -12,7 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { useGetUserProfile } from '@/services/user/queries';
-import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage, useUpdateNickname } from '@/services/user/mutations';
+import { useSaveTalentInfo, useUploadProfileImage, useDeleteProfileImage, useUpdateName, useUpdateNickname } from '@/services/user/mutations';
 import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
 import { useHeaderKeyboardOffset } from '@/hooks/use-header-keyboard-offset';
 
@@ -28,7 +28,9 @@ export default function TalentPage() {
   const uploadImageMutation = useUploadProfileImage();
   const deleteImageMutation = useDeleteProfileImage();
   const updateNicknameMutation = useUpdateNickname();
+  const updateNameMutation = useUpdateName();
 
+  const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
   const [gender, setGender] = useState<Gender>(null);
   const [birthday, setBirthday] = useState('');
@@ -55,6 +57,7 @@ export default function TalentPage() {
     const intro = profile.introduction ?? '';
     const cs = profile.careers ?? [];
 
+    setName(profile.name ?? '');
     setNickname(profile.nickname ?? '');
     setGender(g);
     setBirthday(b);
@@ -139,11 +142,16 @@ export default function TalentPage() {
     ]);
   };
 
-  // 닉네임 변경과 인재 정보 저장이 순차로 일어나므로 둘 다 진행 중으로 본다.
-  const isSaving = saveMutation.isPending || updateNicknameMutation.isPending;
+  // 이름·닉네임 변경과 인재 정보 저장이 순차로 일어나므로 셋 다 진행 중으로 본다.
+  const isSaving = saveMutation.isPending || updateNicknameMutation.isPending || updateNameMutation.isPending;
 
   const handleSubmit = async () => {
+    const trimmedName = name.trim();
     const trimmedNickname = nickname.trim();
+    if (!trimmedName) {
+      Alert.alert('오류', '이름을 입력해주세요.');
+      return;
+    }
     if (!trimmedNickname) {
       Alert.alert('오류', '닉네임을 입력해주세요.');
       return;
@@ -155,6 +163,16 @@ export default function TalentPage() {
     if (!isValidBirthday(birthday)) {
       Alert.alert('오류', '생년월일을 올바르게 입력해 주세요.');
       return;
+    }
+
+    // 이름이 바뀐 경우에만 호출. 실패하면 여기서 멈춘다(웹과 같은 순서).
+    if (trimmedName !== (profile?.name ?? '')) {
+      try {
+        await updateNameMutation.mutateAsync(trimmedName);
+      } catch (e: any) {
+        Alert.alert('오류', e.response?.data?.message || '이름 변경에 실패했습니다.');
+        return;
+      }
     }
 
     // 닉네임이 바뀐 경우에만 별도 API 호출. 중복 등으로 실패하면 여기서 멈춘다
@@ -261,12 +279,17 @@ export default function TalentPage() {
               <Text style={s.sectionTitle}>기본 정보</Text>
             </View>
 
-            {/* 이름 — 가입 시 확정되며 변경 불가 */}
+            {/* 이름 — 실명인증 값이 아니라 사용자가 입력한 값이라 바꿀 수 있다(웹과 같음). 저장 시 반영 */}
             <View style={s.field}>
-              <Text style={s.label}>이름</Text>
-              <View style={s.readOnlyInput}>
-                <Text style={s.readOnlyText}>{profile?.name ?? '-'}</Text>
-              </View>
+              <Text style={s.label}>이름 <Text style={s.required}>*</Text></Text>
+              <TextInput
+                style={s.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="이름을 입력해주세요."
+                placeholderTextColor="#94a3b8"
+                maxLength={20}
+              />
             </View>
 
             {/* 닉네임 — 커뮤니티 등에 노출되는 표시명. 저장 시 함께 반영된다. */}
@@ -469,8 +492,6 @@ const s = StyleSheet.create({
 
   // 이름은 변경 불가 — 배경/테두리를 없애 입력창·선택 버튼과 구분되게 텍스트로만 보여준다.
   // (배경이 있으면 비활성 성별 버튼(#f1f5f9)과 색이 겹쳐 눌리는 요소로 오인된다)
-  readOnlyInput: { paddingVertical: 10 },
-  readOnlyText: { fontSize: 14, color: '#475569' },
 
   input: {
     borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12,
