@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  SectionList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, Linking, useWindowDimensions, RefreshControl,
+  SectionList, View, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, useWindowDimensions, RefreshControl,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -20,6 +20,7 @@ import { useRequireLogin } from '@/hooks/use-require-login';
 import { useGetJobsByProduct, useGetFreeJobsInfinite, useGetBanners } from '@/services/site/queries';
 import { JobSummaryResponse } from '@/services/site/types';
 import { getImageUrl, ddayFromCreatedAt } from '@/lib/lib';
+import { isLinkOpenable, openLink } from '@/lib/appLink';
 
 // ─── 타입 변환 ─────────────────────────────────────────────────────────────────
 function toJobItem(job: JobSummaryResponse): JobItem {
@@ -136,6 +137,7 @@ function Section({
 
 // ─── 배너 캐러셀 ─────────────────────────────────────────────────────────────
 function BannerCarousel() {
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const carouselWidth = width - 32; // marginHorizontal: 16 양쪽 제외
   const BANNER_HEIGHT = carouselWidth * (160 / 734); // front 배너 비율(aspect-734/160)에 맞춤
@@ -161,8 +163,8 @@ function BannerCarousel() {
         }}
         renderItem={({ item }) => (
           <TouchableOpacity
-            activeOpacity={item.linkUrl ? 0.9 : 1}
-            onPress={() => item.linkUrl && Linking.openURL(item.linkUrl)}
+            activeOpacity={isLinkOpenable(item.linkUrl) ? 0.9 : 1}
+            onPress={() => openLink(router, item.linkUrl)}
             style={{ width: carouselWidth, height: BANNER_HEIGHT }}
           >
             <Image

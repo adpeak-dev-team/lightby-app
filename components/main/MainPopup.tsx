@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, View, Pressable, TouchableOpacity, StyleSheet, Linking, useWindowDimensions } from 'react-native';
+import { Modal, View, Pressable, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from '@/components/common/AppText';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useGetPopups } from '@/services/site/queries';
 import { getImageUrl } from '@/lib/lib';
+import { isLinkOpenable, openLink } from '@/lib/appLink';
 
 // 숨김 저장 키 — 팝업별로 마지막 숨김 날짜(YYYY-MM-DD) 또는 영구 숨김 표시("never")를 보관한다.
 const storageKey = (id: number) => `popup_hidden_${id}`;
@@ -18,6 +20,7 @@ const NEVER = 'never';
  * 여러 개면 한 번에 하나씩, 닫을 때마다 다음 팝업을 보여준다.
  */
 export default function MainPopup() {
+  const router = useRouter();
   const { width, height } = useWindowDimensions();
   const { data: popups } = useGetPopups();
   const [hiddenIds, setHiddenIds] = useState<number[] | null>(null);
@@ -88,8 +91,9 @@ export default function MainPopup() {
   // 둘 다 켜져 있으면 숨김 버튼을 윗줄에 두고 닫기를 아랫줄 전체 너비로 — 한 줄에 3개면 좁은 화면에서 깨진다
   const isStacked = showToday && showNever;
 
-  const openLink = () => {
-    if (current.linkUrl) Linking.openURL(current.linkUrl).catch(() => null);
+  // 앱에 같은 화면이 있으면 앱 안에서 연다 (웹으로 튕기면 로그인부터 다시 해야 한다)
+  const goLink = () => {
+    openLink(router, current.linkUrl);
     close();
   };
 
@@ -104,8 +108,8 @@ export default function MainPopup() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            activeOpacity={current.linkUrl ? 0.9 : 1}
-            onPress={current.linkUrl ? openLink : undefined}
+            activeOpacity={isLinkOpenable(current.linkUrl) ? 0.9 : 1}
+            onPress={current.linkUrl ? goLink : undefined}
           >
             <Image
               source={{ uri: imageUri }}
