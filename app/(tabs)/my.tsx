@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { usePointBalance } from '@/services/point/queries';
+import { usePointBalance, usePointPackages } from '@/services/point/queries';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal,
 } from 'react-native';
@@ -88,6 +88,9 @@ export default function MyPage() {
   const { data: jobPostings } = useGetMyJobPostings({ enabled: isLoggedIn === true });
   // 포인트가 꺼져 있으면 enabled=false 로 와서 줄 자체를 안 그린다.
   const { data: point } = usePointBalance(isLoggedIn === true);
+  // 충전 줄은 이 스토어의 충전 스위치가 켜져 있고 팔 상품이 있을 때만 (웹 마이페이지와 같은 기준)
+  const { data: packages } = usePointPackages(isLoggedIn === true && !!point?.enabled);
+  const canCharge = !!packages?.enabled && packages.items.length > 0;
   const totalUnreads = (jobPostings?.items ?? []).reduce((sum, item) => sum + (item.unreads_num ?? 0), 0);
 
   const logoutMutation = useLogout();
@@ -221,6 +224,25 @@ export default function MyPage() {
               </Text>
             </View>
             <Text style={s.pointAmount}>{(point.balance ?? 0).toLocaleString('ko-KR')}P</Text>
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
+          </TouchableOpacity>
+        )}
+
+        {/* 충전은 포인트 화면을 거치지 않고도 바로 갈 수 있어야 한다 —
+            잔액이 모자라서 들어온 사람에게 한 단계를 더 태울 이유가 없다(웹 동일). */}
+        {point?.enabled && canCharge && (
+          <TouchableOpacity
+            style={s.pointRow}
+            onPress={() => router.push('/mypage/point-charge' as never)}
+            activeOpacity={0.8}
+          >
+            <View style={[s.menuIcon, { backgroundColor: '#d1fae5' }]}>
+              <Ionicons name="add-circle" size={18} color="#059669" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.menuLabel}>포인트 충전</Text>
+              <Text style={s.pointSub}>패키지를 골라 바로 충전합니다</Text>
+            </View>
             <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </TouchableOpacity>
         )}
