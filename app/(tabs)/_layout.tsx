@@ -62,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="community"
         options={{
-          title: '현장소통',
+          title: '커뮤니티',
           tabBarIcon: ({ color }) => <MaterialIcons name="forum" size={24} color={color} />,
         }}
       />
@@ -73,11 +73,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <MaterialIcons name="search" size={24} color={color} />,
         }}
       />
-      {/* 내 명함 — 고객을 만난 자리에서 바로 꺼내야 하는 도구라 탭에 고정한다(웹 동일) */}
+      {/* 모바일 명함 — 고객을 만난 자리에서 바로 꺼내야 하는 도구라 탭에 고정한다(웹 동일) */}
       <Tabs.Screen
         name="card"
         options={{
-          title: '내 명함',
+          title: '모바일 명함',
           tabBarIcon: ({ color }) => <MaterialIcons name="badge" size={24} color={color} />,
         }}
       />

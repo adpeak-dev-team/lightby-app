@@ -20,7 +20,7 @@ import type { CardListItem } from '@/services/card/types';
 const won = (n: number) => n.toLocaleString('ko-KR');
 
 /**
- * 내 명함.
+ * 모바일 명함.
  *
  * 현장이 바뀌면 **새 명함을 만든다.** 기존 것을 고치면 예전에 뿌린 링크까지 새
  * 현장으로 바뀌어 받은 사람이 오해한다. 그래서 한 사람이 여러 장을 갖는다.

@@ -18,7 +18,7 @@ import { COMMUNITY_TABS, CommunityTabKey } from '@/lib/communityCategory';
 
 export default function CommunityPage() {
   const router = useRouter();
-  const { requireLogin, loginPrompt } = useRequireLogin('로그인 후 현장소통을 이용할 수 있습니다.');
+  const { requireLogin, loginPrompt } = useRequireLogin('로그인 후 커뮤니티를 이용할 수 있습니다.');
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
   const [focused, setFocused] = useState(false);
