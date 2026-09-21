@@ -77,8 +77,14 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   // 값은 있지만 로드가 실패하는 케이스(스크랩된 외부 이미지가 만료·404) 대응.
   // failed=true 가 되면 이후 렌더에서 기본 이미지로 폴백한다. job 이 바뀌면 상태 초기화.
   const [failed, setFailed] = useState(false);
-  useEffect(() => { setFailed(false); }, [imageUri]);
+  // 사진의 가로/세로 비율(w/h). 알기 전에는 권장 규격 4:3 으로 틀을 꽉 채운다.
+  const [ratio, setRatio] = useState(4 / 3);
+  useEffect(() => { setFailed(false); setRatio(4 / 3); }, [imageUri]);
   const showDefault = !imageUri || failed;
+  // 프리미엄·일반은 가로를 항상 100% 로 채운다(웹 JobCard fitWidth 와 같음) — 가로로 긴 배너의
+  // 양옆(현장명·전화번호)이 cover 로 잘려 나갔다. 틀(4:3)보다 길면 아래만 잘리고 짧으면 아래가 배경.
+  // 지역TOP 은 정사각형이라 예전처럼 가운데 기준 cover.
+  const fitWidth = variant !== 'top';
 
   // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
   const thumbWrapStyle =
@@ -107,12 +113,15 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
         <View style={thumbWrapStyle}>
           <Image
             source={showDefault ? DEFAULT_JOB_IMAGE : { uri: imageUri! }}
-            style={styles.thumb}
+            // fitWidth: 가로 100% + 사진 제 비율 높이. 틀(overflow hidden)이 넘치는 아래를 자른다.
+            style={fitWidth ? { width: '100%', aspectRatio: ratio } : styles.thumb}
             contentFit="cover"
-            // 4:3(권장 1200x900)이 아닌 사진은 위쪽 기준으로 자른다 — 현장명·로고가 위에 있는
-            // 경우가 많다. 지역TOP 은 정사각형이라 가운데 기준 유지(웹 JobCard 와 같음).
-            contentPosition={variant === 'top' ? 'center' : 'top'}
+            contentPosition={fitWidth ? 'top' : 'center'}
             transition={200}
+            onLoad={(e) => {
+              const { width: w, height: h } = e.source;
+              if (w > 0 && h > 0) setRatio(w / h);
+            }}
             onError={() => setFailed(true)}
           />
         </View>
