@@ -4,6 +4,7 @@ import {
 import { useState, useEffect } from 'react';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ICON_LIST, ICON_COLORS, industries as INDUSTRY_LIST } from '@/lib/constants';
 import { getImageUrl } from '@/lib/lib';
@@ -86,6 +87,22 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   // 지역TOP 은 정사각형이라 예전처럼 가운데 기준 cover.
   const fitWidth = variant !== 'top';
 
+  // 마감 배지·아이콘 자리 — 웹 JobCard 와 같다.
+  //   일반: 태그 줄 오른쪽에 마감 배지 + 아이콘 / 지역TOP: 태그 줄 오른쪽에 아이콘(마감은 상단)
+  //   프리미엄: 아이콘은 썸네일 좌측 상단(마감은 상단)
+  // 예전엔 카드 맨 아래에 한 줄을 더 써서 카드가 길어졌고, 웹은 태그와 겹쳤다.
+  const inlineBadge = variant === 'free' ? getDeadlineBadge(job) : null;
+  const iconViews = (job.icons ?? []).map((id) => {
+    const icon = ICON_LIST.find((i) => i.id === id);
+    if (!icon) return null;
+    const c = ICON_COLORS[icon.color] ?? ICON_COLORS.blue;
+    return (
+      <View key={id} style={[styles.badge, { backgroundColor: c.bg, borderColor: c.border }]}>
+        <Text style={[styles.badgeText, { color: c.text }]}>{icon.name}</Text>
+      </View>
+    );
+  }).filter(Boolean);
+
   // 썸네일 박스: 프리미엄=풀폭 4:3, top=대형 정사각(128), free=기본(80)
   const thumbWrapStyle =
     vertical ? styles.thumbWrapVertical : variant === 'top' ? styles.thumbWrapTop : styles.thumbWrap;
@@ -124,6 +141,9 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
             }}
             onError={() => setFailed(true)}
           />
+          {vertical && iconViews.length > 0 && (
+            <View style={styles.thumbIcons} pointerEvents="none">{iconViews}</View>
+          )}
         </View>
 
         {/* 내용 */}
@@ -143,48 +163,46 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
             <Text style={styles.fee}>{job.fee}</Text>
           </View>
 
-          {/* 태그 — 업종(블루)/직종(그린)별 색, 무조건 한 줄 */}
+          {/* 태그 줄 — 태그(왼쪽, 한 줄·넘치면 페이드) + 마감 배지·아이콘(오른쪽 고정 자리) */}
           {(() => {
             const tagItems = buildTags(job);
-            if (tagItems.length === 0) return null;
+            const right = !vertical && (inlineBadge || iconViews.length > 0);
+            if (tagItems.length === 0 && !right) return null;
             return (
-              <View style={styles.tags}>
-                {tagItems.map((t, i) => (
-                  <View key={`${t.label}-${i}`} style={[styles.tag, { backgroundColor: t.c.bg, borderColor: t.c.border }]}>
-                    <Text style={[styles.tagText, { color: t.c.text }]} numberOfLines={1}>{t.label}</Text>
+              <View style={styles.tagLine}>
+                <View style={styles.tagsWrap}>
+                  <View style={styles.tags}>
+                    {tagItems.map((t, i) => (
+                      <View key={`${t.label}-${i}`} style={[styles.tag, { backgroundColor: t.c.bg, borderColor: t.c.border }]}>
+                        <Text style={[styles.tagText, { color: t.c.text }]} numberOfLines={1}>{t.label}</Text>
+                      </View>
+                    ))}
                   </View>
-                ))}
+                  {/* 잘린 태그가 칼로 자른 듯 보이지 않게 오른쪽 끝을 흐린다(웹의 mask 와 같은 역할) */}
+                  <LinearGradient
+                    colors={['rgba(255,255,255,0)', '#fff']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.tagsFade}
+                    pointerEvents="none"
+                  />
+                </View>
+                {right && (
+                  <View style={styles.tagRight}>
+                    {inlineBadge && (
+                      <View style={[styles.inlineDday, { backgroundColor: inlineBadge.c.bg }]}>
+                        <Text style={[styles.ddayText, { color: inlineBadge.c.text }]}>{inlineBadge.label}</Text>
+                      </View>
+                    )}
+                    {iconViews}
+                  </View>
+                )}
               </View>
             );
           })()}
         </View>
       </View>
 
-      {/* 아이콘 뱃지 — free variant는 D-day 배지도 여기 인라인으로 함께 렌더(상단 텍스트 가림 방지) */}
-      {(() => {
-        const freeBadge = variant === 'free' ? getDeadlineBadge(job) : null;
-        const hasIcons = (job.icons?.length ?? 0) > 0;
-        if (!hasIcons && !freeBadge) return null;
-        return (
-          <View style={styles.badges}>
-            {freeBadge && (
-              <View style={[styles.inlineDday, { backgroundColor: freeBadge.c.bg }]}>
-                <Text style={[styles.ddayText, { color: freeBadge.c.text }]}>{freeBadge.label}</Text>
-              </View>
-            )}
-            {hasIcons && job.icons!.map((id) => {
-              const icon = ICON_LIST.find((i) => i.id === id);
-              if (!icon) return null;
-              const c = ICON_COLORS[icon.color] ?? ICON_COLORS.blue;
-              return (
-                <View key={id} style={[styles.badge, { backgroundColor: c.bg, borderColor: c.border }]}>
-                  <Text style={[styles.badgeText, { color: c.text }]}>{icon.name}</Text>
-                </View>
-              );
-            })}
-          </View>
-        );
-      })()}
     </TouchableOpacity>
   );
 }
@@ -292,12 +310,42 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#64748b', // text-slate-500 (웹과 동일)
   },
+  tagLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
+  },
+  tagsWrap: {
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+  },
   tags: {
     flexDirection: 'row',
     flexWrap: 'nowrap',
-    overflow: 'hidden',
     gap: 4,
-    marginTop: 2,
+  },
+  tagsFade: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: 18,
+  },
+  tagRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flexShrink: 0,
+  },
+  thumbIcons: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
   },
   tag: {
     paddingHorizontal: 7,
@@ -309,13 +357,6 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 10,
     fontWeight: '400',
-  },
-  badges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    marginTop: 8,
-    justifyContent: 'flex-end',
   },
   badge: {
     paddingHorizontal: 6,
