@@ -77,8 +77,16 @@ export const getOrCreateDeviceId = async (): Promise<string> => {
   return id;
 };
 
+/**
+ * 요청 타임아웃 — 예전엔 없어서, 응답이 안 오는 요청(망 전환·서버 멈춤)은 스피너가 영원히 돌았다.
+ * 20초면 정상 요청은 전부 끝난다. 업로드·결제 확정은 호출부에서 더 길게 준다.
+ */
+export const DEFAULT_TIMEOUT_MS = 20_000;
+export const UPLOAD_TIMEOUT_MS = 60_000;
+
 export const apiClient = axios.create({
   baseURL: `${BASE_URL}/api`,
+  timeout: DEFAULT_TIMEOUT_MS,
 });
 
 /**
@@ -161,7 +169,8 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      const res = await axios.post(`${BASE_URL}/api/auth/token-check`, { refreshToken });
+      // 재발급이 멈추면 isRefreshing 이 영영 안 풀려 이후 401 요청이 전부 대기열에 갇힌다 → 타임아웃 필수
+      const res = await axios.post(`${BASE_URL}/api/auth/token-check`, { refreshToken }, { timeout: 15_000 });
       const { accessToken, refreshToken: newRefreshToken } = res.data ?? {};
       if (accessToken) {
         await tokenStorage.set(accessToken);

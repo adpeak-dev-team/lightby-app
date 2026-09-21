@@ -51,6 +51,10 @@ export async function confirmStorePurchase(
         platform: STORE_PLATFORM,
         purchaseToken,
         productId,
+    }, {
+        // 서버가 애플·구글에 검증을 물어보는 동안 기다린다. 끊겨도 거래는 안 끝냈으니
+        // 다음 실행 때 recoverUnfinished 가 마무리한다.
+        timeout: 45_000,
     });
     return data.data;
 }

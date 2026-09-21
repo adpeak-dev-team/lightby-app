@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/apiClient';
+import { apiClient, UPLOAD_TIMEOUT_MS } from '@/api/apiClient';
 import { FavoriteSiteItem, UserProfile, UserPostCount, UserJobPostItem, UserBoardPostItem } from './types';
 
 export async function getFavoriteSites(
@@ -71,6 +71,7 @@ export async function uploadProfileImage(formData: FormData): Promise<{
 }> {
   const { data } = await apiClient.post('/user/update-profile-image', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: UPLOAD_TIMEOUT_MS, // 사진은 느린 망에서 20초를 넘길 수 있다
   });
   return data;
 }

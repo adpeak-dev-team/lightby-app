@@ -10,7 +10,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { apiClient } from '@/api/apiClient';
+import { apiClient, UPLOAD_TIMEOUT_MS } from '@/api/apiClient';
 
 const MAX_WIDTH = 1280;
 const COMPRESS_QUALITY = 0.75;
@@ -300,6 +300,7 @@ export default function SortableImage({
 
       const { data } = await apiClient.post('/internal/image-work', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: UPLOAD_TIMEOUT_MS, // 사진은 느린 망에서 20초를 넘길 수 있다
       });
 
       const uploadedPaths: string[] = data.urls ?? [];

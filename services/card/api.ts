@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/apiClient';
+import { apiClient, UPLOAD_TIMEOUT_MS } from '@/api/apiClient';
 import type { Card, CardListItem, CardPayload, IssuedShare, ShareLog } from './types';
 
 interface Envelope<T> { success: boolean; data: T }
@@ -77,6 +77,7 @@ export const uploadCardPhoto = async (asset: {
     //    (회원 프로필 사진 업로드가 같은 이유로 이렇게 되어 있다)
     const { data } = await apiClient.post<Envelope<{ photoPath: string }>>('/card/photo', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: UPLOAD_TIMEOUT_MS, // 사진은 느린 망에서 20초를 넘길 수 있다
     });
 
     // 서버는 파일을 못 찾으면 **200 에 success:false** 로 답한다(에러가 아니다).
