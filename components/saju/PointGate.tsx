@@ -35,6 +35,10 @@ export function PointGate({
     const { data: balance } = usePointBalance();
     const { data: policies } = usePointPolicies();
     const [confirmed, setConfirmed] = useState(false);
+    // ⚠️ 훅은 전부 아래 early return 보다 **위에서** 부른다. 예전엔 이 줄이 return 뒤에 있어서,
+    // 로딩(return) → 결제 확인 화면 순서로 그려질 때 훅 개수가 달라져 React 가 화면을
+    // 통째로 멈췄다("운세 들어가면 무한 로딩 + 먹통", 이용권이 없는 항목에서만 간헐적으로).
+    const canCharge = useCanChargePoint();
 
     const item = access?.find((a) => a.code === code);
 
@@ -49,7 +53,6 @@ export function PointGate({
     const balanceNow = balance?.balance ?? 0;
     const short = balanceNow < item.cost;
     const earns = (policies ?? []).filter((p) => p.kind === 'earn' && p.amount > 0);
-    const canCharge = useCanChargePoint();
 
     return (
         <View style={s.wrap}>
