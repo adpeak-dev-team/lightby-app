@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   View, ScrollView, TouchableOpacity, StyleSheet, Share, ActivityIndicator, Modal, Pressable, Linking, useWindowDimensions, Alert,
+  Image as RNImage,
 } from 'react-native';
 import { Text } from '@/components/common/AppText';
 import { Image } from 'expo-image';
@@ -58,20 +59,49 @@ const APPLY_CONTENT: Record<NonNullable<ApplyState>, { icon: string; title: stri
   error: { icon: '❌', title: '지원 실패', desc: '잠시 후 다시 시도해 주세요.' },
 };
 
+/**
+ * 이미지별 세로/가로 비율(h/w). 전부 알아낸 뒤 한 번에 돌려준다 — 하나씩 반영하면
+ * 캐러셀 높이가 여러 번 출렁인다. 실패한 이미지는 권장 비율(4:3)로 친다.
+ */
+function useImageRatios(uris: string[]): number[] | null {
+  const key = uris.join('|');
+  const [ratios, setRatios] = useState<number[] | null>(null);
+  useEffect(() => {
+    if (!uris.length) { setRatios(null); return; }
+    let alive = true;
+    Promise.all(uris.map((u) => new Promise<number>((resolve) => {
+      RNImage.getSize(u, (w, h) => resolve(w > 0 && h > 0 ? h / w : 0.75), () => resolve(0.75));
+    }))).then((r) => { if (alive) setRatios(r); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return ratios;
+}
+
 // ─── 메인 페이지 ──────────────────────────────────────────────────────────────
 export default function SiteDetailPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height: windowHeight } = useWindowDimensions();
   const qc = useQueryClient();
 
-  // 인라인 캐러셀은 4:3 고정. 예전엔 이미지 실제 비율대로 늘려서 화면 절반 이상을 차지했는데,
-  // 그러면 손가락이 캐러셀 위에 놓일 확률이 높아 세로 스크롤과 계속 부딪쳤다.
-  // 높이를 낮춰 '충돌이 일어날 면적' 자체를 줄이고, 원본은 탭해서 전체화면 뷰어로 본다.
-  const sliderHeight = Math.round(width * 0.75);
-
   const { data: job, isLoading, error: jobError } = useGetJobDetail(id);
+
+  // 인라인 캐러셀 — 가로는 항상 화면 꽉, 높이는 **가장 긴 이미지** 기준(2026-09-21).
+  // 예전엔 4:3 고정 + cover 라 잘린 부분은 "탭하여 크게 보기" 로만 볼 수 있었고, 그게 별로라는
+  // 말이 많았다. 세로 스크롤과 부딪치는 문제는 onConfigurePanGesture 로 이미 풀려 있다.
+  //
+  // 상한은 화면 높이의 65% — 전단처럼 아주 긴 이미지 하나 때문에 캐러셀이 화면을 다 덮지 않게.
+  // (웹 상세도 최대 60svh 다.) 상한을 넘는 이미지만 아래가 잘리고, 원본은 여전히 탭해서 본다.
+  const imageRatios = useImageRatios(
+    Array.isArray(job?.imgs) ? job.imgs.map(toImageUri) : [],
+  );
+  const maxSliderHeight = Math.round(windowHeight * 0.65);
+  const sliderHeight = imageRatios
+    ? Math.min(Math.round(width * Math.max(...imageRatios)), maxSliderHeight)
+    : Math.round(width * 0.75); // 크기를 알기 전에는 권장 비율(4:3)로 자리를 잡아 둔다
+  const someCropped = !!imageRatios && imageRatios.some((r) => Math.round(width * r) > maxSliderHeight);
   const { data: likeData, refetch: refetchLike } = useGetLikeStatus(job?.id);
   const { data: me } = useGetMe();
 
@@ -266,22 +296,34 @@ export default function SiteDetailPage() {
                 gesture.activeOffsetX([-12, 12]);
                 gesture.failOffsetY([-10, 10]);
               }}
-              renderItem={({ item }) => (
-                // 탭하면 전체화면 뷰어. 인라인은 4:3으로 잘라 보여주고(cover),
-                // 원본 전체는 뷰어에서 contain + 확대로 확인한다.
-                <TouchableOpacity activeOpacity={0.95} onPress={() => setViewerVisible(true)}>
-                  <Image
-                    source={{ uri: item }}
+              renderItem={({ item, index }) => {
+                // 가로를 꽉 채운 제 비율 높이. 틀보다 짧으면 위에 붙이고 아래는 배경,
+                // 틀보다 길면(상한 초과) 위 기준으로 아래만 잘린다.
+                const ratio = imageRatios?.[index] ?? 0.75;
+                const h = Math.min(Math.round(width * ratio), sliderHeight);
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.95}
+                    onPress={() => setViewerVisible(true)}
                     style={{ width, height: sliderHeight, backgroundColor: '#f1f5f9' }}
-                    contentFit="cover"
-                  />
-                </TouchableOpacity>
-              )}
+                  >
+                    <Image
+                      source={{ uri: item }}
+                      style={{ width, height: h }}
+                      contentFit="cover"
+                      contentPosition="top"
+                    />
+                  </TouchableOpacity>
+                );
+              }}
             />
-              <View style={s.expandHint} pointerEvents="none">
-                <Ionicons name="expand-outline" size={13} color="#fff" />
-                <Text style={s.expandHintText}>탭하여 크게 보기</Text>
-              </View>
+              {/* 잘린 이미지가 있을 때만 안내한다 — 다 보이는데 "크게 보기" 는 소음이다 */}
+              {someCropped && (
+                <View style={s.expandHint} pointerEvents="none">
+                  <Ionicons name="expand-outline" size={13} color="#fff" />
+                  <Text style={s.expandHintText}>탭하여 크게 보기</Text>
+                </View>
+              )}
             </View>
             {images.length > 1 && (
               <View style={s.dots}>
