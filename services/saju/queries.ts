@@ -28,8 +28,11 @@ export const useSajuProfile = () =>
     useQuery({
         queryKey: SAJU_QUERY_KEYS.profile,
         queryFn: getSajuProfile,
-        // 출생 정보는 자주 안 바뀌지만, 저장 직후 반영은 invalidate 로 처리한다
+        // 출생 정보는 자주 안 바뀌지만, 저장 직후 반영은 invalidate 로 처리한다.
+        // 그래도 화면에 **들어올 때마다는** 새로 받는다 — 프로필을 고치는 경로가 여러 곳이라
+        // invalidate 를 하나라도 빠뜨리면 옛 이름·생일이 5분간 남는다(요청 하나라 싸다).
         staleTime: 1000 * 60 * 5,
+        refetchOnMount: 'always',
         retry: false,
     });
 

@@ -5,6 +5,19 @@ import {
 } from './api';
 import { USER_KEYS, PREFERENCES_KEYS, FAVORITE_KEYS, NOTIFICATION_SETTINGS_KEY } from './queries';
 
+/**
+ * 사주는 프로필의 **이름·생년월일·성별**로 뽑는다. 프로필을 고치면 사주 캐시도 비워야
+ * 운세 화면의 "내 정보 변경" 에서 돌아왔을 때 바로 반영된다(예전엔 앱을 껐다 켜야 했다).
+ * 결과 3종도 같이 — 생년월일이 바뀌면 이전 결과는 남의 사주다. 오늘 운세는 staleTime 이
+ * Infinity 라 invalidate 없이는 영영 안 바뀐다. (웹 useSaveUserProfile 과 같은 목록)
+ */
+function invalidateSaju(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ['saju-profile'] });
+  qc.invalidateQueries({ queryKey: ['saju-daily'] });
+  qc.invalidateQueries({ queryKey: ['saju-monthly'] });
+  qc.invalidateQueries({ queryKey: ['saju-natal'] });
+}
+
 // 회원 탈퇴 (성공 시 호출부에서 토큰/캐시 정리 및 화면 이동)
 export function useWithdrawUser() {
   return useMutation({
@@ -16,7 +29,10 @@ export function useUpdateName() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (name: string) => updateName(name),
-    onSuccess: () => qc.invalidateQueries({ queryKey: USER_KEYS.profile }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: USER_KEYS.profile });
+      invalidateSaju(qc);
+    },
   });
 }
 
@@ -55,7 +71,10 @@ export function useSaveTalentInfo() {
   return useMutation({
     mutationFn: (info: { gender: string; birthday: string; introduction: string; careers: string[] }) =>
       saveTalentInfo(info),
-    onSuccess: () => qc.invalidateQueries({ queryKey: USER_KEYS.profile }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: USER_KEYS.profile });
+      invalidateSaju(qc);
+    },
   });
 }
 

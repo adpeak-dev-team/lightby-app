@@ -205,10 +205,17 @@ function CardRow({
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={s.sendBtn} onPress={onSend} activeOpacity={0.85}>
-                <Ionicons name="share-social-outline" size={14} color="#2563eb" />
-                <Text style={s.sendText}>보내기</Text>
-            </TouchableOpacity>
+            {/* 카드를 눌러도 수정되지만 아무도 그걸 몰랐다 — 버튼으로 드러낸다(웹 동일) */}
+            <View style={s.actions}>
+                <TouchableOpacity style={s.sendBtn} onPress={onSend} activeOpacity={0.85}>
+                    <Ionicons name="share-social-outline" size={14} color="#2563eb" />
+                    <Text style={s.sendText}>보내기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.editBtn} onPress={onEdit} activeOpacity={0.85}>
+                    <Ionicons name="create-outline" size={14} color="#475569" />
+                    <Text style={s.editText}>수정</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -256,13 +263,19 @@ const s = StyleSheet.create({
     stat: { flexDirection: 'row', alignItems: 'center', gap: 3 },
     statValue: { fontSize: 11, fontWeight: '700', color: '#334155' },
     statLabel: { fontSize: 11, color: '#94a3b8' },
+    actions: { alignSelf: 'center', gap: 6 },
     sendBtn: {
-        alignSelf: 'center',
-        flexDirection: 'row', alignItems: 'center', gap: 4,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
         backgroundColor: '#eff6ff', borderRadius: 12,
-        paddingHorizontal: 12, paddingVertical: 10,
+        paddingHorizontal: 12, paddingVertical: 8,
     },
     sendText: { fontSize: 12, fontWeight: '700', color: '#2563eb' },
+    editBtn: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
+        backgroundColor: '#f1f5f9', borderRadius: 12,
+        paddingHorizontal: 12, paddingVertical: 8,
+    },
+    editText: { fontSize: 12, fontWeight: '700', color: '#475569' },
 
     createBtn: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,

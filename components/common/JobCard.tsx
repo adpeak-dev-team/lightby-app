@@ -109,6 +109,9 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
             source={showDefault ? DEFAULT_JOB_IMAGE : { uri: imageUri! }}
             style={styles.thumb}
             contentFit="cover"
+            // 4:3(권장 1200x900)이 아닌 사진은 위쪽 기준으로 자른다 — 현장명·로고가 위에 있는
+            // 경우가 많다. 지역TOP 은 정사각형이라 가운데 기준 유지(웹 JobCard 와 같음).
+            contentPosition={variant === 'top' ? 'center' : 'top'}
             transition={200}
             onError={() => setFailed(true)}
           />
@@ -206,9 +209,10 @@ const styles = StyleSheet.create({
   col: {
     gap: 10,
   },
+  // 일반: 4:3 (정사각형이던 것을 권장 규격에 맞췄다)
   thumbWrap: {
-    width: 80,
-    height: 80,
+    width: 96,
+    height: 72,
     borderRadius: 10,
     overflow: 'hidden',
     flexShrink: 0,

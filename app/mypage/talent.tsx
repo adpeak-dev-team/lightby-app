@@ -156,7 +156,8 @@ export default function TalentPage() {
       Alert.alert('오류', '닉네임을 입력해주세요.');
       return;
     }
-    if (!gender || !birthday || !introduction) {
+    // 자기소개는 선택 — 운세만 보려고 들어온 사람에게 구직용 소개를 강요하지 않는다(웹 동일).
+    if (!gender || !birthday) {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
       return;
     }
@@ -384,7 +385,7 @@ export default function TalentPage() {
           {/* 자기소개 */}
           <View style={s.section}>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>자기소개 <Text style={s.required}>*</Text></Text>
+              <Text style={s.sectionTitle}>자기소개 <Text style={s.optional}>(선택)</Text></Text>
             </View>
             <KeyboardAwareTextInput
               style={s.bioInput}
@@ -489,6 +490,7 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', gap: 12 },
   label: { fontSize: 14, fontWeight: '400', color: '#64748b' },
   required: { color: '#f87171' },
+  optional: { fontSize: 12, fontWeight: '400', color: '#94a3b8' },
 
   // 이름은 변경 불가 — 배경/테두리를 없애 입력창·선택 버튼과 구분되게 텍스트로만 보여준다.
   // (배경이 있으면 비활성 성별 버튼(#f1f5f9)과 색이 겹쳐 눌리는 요소로 오인된다)

@@ -89,7 +89,8 @@ export default function SetUserInfoProfilePage() {
   };
 
   const handleSubmit = () => {
-    if (!gender || !birthday || !introduction) {
+    // 자기소개는 선택 — 운세만 보려고 들어온 사람에게 구직용 소개를 강요하지 않는다(웹 동일).
+    if (!gender || !birthday) {
       Alert.alert('오류', '모든 필수 정보를 입력해주세요.');
       return;
     }
@@ -254,7 +255,7 @@ export default function SetUserInfoProfilePage() {
           <View style={s.section}>
             <View style={s.sectionHeader}>
               <View style={s.sectionBar} />
-              <Text style={s.sectionTitle}>자기소개 <Text style={s.required}>*</Text></Text>
+              <Text style={s.sectionTitle}>자기소개 <Text style={s.optional}>(선택)</Text></Text>
             </View>
             <KeyboardAwareTextInput
               style={s.bioInput}
@@ -330,6 +331,7 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', gap: 12 },
   label: { fontSize: 14, fontWeight: '400', color: '#334155' },
   required: { color: '#f87171' },
+  optional: { fontSize: 12, fontWeight: '400', color: '#94a3b8' },
 
   readOnlyInput: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#e2e8f0' },
   readOnlyText: { fontSize: 14, color: '#64748b' },
