@@ -149,6 +149,10 @@ export default function RootLayout() {
   // app.json 의 checkAutomatically:"ON_ERROR_RECOVERY" 설정과 짝을 이룬다.
   // (기본 자동 체크는 첫 실행 시 OTA 서버 연결 지연으로 스플래시가 최대 10초 멈추는 문제가 있어 껐다.
   //  대신 여기서 지연 실행으로 백그라운드 업데이트를 유지한다.)
+  //
+  // 받기만 하고 **바로 재시작하지 않는다**(2026-09-21). 예전엔 받자마자 reloadAsync 를 불러,
+  // 켜고 5초 만에 운세 같은 화면에 들어가 있던 사용자가 갑자기 홈으로 튕기고 1~2초 멈췄다
+  // ("들어가면 먹통"). 받아 둔 업데이트는 다음에 앱을 새로 켤 때 적용된다.
   useEffect(() => {
     if (Platform.OS === 'web') return;
     const t = setTimeout(async () => {
@@ -156,7 +160,6 @@ export default function RootLayout() {
         const res = await Updates.checkForUpdateAsync();
         if (res.isAvailable) {
           await Updates.fetchUpdateAsync();
-          await Updates.reloadAsync();
         }
       } catch { /* 네트워크 실패 등은 조용히 무시 — 다음 실행에서 다시 시도됨 */ }
     }, 5000);
