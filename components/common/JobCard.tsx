@@ -82,10 +82,9 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
   const [ratio, setRatio] = useState(4 / 3);
   useEffect(() => { setFailed(false); setRatio(4 / 3); }, [imageUri]);
   const showDefault = !imageUri || failed;
-  // 프리미엄·일반은 가로를 항상 100% 로 채운다(웹 JobCard fitWidth 와 같음) — 가로로 긴 배너의
-  // 양옆(현장명·전화번호)이 cover 로 잘려 나갔다. 틀(4:3)보다 길면 아래만 잘리고 짧으면 아래가 배경.
-  // 지역TOP 은 정사각형이라 예전처럼 가운데 기준 cover.
-  const fitWidth = variant !== 'top';
+  // 세 등급 모두 틀은 4:3, 사진은 가로 100%(웹 JobCard 와 같음) — 가로로 긴 배너의 양옆
+  // (현장명·전화번호)이 cover 로 잘려 나갔다. 틀보다 길면 아래만 잘리고 짧으면 아래가 배경.
+  // 지역TOP 도 2026-09-22 부터 같다(정사각형 128 → 4:3 144x108).
 
   // 마감 배지·아이콘 자리 — 웹 JobCard 와 같다.
   //   일반: 태그 줄 오른쪽에 마감 배지 + 아이콘 / 지역TOP: 태그 줄 오른쪽에 아이콘(마감은 상단)
@@ -130,10 +129,10 @@ export function JobCard({ job, onPress, variant = 'free' }: JobCardProps) {
         <View style={thumbWrapStyle}>
           <Image
             source={showDefault ? DEFAULT_JOB_IMAGE : { uri: imageUri! }}
-            // fitWidth: 가로 100% + 사진 제 비율 높이. 틀(overflow hidden)이 넘치는 아래를 자른다.
-            style={fitWidth ? { width: '100%', aspectRatio: ratio } : styles.thumb}
+            // 가로 100% + 사진 제 비율 높이. 틀(overflow hidden)이 넘치는 아래를 자른다.
+            style={{ width: '100%', aspectRatio: ratio }}
             contentFit="cover"
-            contentPosition={fitWidth ? 'top' : 'center'}
+            contentPosition="top"
             transition={200}
             onLoad={(e) => {
               const { width: w, height: h } = e.source;
@@ -255,18 +254,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#f8fafc',
   },
-  // 지역 TOP: 대형 정사각 썸네일 (보더 없음)
+  // 지역 TOP: 4:3 (일반 96x72 보다 크게 — 유료 티)
   thumbWrapTop: {
-    width: 128,
-    height: 128,
+    width: 144,
+    height: 108,
     borderRadius: 10,
     overflow: 'hidden',
     flexShrink: 0,
     backgroundColor: '#f8fafc',
-  },
-  thumb: {
-    width: '100%',
-    height: '100%',
   },
   thumbPlaceholder: {
     alignItems: 'center',
