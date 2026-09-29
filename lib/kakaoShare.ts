@@ -1,3 +1,4 @@
+import { Linking } from 'react-native';
 import { shareFeedTemplate } from '@react-native-kakao/share';
 
 /**
@@ -14,9 +15,33 @@ import { shareFeedTemplate } from '@react-native-kakao/share';
  *    돌려주지 않는다. 그래서 발송 집계는 **링크 발급 시점**에 하고 여기서는 세지 않는다.
  * 2. **이미지는 카카오 서버가 직접 가져간다.** imageUrl 은 외부에서 접근 가능한 절대
  *    URL 이어야 한다. 우리 사진은 GCS 라 그대로 열린다.
- * 3. 카카오톡이 안 깔린 기기에서는 웹 공유창으로 대신 연다
- *    (useWebBrowserIfKakaoTalkNotAvailable).
+ * 3. **카카오톡이 없으면 아예 시도하지 않는다**(2026-09-29). 예전엔
+ *    useWebBrowserIfKakaoTalkNotAvailable 로 카카오 웹 공유창을 띄웠는데, 그 창이
+ *    로그인 벽에 막히면서 앱이 멈췄다(시트는 닫혔는데 화면이 먹통). 에러를 던지지
+ *    않으니 호출부의 예외 처리도 못 탔다. 이제 설치 여부를 먼저 보고, 없으면
+ *    KakaoTalkNotInstalledError 를 던져 호출부가 OS 공유 시트로 넘어가게 한다.
  */
+
+/** 카카오톡 미설치. 호출부는 이걸 받으면 OS 공유 시트로 대체한다. */
+export class KakaoTalkNotInstalledError extends Error {
+    constructor() {
+        super('카카오톡이 설치되어 있지 않습니다.');
+        this.name = 'KakaoTalkNotInstalledError';
+    }
+}
+
+/**
+ * 카카오톡 설치 여부. 스킴 조회는 iOS(LSApplicationQueriesSchemes)·안드로이드(queries)
+ * 양쪽에 'kakaotalk' 이 이미 등록돼 있어 그대로 동작한다.
+ * 확인 자체가 실패하면 "있다"고 보고 진행한다 — 멀쩡한 기기에서 공유를 막는 쪽이 더 나쁘다.
+ */
+export async function isKakaoTalkInstalled(): Promise<boolean> {
+    try {
+        return await Linking.canOpenURL('kakaotalk://');
+    } catch {
+        return true;
+    }
+}
 export interface KakaoCardShare {
     /** 받는 사람이 열 주소 — /card/{token} 절대 URL */
     url: string;
@@ -38,6 +63,8 @@ export interface KakaoCardShare {
  * 여기서 할 일은 "명함 보기" 하나뿐이다.
  */
 export async function shareCardToKakao(card: KakaoCardShare): Promise<void> {
+    if (!(await isKakaoTalkInstalled())) throw new KakaoTalkNotInstalledError();
+
     const link = { mobileWebUrl: card.url, webUrl: card.url };
 
     await shareFeedTemplate({
@@ -51,6 +78,7 @@ export async function shareCardToKakao(card: KakaoCardShare): Promise<void> {
             },
             buttons: [{ title: '명함 보기', link }],
         },
-        useWebBrowserIfKakaoTalkNotAvailable: true,
+        // 웹 공유창으로 넘기지 않는다 — 위 주석 3번 참고. 실패하면 호출부가 OS 시트로 받는다.
+        useWebBrowserIfKakaoTalkNotAvailable: false,
     });
 }

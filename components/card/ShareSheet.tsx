@@ -45,6 +45,14 @@ function makeRequestKey(): string {
  * requestKey 는 채널을 고를 때마다 새로 만든다. 같은 키로 다시 부르면 서버가
  * 기존 토큰을 그대로 돌려주므로(재시도 중복 방지), 새 발송에는 새 키여야 한다.
  */
+/** 네이티브 promise 가 끝나지 않는 경우를 대비한 안전장치 */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('공유 시간 초과')), ms)),
+    ]);
+}
+
 export function ShareSheet({
     card,
     onClose,
@@ -101,15 +109,18 @@ export function ShareSheet({
                 // 만드는데, 제목·썸네일을 우리가 못 고르고 "명함 보기" 버튼도 없다.
                 // 받는 사람이 보는 첫 화면이라 여기서 밀리면 안 된다.
                 try {
-                    await shareCardToKakao({
+                    // 네이티브 호출이 영영 안 끝나는 경우까지 대비한다 — 시트는 닫혔는데
+                    // 화면만 멈춰 있으면 사용자는 앱이 죽은 줄 안다.
+                    await withTimeout(shareCardToKakao({
                         url,
                         title: card.name.trim()
                             ? `${card.name.trim()}님의 명함을 확인해보세요`
                             : '명함을 확인해보세요',
                         imageUrl: cardPhotoUrl(card.photoPath),
-                    });
+                    }), 15_000);
                 } catch (e) {
-                    // 카카오톡이 없거나 SDK 가 실패한 기기에서는 링크라도 나가야 한다.
+                    // 카카오톡이 없거나(KakaoTalkNotInstalledError) SDK 가 실패한 기기에서는
+                    // 링크라도 나가야 한다.
                     // **여기서 멈추면 이미 차감된 포인트로 아무것도 못 보낸 셈이 된다.**
                     console.warn('[card] 카카오 공유 실패 — 공유 시트로 대체', e);
                     await Share.share({ message });
